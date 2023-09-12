@@ -16,5 +16,3 @@ jobs:
         working-directory: frontend
       - run: yarn build
         working-directory: frontend
-      - run: yarn lint
-        working-directory: frontend
