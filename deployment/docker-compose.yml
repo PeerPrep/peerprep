@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  frontend:
+    image: ghcr.io/ay2324s1-course-assessment-g21/peerprep-frontend:latest
+    container_name: peerprep-frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - peerprep-network
+    logging:
+      driver: journald
+    expose:
+      - "3000"
+
+  nginx:
+    image: ghcr.io/ay2324s1-course-assessment-g21/peerprep-nginx:latest
+    container_name: peerprep-nginx
+    restart: always
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
+    depends_on:
+      - frontend
+    networks:
+      - peerprep-network
+    logging:
+      driver: journald
+    ports:
+      - "80:80"
+      - "443:443"
+
+  certbot:
+    image: certbot/certbot
+    container_name: peerprep-certbot
+    restart: always
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
+    depends_on:
+      - nginx
+    networks:
+      - peerprep-network
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  peerprep-network:
