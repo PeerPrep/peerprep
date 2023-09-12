@@ -13,5 +13,5 @@ EXPOSE 80
 EXPOSE 443
 
 # Add a script containing the main command to be executed
-COPY deployment/scripts/cmd-frontend.sh /usr/bin/
+COPY deployment/scripts/cmd-nginx.sh /usr/bin/
 CMD ["cmd-nginx.sh"]
