@@ -6,7 +6,7 @@ import Navbar from "./components/navbar/Navbar";
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Peerprep",
+  title: "PeerPrep | Streamlining Technical Interview Preparation",
   description: "Practise!",
 };
 

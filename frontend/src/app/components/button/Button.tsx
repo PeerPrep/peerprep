@@ -17,7 +17,7 @@ const Button = ({
 }: ButtonProps) => {
   return (
     <button
-      className={`btn outline outline-white text-white shadow-sm ${className}`}
+      className={`btn outline-1 text-white shadow-sm ${className}`}
       disabled={isDisabled}
       {...props}
     >
