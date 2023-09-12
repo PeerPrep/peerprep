@@ -28,7 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  if (typeof window !== "undefined") {
+    const analytics = getAnalytics(app);
+  }
   return (
     <html lang="en" data-theme="myTheme">
       <body className={montserrat.className}>
