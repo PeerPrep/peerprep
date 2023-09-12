@@ -1,5 +1,5 @@
 # To build a Docker image from this file, run from the root directory:
-# docker build -f deployment/Dockerfile-frontend -t giving-coupons-frontend .
+# docker build -f deployment/Dockerfile-frontend -t peerprep-frontend .
 
 # Intermediate image for building the Next app
 FROM node:16.13.0
