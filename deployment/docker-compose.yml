@@ -2,11 +2,9 @@ version: "3.8"
 
 services:
   frontend:
-    image: ghcr.io/ay2324s1-course-assessment-g21/peerprep-frontend:latest
+    image: ghcr.io/peerprep/peerprep-frontend:latest
     container_name: peerprep-frontend
     restart: always
-    depends_on:
-      - backend
     networks:
       - peerprep-network
     logging:
@@ -15,7 +13,7 @@ services:
       - "3000"
 
   nginx:
-    image: ghcr.io/ay2324s1-course-assessment-g21/peerprep-nginx:latest
+    image: ghcr.io/peerprep/peerprep-nginx:latest
     container_name: peerprep-nginx
     restart: always
     volumes:
