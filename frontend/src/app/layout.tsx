@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="myTheme">
       <body className={montserrat.className}>{children}</body>
     </html>
   );
