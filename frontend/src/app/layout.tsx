@@ -5,7 +5,7 @@ import Navbar from "./components/navbar/Navbar";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
+const montserrat = Montserrat({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "PeerPrep | Streamlining Technical Interview Preparation",
@@ -31,6 +31,8 @@ export default function RootLayout({
   if (typeof window !== "undefined") {
     const analytics = getAnalytics(app);
   }
+};
+
   return (
     <html lang="en" data-theme="myTheme">
       <body className={montserrat.className}>
