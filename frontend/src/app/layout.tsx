@@ -31,7 +31,6 @@ export default function RootLayout({
   if (typeof window !== "undefined") {
     const analytics = getAnalytics(app);
   }
-};
 
   return (
     <html lang="en" data-theme="myTheme">
@@ -41,4 +40,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
