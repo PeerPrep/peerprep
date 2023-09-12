@@ -1,42 +1,28 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
-import Navbar from "./components/navbar/Navbar";
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import Image from "next/image";
+import Button from "./components/button/Button";
 
-const montserrat = Montserrat({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "PeerPrep | Streamlining Technical Interview Preparation",
-  description: "Practise!",
-};
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const app = initializeApp(firebaseConfig);
-  if (typeof window !== "undefined") {
-    const analytics = getAnalytics(app);
-  }
+export default function Home() {
   return (
-    <html lang="en" data-theme="myTheme">
-      <body className={montserrat.className}>
-        <Navbar />
-        {children}
-      </body>
-    </html>
+    <main>
+      <Image
+        src="/backdrop.jpg"
+        alt="backdrop"
+        className="-z-10 opacity-50"
+        layout="fill"
+      />
+      <section className="flex flex-col items-center py-24 lg:py-36 px-24 gap-4 z-20">
+        <h1 className="text-5xl text-white font-bold text-center m-5 lg:text-7xl">
+          Streamlining Technical Interview Preparation.
+        </h1>
+        <h2 className="text-xl text-center text-white font-medium">
+          Collaborative mock interviews to boost your confidence and nail your
+          dream job interviews.
+        </h2>
+        <Button
+          className="btn-accent w-36 m-2"
+          children={<span>Get Started!</span>}
+        />
+      </section>
+    </main>
   );
 }
