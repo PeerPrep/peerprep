@@ -5,8 +5,6 @@ services:
     image: ghcr.io/peerprep/peerprep-frontend:latest
     container_name: peerprep-frontend
     restart: always
-    depends_on:
-      - backend
     networks:
       - peerprep-network
     logging:
