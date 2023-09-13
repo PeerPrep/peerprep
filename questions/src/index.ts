@@ -6,7 +6,8 @@ import http from "http";
 import mongoose from "mongoose";
 import router from "./router";
 
-const MONGO_URL = "mongodb://localhost:27017/questions";
+const MONGO_URL =
+  process.env.MONGODB_URL || "mongodb://localhost:27017/questions";
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL);
@@ -24,8 +25,8 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
-server.listen(3000, () => {
-  console.log("Server is listening on port 3000");
+server.listen(4000, () => {
+  console.log("Server is listening on port 4000");
 });
 
 app.use("/", router());

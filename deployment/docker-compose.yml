@@ -1,10 +1,40 @@
 version: "3.8"
 
 services:
+  mongo:
+    container_name: peerprep-mongo
+    image: mongo
+    restart: always
+    volumes:
+      - ./mongodb-data:/data/db
+    logging:
+      driver: journald
+    networks:
+      - peerprep-network
+    expose:
+      - "27017"
+
+  questions:
+    image: ghcr.io/peerprep/peerprep-questions:latest
+    container_name: peerprep-questions
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - peerprep-network
+    logging:
+      driver: journald
+    expose:
+      - "4000"
+    environment:
+      MONGODB_URL: "mongodb://peerprep-mongo:27017/questions"
+
   frontend:
     image: ghcr.io/peerprep/peerprep-frontend:latest
     container_name: peerprep-frontend
     restart: always
+    depends_on:
+      - questions
     networks:
       - peerprep-network
     logging:
