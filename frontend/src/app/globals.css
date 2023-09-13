@@ -25,3 +25,24 @@ div.select__control--is-focused {
 div.select__menu-list {
   max-height: 10rem;
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: hsl(var(--nc));
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--p));
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--pf));
+}
