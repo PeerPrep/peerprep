@@ -25,7 +25,7 @@ export const handleServerError = (error: Error, res: express.Response) => {
     payload: EMPTY_OBJECT,
     statusMessage: {
       type: StatusMessageType.ERROR,
-      message: "Something went wrong! Please try again later.",
+      message: error.message,
     },
   };
 

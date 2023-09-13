@@ -1,6 +1,6 @@
 import express from "express";
 import { QuestionDao } from "../models/questions";
-import { ApiResponse, EMPTY_OBJECT, StatusMessageType } from "../types";
+import { ApiResponse, StatusMessageType } from "../types";
 import { handleCustomError, handleServerError } from "../utils";
 
 // GET /questions/:id
@@ -41,15 +41,27 @@ export const createQuestion = async (
   res: express.Response
 ) => {
   try {
-    const { title, description } = req.body;
-    if (!title || !description) {
+    const { title, description, tags, difficulty } = req.body;
+    if (!title || !description || !difficulty) {
       handleCustomError(res, {
         type: StatusMessageType.ERROR,
-        message: "Title and description must be provided",
+        message: "Title, description and difficulty must be provided",
       });
     }
 
-    const question = await QuestionDao.createQuestion(title, description);
+    if (!tags || tags.length === 0) {
+      handleCustomError(res, {
+        type: StatusMessageType.ERROR,
+        message: "At least one tag must be provided",
+      });
+    }
+
+    const question = await QuestionDao.createQuestion(
+      title,
+      description,
+      tags,
+      difficulty
+    );
     const response: ApiResponse = {
       payload: question,
       statusMessage: {
@@ -70,15 +82,29 @@ export const updateQuestion = async (
 ) => {
   try {
     const id = req.params.id;
-    const { title, description } = req.body;
-    if (!id || !title || !description) {
+    const { title, description, tags, difficulty } = req.body;
+    if (!id || !title || !description || !difficulty) {
       handleCustomError(res, {
         type: StatusMessageType.ERROR,
-        message: "Question ID, title, and description must be provided",
+        message:
+          "Question ID, title, description and difficulty must be provided",
       });
     }
 
-    const question = await QuestionDao.updateQuestion(id, title, description);
+    if (!tags || tags.length === 0) {
+      handleCustomError(res, {
+        type: StatusMessageType.ERROR,
+        message: "At least one tag must be provided",
+      });
+    }
+
+    const question = await QuestionDao.updateQuestion(
+      id,
+      title,
+      description,
+      tags,
+      difficulty
+    );
     if (!question) {
       handleCustomError(res, {
         type: StatusMessageType.ERROR,
