@@ -2,7 +2,7 @@
 # docker build -f deployment/Dockerfile-frontend -t peerprep-frontend .
 
 # Intermediate image for building the Next app
-FROM node:16.13.0
+FROM node:18.17.1
 
 # Environment variables
 ENV APP_ROOT /frontend
