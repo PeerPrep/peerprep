@@ -1,11 +1,12 @@
 import "./globals.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Navbar from "./components/navbar/Navbar";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 
-const montserrat = Montserrat({ subsets: ['latin'] });
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "PeerPrep | Streamlining Technical Interview Preparation",
@@ -40,4 +41,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-};
+}
