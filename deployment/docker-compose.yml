@@ -15,7 +15,7 @@ services:
       - "27017"
 
   questions:
-    image: ghcr.io/peerprep/peerprep-questions:latest
+    image: ghcr.io/peerprep/peerprep-questions-service:latest
     container_name: peerprep-questions
     restart: always
     depends_on:
