@@ -16,7 +16,7 @@ services:
 
   questions:
     image: ghcr.io/peerprep/peerprep-questions-service:latest
-    container_name: peerprep-questions
+    container_name: peerprep-questions-service
     restart: always
     depends_on:
       - mongo
