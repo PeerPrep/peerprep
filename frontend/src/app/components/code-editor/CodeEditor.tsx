@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 
 type CodeMirrorOnChangeProps = (value: string, viewUpdate: ViewUpdate) => void;
 
-let desiredWidth = "45vw";
-if (window !== undefined) {
-  desiredWidth = window.innerWidth >= 1024 ? "45vw" : "90vw";
+let desiredWidth = "50vw";
+if (typeof window !== "undefined") {
+  desiredWidth = window.innerWidth >= 1024 ? "50vw" : "90vw";
 }
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
@@ -16,7 +16,7 @@ const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   loading: () => (
     <Skeleton
       width={desiredWidth}
-      count={25}
+      count={30}
       baseColor="#383D4B"
       highlightColor="#22242D"
     />
