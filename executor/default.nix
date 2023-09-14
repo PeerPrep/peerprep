@@ -2,7 +2,7 @@ with import <nixpkgs> {};
 gcc13Stdenv.mkDerivation {
   name = "executor";
   nativeBuildInputs = [ cmake ];
-  buildInputs = [ python3Minimal jdk19_headless ];
+  buildInputs = [ ];
   src = builtins.path { path = ./.; name = "executor"; };
 
   dontUseCmakeConfigure = true;

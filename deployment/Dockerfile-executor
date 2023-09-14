@@ -14,4 +14,4 @@ RUN nix-build
 
 EXPOSE 9000
 
-CMD ["./executor.sh"]
+CMD ["nix-shell"]
