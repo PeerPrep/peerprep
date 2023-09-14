@@ -46,6 +46,7 @@ services:
     restart: always
     depends_on:
       - questions
+      - executor
     networks:
       - peerprep-network
     logging:
