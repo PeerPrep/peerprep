@@ -1,0 +1,17 @@
+FROM nixos/nix
+
+# Environment variables
+ENV APP_ROOT /executor
+
+# Copy source code into container
+RUN mkdir --parents $APP_ROOT
+WORKDIR $APP_ROOT
+COPY executor .
+
+RUN nix-channel --update
+
+RUN nix-build
+
+EXPOSE 9000
+
+CMD ["./executor.sh"]

@@ -59,6 +59,11 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
   }
+
+  location /api/v1/execute/ {
+    include /etc/nginx/fastcgi_params;
+    fastcgi_pass peerprep-executor-service:9000;
+  }
 }
 
 server {
