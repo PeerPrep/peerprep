@@ -14,6 +14,17 @@ services:
     expose:
       - "27017"
 
+  executor:
+    image: ghcr.io/peerprep/peerprep-executor-service:latest
+    container_name: peerprep-executor-service
+    restart: always
+    networks:
+      - peerprep-network
+    logging:
+      driver: journald
+    expose:
+      - "9000"
+
   questions:
     image: ghcr.io/peerprep/peerprep-questions-service:latest
     container_name: peerprep-questions-service
@@ -35,6 +46,7 @@ services:
     restart: always
     depends_on:
       - questions
+      - executor
     networks:
       - peerprep-network
     logging:

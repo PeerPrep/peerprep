@@ -7,11 +7,36 @@ on:
       - master
 
 env:
+  EXECUTOR_IMAGE_NAME: peerprep-executor-service
   QUESTIONS_IMAGE_NAME: peerprep-questions-service
   FRONTEND_IMAGE_NAME: peerprep-frontend
   NGINX_IMAGE_NAME: peerprep-nginx
 
 jobs:
+  build-executor-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out Source
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: peerprep
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: deployment/Dockerfile-executor
+          push: true
+          tags: ghcr.io/peerprep/${{ env.EXECUTOR_IMAGE_NAME }}:latest
+
   build-questions-image:
     runs-on: ubuntu-latest
     permissions:

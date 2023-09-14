@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "iosfwd": "cpp"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/executor",
+    "cmake.buildDirectory": "${workspaceFolder}/executor/build"
+}

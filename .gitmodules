@@ -1,0 +1,9 @@
+[submodule "executor/libs/cppevent-base"]
+	path = executor/libs/cppevent-base
+	url = https://github.com/Manoharan-Ajay-Anand/cppevent-base.git
+[submodule "executor/libs/cppevent-net"]
+	path = executor/libs/cppevent-net
+	url = https://github.com/Manoharan-Ajay-Anand/cppevent-net.git
+[submodule "executor/libs/cppevent-fcgi"]
+	path = executor/libs/cppevent-fcgi
+	url = https://github.com/Manoharan-Ajay-Anand/cppevent-fcgi.git
