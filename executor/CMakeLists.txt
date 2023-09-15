@@ -14,6 +14,7 @@ add_subdirectory(libs/cppevent-fcgi)
 
 add_executable(executor
     src/exec_endpoint.cpp
+    src/util.cpp
     src/main.cpp
 )
 

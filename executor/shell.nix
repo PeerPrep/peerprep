@@ -6,7 +6,7 @@ mkShell {
   ];
 
   shellHook = ''
-    cd result/bin
+    cp result/bin/executor executor
     ./executor
   '';
 

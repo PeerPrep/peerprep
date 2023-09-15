@@ -10,7 +10,7 @@
 int main() {
     cppevent::event_loop e_loop;
     cppevent::router routes;
-    executor::exec_endpoint exec;
+    executor::exec_endpoint exec(e_loop);
     routes.post("/api/v1/execute/{lang}", exec);
     cppevent::fcgi_server server("0.0.0.0", "9000", e_loop, routes);
     std::cout << "Starting executor service" << std::endl;

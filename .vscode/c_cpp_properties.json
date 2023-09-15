@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/executor/libs/cppevent-base/src",
                 "${workspaceFolder}/executor/libs/cppevent-net/src",
-                "${workspaceFolder}/executor/libs/cppevent-fcgi/src"
+                "${workspaceFolder}/executor/libs/cppevent-fcgi/src",
+                "${workspaceFolder}/executor/src"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
