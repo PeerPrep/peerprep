@@ -78,13 +78,13 @@ cppevent::awaitable_task<bool> executor::await_compile(int err_fd, cppevent::eve
     co_return info.si_status == 0;
 }
 
-void run_in_child(pid_t child_pid, int out_fd, int err_fd, const char* dir, std::string_view lang) {
+void run_in_child(pid_t child_pid, int out_fd, const char* dir, std::string_view lang) {
     if (child_pid != 0) {
         return;
     }
     cppevent::throw_if_error(chdir(dir), "Error when changing working directory: ");
     cppevent::throw_if_error(dup2(out_fd, STDOUT_FILENO), "Error when dup2: ");
-    cppevent::throw_if_error(dup2(err_fd, STDERR_FILENO), "Error when dup2: ");
+    cppevent::throw_if_error(dup2(out_fd, STDERR_FILENO), "Error when dup2: ");
     if (lang == "cpp") {
         execl("./source", "./source", (char*) NULL);
     } else if (lang == "java") {
@@ -94,12 +94,12 @@ void run_in_child(pid_t child_pid, int out_fd, int err_fd, const char* dir, std:
     }
 }
 
-cppevent::awaitable_task<bool> executor::await_run(int out_fd, int err_fd,
+cppevent::awaitable_task<bool> executor::await_run(int out_fd,
                                                    cppevent::event_loop& e_loop,
                                                    const char* dir, std::string_view lang) {
     pid_t child_pid = fork();
     cppevent::throw_if_error(child_pid, "Error when forking: ");
-    run_in_child(child_pid, out_fd, err_fd, dir, lang);
+    run_in_child(child_pid, out_fd, dir, lang);
 
     int pid_fd = syscall(SYS_pidfd_open, child_pid, O_NONBLOCK);
     cppevent::throw_if_error(pid_fd, "Error when creating pidfd: ");

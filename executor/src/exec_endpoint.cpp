@@ -20,7 +20,6 @@
 constexpr long BUF_LEN = 1024; 
 
 constexpr std::string_view COMPILE_ERR = "compile_err.out";
-constexpr std::string_view RUN_ERR = "run_err.out";
 constexpr std::string_view RUN_STDOUT = "run.out";
 
 executor::exec_endpoint::exec_endpoint(cppevent::event_loop& e_loop): m_loop(e_loop) {
@@ -89,18 +88,14 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
         co_return;
     }
 
-    const int run_err_fd = open_file(dir_name, RUN_ERR, O_WRONLY | O_CREAT);
     const int run_out_fd = open_file(dir_name, RUN_STDOUT, O_WRONLY | O_CREAT);
-    bool run_success = co_await await_run(run_out_fd, run_err_fd, m_loop, dir_name, lang);
-    close(run_err_fd);
+    bool run_success = co_await await_run(run_out_fd, m_loop, dir_name, lang);
     close(run_out_fd);
 
     if (!run_success) {
         co_await o_stdout.write("status: 200\nx-exec-status: run_error\ncontent-type: text/plain\n\n");
-        co_await upload(dir_name, RUN_ERR, o_stdout);
-        co_return;
+    } else {
+        co_await o_stdout.write("status: 200\nx-exec-status: success\ncontent-type: text/plain\n\n");
     }
-
-    co_await o_stdout.write("status: 200\nx-exec-status: success\ncontent-type: text/plain\n\n");
     co_await upload(dir_name, RUN_STDOUT, o_stdout);
 }
