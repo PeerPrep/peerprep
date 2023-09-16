@@ -78,19 +78,19 @@ void run_in_child(pid_t child_pid, int out_fd, const char* dir, std::string_view
 }
 
 cppevent::awaitable_task<bool> await_child_and_signal(int pid_fd,
+                                                      bool& execution_done,
                                                       cppevent::event_loop& e_loop,
                                                       cppevent::signal_trigger trigger) {
     bool child_exited_normally = co_await executor::await_child_process(pid_fd, e_loop);
+    execution_done = true;
     trigger.activate();
     co_return child_exited_normally;
 }
 
-cppevent::awaitable_task<void> await_timeout(bool& execution_timeout,
-                                           cppevent::event_loop& e_loop,
-                                           cppevent::signal_trigger trigger) {
+cppevent::awaitable_task<void> await_timeout(cppevent::event_loop& e_loop,
+                                             cppevent::signal_trigger trigger) {
     cppevent::timer t(EXECUTION_TIMEOUT, e_loop);
     co_await t.wait();
-    execution_timeout = true;
     trigger.activate();
 }
 
@@ -106,12 +106,13 @@ cppevent::awaitable_task<executor::CODE_EXEC_STATUS> executor::await_run(int out
 
     cppevent::async_signal a_signal(e_loop);
 
-    bool execution_timeout = false;
-    auto execution_task = await_child_and_signal(pid_fd, e_loop, a_signal.get_trigger());
-    auto timeout_task = await_timeout(execution_timeout, e_loop, a_signal.get_trigger());
+    bool exec_done = false;
+    auto execution_task = await_child_and_signal(pid_fd, exec_done, e_loop, a_signal.get_trigger());
+    auto timeout_task = await_timeout(e_loop, a_signal.get_trigger());
 
     co_await a_signal.await_signal();
-    if (execution_timeout) {
+    bool exec_timeout = !exec_done;
+    if (exec_timeout) {
         cppevent::throw_if_error(syscall(SYS_pidfd_send_signal, pid_fd, SIGKILL, NULL, 0),
                                  "Failed to kill child: ");
     }
@@ -119,7 +120,7 @@ cppevent::awaitable_task<executor::CODE_EXEC_STATUS> executor::await_run(int out
     bool execution_normal = co_await execution_task;
     close(pid_fd);
 
-    if (execution_timeout) {
+    if (exec_timeout) {
         co_return CODE_EXEC_STATUS::RUN_TIMEOUT;
     }
     co_return execution_normal ? CODE_EXEC_STATUS::RUN_SUCCESS : CODE_EXEC_STATUS::RUN_ERROR;
