@@ -17,7 +17,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-constexpr long BUF_LEN = 1024; 
+constexpr long BUF_LEN = 1024;
+constexpr long MAX_RESPONSE_SIZE = 10 * 1024; 
 
 constexpr std::string_view COMPILE_ERR = "compile_err.out";
 constexpr std::string_view RUN_STDOUT = "run.out";
@@ -37,13 +38,21 @@ cppevent::awaitable_task<void> download(long content_len,
     }
 }
 
+template <long BUFFER_SIZE>
+bool read_to_buffer(std::array<uint8_t, BUFFER_SIZE>& buffer, long& read_size, int fd) {
+    read_size = read(fd, buffer.data(), BUFFER_SIZE);
+    return read_size > 0;
+}
+
 cppevent::awaitable_task<void> upload(std::string_view dir, std::string_view name,
                                       cppevent::output& o_stdout) {
     int fd = executor::open_file(dir, name, O_RDONLY);
     std::array<uint8_t, BUF_LEN> buffer;
-    long upload_size;
-    while ((upload_size = read(fd, buffer.data(), BUF_LEN)) > 0) {
-        co_await o_stdout.write(buffer.data(), upload_size);
+    long response_size = 0;
+    long read_size;
+    while (response_size < MAX_RESPONSE_SIZE && read_to_buffer<BUF_LEN>(buffer, read_size, fd)) {
+        co_await o_stdout.write(buffer.data(), read_size);
+        response_size += read_size;
     }
     close(fd);
 }
@@ -89,13 +98,20 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
     }
 
     const int run_out_fd = open_file(dir_name, RUN_STDOUT, O_WRONLY | O_CREAT);
-    bool run_success = co_await await_run(run_out_fd, m_loop, dir_name, lang);
+    CODE_EXEC_STATUS run_status = co_await await_run(run_out_fd, m_loop, dir_name, lang);
     close(run_out_fd);
 
-    if (!run_success) {
-        co_await o_stdout.write("status: 200\nx-exec-status: run_error\ncontent-type: text/plain\n\n");
-    } else {
-        co_await o_stdout.write("status: 200\nx-exec-status: success\ncontent-type: text/plain\n\n");
+    switch (run_status) {
+        case CODE_EXEC_STATUS::RUN_ERROR:
+            co_await o_stdout.write("status: 200\nx-exec-status: run_error\ncontent-type: text/plain\n\n");
+            break;
+        case CODE_EXEC_STATUS::RUN_TIMEOUT:
+            co_await o_stdout.write("status: 200\nx-exec-status: timeout\ncontent-type: text/plain\n\n");
+            break;
+        case CODE_EXEC_STATUS::RUN_SUCCESS:
+            co_await o_stdout.write("status: 200\nx-exec-status: success\ncontent-type: text/plain\n\n");
+            break;
     }
+
     co_await upload(dir_name, RUN_STDOUT, o_stdout);
 }

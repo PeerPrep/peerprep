@@ -1,10 +1,12 @@
 #include "util.hpp"
 
+#include "child_process.hpp"
+
 #include <fcntl.h>
 #include <sys/syscall.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <cerrno>
+#include <signal.h>
 
 #include <string>
 #include <iostream>
@@ -12,6 +14,12 @@
 #include <cppevent_base/util.hpp>
 #include <cppevent_base/event_loop.hpp>
 #include <cppevent_base/event_listener.hpp>
+#include <cppevent_base/async_signal.hpp>
+#include <cppevent_base/timer.hpp>
+
+using namespace std::chrono_literals;
+
+constexpr std::chrono::seconds EXECUTION_TIMEOUT = 5s;
 
 int executor::open_file(std::string_view dir_name, std::string_view name, int flags) {
     std::string path { dir_name };
@@ -35,22 +43,6 @@ void compile_in_child(pid_t child_pid, int err_fd, const char* dir, std::string_
     }
 }
 
-class pid_listener {
-private:
-    cppevent::event_listener* const listener;
-public:
-    pid_listener(cppevent::event_loop& e_loop, int fd): listener(e_loop.get_io_listener(fd)) {
-    }
-
-    ~pid_listener() {
-        listener->detach();
-    }
-
-    cppevent::read_awaiter wait_signal() {
-        return cppevent::read_awaiter { *listener };
-    }
-};
-
 cppevent::awaitable_task<bool> executor::await_compile(int err_fd, cppevent::event_loop& e_loop,
                                                        const char* dir, std::string_view lang) {
     if (lang == "python") {
@@ -63,19 +55,10 @@ cppevent::awaitable_task<bool> executor::await_compile(int err_fd, cppevent::eve
 
     int pid_fd = syscall(SYS_pidfd_open, child_pid, O_NONBLOCK);
     cppevent::throw_if_error(pid_fd, "Error when creating pidfd: ");
+    bool compilation_normal = co_await await_child_process(pid_fd, e_loop);
 
-    pid_listener listener(e_loop, pid_fd);
-    
-    siginfo_t info = {};
-    while (waitid(P_PIDFD, pid_fd, &info, WEXITED) == -1) {
-        if (errno == EAGAIN) {
-            co_await listener.wait_signal();
-            continue;
-        }
-        cppevent::throw_error("Error waiting for pid");
-    }
-
-    co_return info.si_status == 0;
+    close(pid_fd);
+    co_return compilation_normal;
 }
 
 void run_in_child(pid_t child_pid, int out_fd, const char* dir, std::string_view lang) {
@@ -94,9 +77,26 @@ void run_in_child(pid_t child_pid, int out_fd, const char* dir, std::string_view
     }
 }
 
-cppevent::awaitable_task<bool> executor::await_run(int out_fd,
-                                                   cppevent::event_loop& e_loop,
-                                                   const char* dir, std::string_view lang) {
+cppevent::awaitable_task<bool> await_child_and_signal(int pid_fd,
+                                                      cppevent::event_loop& e_loop,
+                                                      cppevent::signal_trigger trigger) {
+    bool child_exited_normally = co_await executor::await_child_process(pid_fd, e_loop);
+    trigger.activate();
+    co_return child_exited_normally;
+}
+
+cppevent::awaitable_task<void> await_timeout(bool& execution_timeout,
+                                           cppevent::event_loop& e_loop,
+                                           cppevent::signal_trigger trigger) {
+    cppevent::timer t(EXECUTION_TIMEOUT, e_loop);
+    co_await t.wait();
+    execution_timeout = true;
+    trigger.activate();
+}
+
+cppevent::awaitable_task<executor::CODE_EXEC_STATUS> executor::await_run(int out_fd,
+                                                                         cppevent::event_loop& e_loop,
+                                                                         const char* dir, std::string_view lang) {
     pid_t child_pid = fork();
     cppevent::throw_if_error(child_pid, "Error when forking: ");
     run_in_child(child_pid, out_fd, dir, lang);
@@ -104,16 +104,23 @@ cppevent::awaitable_task<bool> executor::await_run(int out_fd,
     int pid_fd = syscall(SYS_pidfd_open, child_pid, O_NONBLOCK);
     cppevent::throw_if_error(pid_fd, "Error when creating pidfd: ");
 
-    pid_listener listener(e_loop, pid_fd);
-    
-    siginfo_t info = {};
-    while (waitid(P_PIDFD, pid_fd, &info, WEXITED) == -1) {
-        if (errno == EAGAIN) {
-            co_await listener.wait_signal();
-            continue;
-        }
-        cppevent::throw_error("Error waiting for pid");
+    cppevent::async_signal a_signal(e_loop);
+
+    bool execution_timeout = false;
+    auto execution_task = await_child_and_signal(pid_fd, e_loop, a_signal.get_trigger());
+    auto timeout_task = await_timeout(execution_timeout, e_loop, a_signal.get_trigger());
+
+    co_await a_signal.await_signal();
+    if (execution_timeout) {
+        cppevent::throw_if_error(syscall(SYS_pidfd_send_signal, pid_fd, SIGKILL, NULL, 0),
+                                 "Failed to kill child: ");
     }
 
-    co_return info.si_status == 0;
+    bool execution_normal = co_await execution_task;
+    close(pid_fd);
+
+    if (execution_timeout) {
+        co_return CODE_EXEC_STATUS::RUN_TIMEOUT;
+    }
+    co_return execution_normal ? CODE_EXEC_STATUS::RUN_SUCCESS : CODE_EXEC_STATUS::RUN_ERROR;
 }
