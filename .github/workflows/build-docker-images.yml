@@ -33,7 +33,7 @@ jobs:
             frontend:
               - 'frontend/**/*'
             nginx:
-              - 'nginx/**/*'
+              - 'deployment/**/*'
 
   build-executor-image:
     needs: changes
