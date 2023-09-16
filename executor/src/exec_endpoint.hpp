@@ -4,6 +4,8 @@
 #include <cppevent_fcgi/endpoint.hpp>
 
 #include <string_view>
+#include <string>
+#include <queue>
 
 namespace cppevent {
 
@@ -16,6 +18,10 @@ namespace executor {
 class exec_endpoint : public cppevent::endpoint {
 private:
     cppevent::event_loop& m_loop;
+    std::queue<std::string> m_unused_dirs;
+
+    cppevent::awaitable_task<void> upload(std::string_view dir, std::string_view name,
+                                          cppevent::output& o_stdout);
 public:
     exec_endpoint(cppevent::event_loop& e_loop);
 
