@@ -10,6 +10,7 @@ import {
   handleRequestCompleteState,
   handleConnect as handleRoomConnect,
   handleDisconnect as handleRoomDisconnect,
+  handleSendUpdate,
   sendNotification as sendRoomNotification,
 } from './controllers/room';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types/lobby';
@@ -49,6 +50,7 @@ ioRoom.on('connection', (socket: RoomIoSocket) => {
 
   handleRoomConnect(ioRoom, socket);
 
+  socket.on('sendUpdate', update => handleSendUpdate(ioRoom, socket, update));
   socket.on('requestCompleteRoomState', () => handleRequestCompleteState(ioRoom, socket));
   socket.on('leaveRoom', () => handleLeaveRoom(ioRoom, socket));
   socket.on('disconnect', () => handleRoomDisconnect(ioRoom, socket));

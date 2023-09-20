@@ -42,22 +42,21 @@ export const handleMatchingRequest = (io: InnkeeperIoServer, socket: InnkeeperIo
   // Remove user from queue in case this is a re-request.
   removeUserFromQueue(userId);
 
-  const match = queueUserOrReturnMatchResult(userId, params);
-  if (!match) {
+  const maybeMatch = queueUserOrReturnMatchResult(userId, params);
+  if (!maybeMatch) {
     notifyOnQueue(io, socket);
     return;
   }
 
-  const { roomId, otherUserId } = match;
-  const notification: NotificationMessage = { type: 'SUCCESS', message: 'Found a match!' };
+  const [otherUserId, roomState] = maybeMatch;
   io.fetchSockets().then(otherSockets => {
     for (const otherSocket of otherSockets) {
       if (otherSocket.data.userId !== otherUserId) {
         continue;
       }
 
-      socket.emit('sendToRoom', { roomId, userIds: [userId, otherUserId], notification });
-      otherSocket.emit('sendToRoom', { roomId, userIds: [userId, otherUserId], notification });
+      socket.emit('sendToRoom', roomState.roomId);
+      otherSocket.emit('sendToRoom', roomState.roomId);
       return;
     }
 

@@ -2,7 +2,6 @@ import { Namespace, RemoteSocket, Socket } from 'socket.io';
 import { NotificationMessage } from 'types';
 import { InnkeeperSocketData } from './lobby';
 
-export type Question = {};
 export type UserState = {
   userId: string;
   status: 'INACTIVE' | 'ACTIVE' | 'EXITED';
@@ -15,13 +14,17 @@ export type TextEditorState = {}; // Depends on @codemirror/state types. Left em
 // Only used for reconnecting users / when users have lost history.
 export type RoomState = {
   roomId: string;
-  question: Question;
+  questionId: string;
   textEditor: TextEditorState;
   userStates: [UserState, UserState];
 };
 
+/**
+ * Pushes only the update required to subscribers.
+ * Note that UserState changes will only be pushed if the status changes. (i.e. not for lastSeen)
+ */
 export type PartialRoomState = {
-  question?: Partial<Question>;
+  questionId?: string;
   textEditor?: Partial<TextEditorState>;
   userStates?: [UserState, UserState];
 };
@@ -35,11 +38,17 @@ interface ServerToClientEvents {
   /** Updates every user on any changes to the last emitted state. */
   sendPartialRoomState: (update: PartialRoomState) => void;
 
-  /** Returns the last complete state, and notifies any active user that this room is closed. */
+  /**
+   * Returns the last complete state, and notifies all users that this room is closed.
+   * Checking the user states will reveal one 'EXITED' user who initiated the closing.
+   */
   closeRoom: (update: RoomState) => void;
 }
 
 interface ClientToServerEvents {
+  /** Placeholder function, true signature will depend on @codemirror/collab */
+  sendUpdate: (update: PartialRoomState) => void;
+
   /** Requests for the complete state of the room. May be used after losing connection. */
   requestCompleteRoomState: () => void;
 
