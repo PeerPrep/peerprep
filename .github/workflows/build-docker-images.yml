@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       executor: ${{ steps.changes.outputs.executor }}
+      innkeeper: ${{ steps.changes.outputs.innkeeper }}
       questions: ${{ steps.changes.outputs.questions }}
       frontend: ${{ steps.changes.outputs.frontend }}
       nginx: ${{ steps.changes.outputs.nginx }}
