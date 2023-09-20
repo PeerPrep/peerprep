@@ -19,7 +19,7 @@ RUN yarn install --frozen-lockfile
 RUN yarn build
 
 # Expose port
-EXPOSE 4000
+EXPOSE 4100
 
 # Final image for running the Socket.IO app
 CMD ["yarn", "start"]

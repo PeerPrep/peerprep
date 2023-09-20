@@ -8,6 +8,7 @@ on:
 
 env:
   EXECUTOR_IMAGE_NAME: peerprep-executor-service
+  INNKEEPER_IMAGE_NAME: peerprep-innkeeper-service
   QUESTIONS_IMAGE_NAME: peerprep-questions-service
   FRONTEND_IMAGE_NAME: peerprep-frontend
   NGINX_IMAGE_NAME: peerprep-nginx
@@ -28,6 +29,8 @@ jobs:
           filters: |
             executor:
               - 'executor/**/*'
+            innkeeper:
+              - 'innkeeper/**/*'
             questions:
               - 'questions/**/*'
             frontend:
@@ -60,6 +63,30 @@ jobs:
           file: deployment/Dockerfile-executor
           push: true
           tags: ghcr.io/peerprep/${{ env.EXECUTOR_IMAGE_NAME }}:latest
+
+  build-innkeeper-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.innkeeper == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out Source
+        uses: actions/checkout@v2
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: peerprep
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: deployment/Dockerfile-innkeeper
+          push: true
+          tags: ghcr.io/peerprep/${{ env.INNKEEPER_IMAGE_NAME }}:latest
 
   build-questions-image:
     needs: changes

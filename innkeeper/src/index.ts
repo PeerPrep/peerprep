@@ -17,8 +17,8 @@ import { InnkeeperIoServer, InnkeeperIoSocket } from './types/lobby';
 import { RoomIoNamespace, RoomIoSocket } from './types/room';
 import { setRoomIdIfPresent, validateUserToken } from './utils';
 
-const io: InnkeeperIoServer = new Server(4000, {
-  /* options */
+const io: InnkeeperIoServer = new Server(4100, {
+  path: '/api/v1/innkeeper/',
 });
 
 io.use(validateUserToken); // Validates JWT token and sets socket.data.userId.
