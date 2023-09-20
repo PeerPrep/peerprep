@@ -1,4 +1,4 @@
-import { addUserToQueue, getWaitingUsers, queueUserOrReturnMatchResult, removeUserFromQueue } from '../models/innkeeper';
+import { addUserToQueue, getWaitingUsers, queueUserOrReturnMatchResult, removeUserFromQueue } from '../models/users';
 import { NotificationMessage } from '../types';
 import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, MatchingParameters, WaitingUsersCount } from '../types/lobby';
 import { getUnixTimestamp } from '../utils';

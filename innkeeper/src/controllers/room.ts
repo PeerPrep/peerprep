@@ -1,4 +1,4 @@
-import { getRoomState as getRoomStateFromRoomId, removeRoom, setRoomState } from '../models/innkeeper';
+import { getRoomState as getRoomStateFromRoomId, removeRoom, setRoomState } from '../models/room';
 import { NotificationMessage } from '../types';
 import { PartialRoomState, RoomIoNamespace, RoomIoSocket, RoomOtherSockets, RoomState } from '../types/room';
 import { getUnixTimestamp } from '../utils';

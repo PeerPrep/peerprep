@@ -1,4 +1,4 @@
-import { getRoomId } from '../models/innkeeper';
+import { getRoomId } from '../models/room';
 import { NotificationMessage } from '../types';
 import { InnkeeperIoSocket } from '../types/lobby';
 
