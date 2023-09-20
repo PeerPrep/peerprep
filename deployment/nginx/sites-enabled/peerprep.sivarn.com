@@ -59,6 +59,17 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
   }
+  
+  location /api/v1/innkeeper/ {
+    proxy_pass http://peerprep-innkeeper-service:4100/api/v1/innkeeper/;
+    proxy_set_header Host $host;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";    
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
 
   location /api/v1/execute/ {
     include /etc/nginx/fastcgi_params;

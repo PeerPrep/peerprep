@@ -25,6 +25,17 @@ services:
     expose:
       - "9000"
 
+  innkeeper:
+    image: ghcr.io/peerprep/peerprep-innkeeper-service:latest
+    container_name: peerprep-innkeeper-service
+    restart: always
+    networks:
+      - peerprep-network
+    logging:
+      driver: journald
+    expose:
+      - "4100"
+
   questions:
     image: ghcr.io/peerprep/peerprep-questions-service:latest
     container_name: peerprep-questions-service
@@ -46,6 +57,7 @@ services:
     restart: always
     depends_on:
       - questions
+      - innkeeper
       - executor
     networks:
       - peerprep-network
