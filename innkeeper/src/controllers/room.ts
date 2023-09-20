@@ -1,7 +1,7 @@
-import { getUnixTimestamp } from 'utils';
 import { getRoomState as getRoomStateFromRoomId, removeRoom, setRoomState } from '../models/innkeeper';
 import { NotificationMessage } from '../types';
 import { PartialRoomState, RoomIoNamespace, RoomIoSocket, RoomOtherSockets, RoomState } from '../types/room';
+import { getUnixTimestamp } from '../utils';
 
 export const sendNotification = (socket: RoomIoSocket | RoomOtherSockets, { type, message }: NotificationMessage): void => {
   const socketData = `${socket.id} (userId: ${socket.data.userId}, room: ${socket.data.roomId})`;

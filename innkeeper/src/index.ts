@@ -39,6 +39,10 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
 
 // Register room namespace.
 const ioRoom: RoomIoNamespace = io.of('/room');
+
+ioRoom.use(validateUserToken); // Validates JWT token and sets socket.data.userId.
+ioRoom.use(setRoomIdIfPresent); // Sets socket.data.roomId if user has an existing Room ID.
+
 ioRoom.on('connection', (socket: RoomIoSocket) => {
   const { roomId } = socket.data;
   if (!roomId) {

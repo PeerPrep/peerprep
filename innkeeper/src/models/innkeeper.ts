@@ -23,12 +23,12 @@ export const removeRoom = (roomId: string): void => {
 };
 
 // Avoid issues regarding hashing objects.
-type ConsistentMatchingParameterObject = [MatchingParameters['questionDifficulty']];
-const makeConsistentMatchingParameterObject = (parameters: MatchingParameters): ConsistentMatchingParameterObject => {
-  return [parameters.questionDifficulty];
+type MatchingParametersHash = string;
+const makeConsistentMatchingParameterObject = (parameters: MatchingParameters): MatchingParametersHash => {
+  return `${parameters.questionDifficulty}`;
 };
 
-const matchingParameterToUserMap = new Map<ConsistentMatchingParameterObject, string>();
+const matchingParameterToUserMap = new Map<MatchingParametersHash, string>();
 
 export const findWaitingUser = (parameters: MatchingParameters): string | null => {
   const consistentMatchingParameterObject = makeConsistentMatchingParameterObject(parameters);
@@ -75,5 +75,6 @@ export const queueUserOrReturnMatchResult = (userId: string, parameters: Matchin
     return null;
   }
 
+  removeUserFromQueue(otherUserId);
   return [otherUserId, createRoomId([userId, otherUserId])];
 };

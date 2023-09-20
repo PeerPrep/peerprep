@@ -9,14 +9,15 @@ export const getUnixTimestamp = (): number => {
 export const validateUserToken = (socket: InnkeeperIoSocket, next: any) => {
   // Refer to: https://socket.io/docs/v4/middlewares/#sending-credentials
 
-  // TODO: authentication. This is for easier testing.
-  const userId = socket.handshake.auth.trustMeFr;
+  // TODO: Implement real auth. Skipping auth and reading from header for easier testing with postman.
+  const userId = socket.handshake.headers.trustmefr as string;
 
   if (!userId) {
     const err = new Error('Authorization error');
     const authFailureMessage: NotificationMessage = { type: 'ERROR', message: 'Authorization failed.' };
     (err as any).data = authFailureMessage; // additional details
     next(err); // Sockets.IO will handle this error and close the connection.
+    return;
   }
 
   socket.data.userId = userId;
