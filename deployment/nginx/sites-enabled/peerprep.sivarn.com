@@ -61,7 +61,7 @@ server {
   }
   
   location /api/v1/innkeeper/ {
-    proxy_pass http://peerprep-innkeeper-service:4100/api/v1/innkeeper/;
+    proxy_pass http://peerprep-innkeeper-service:4100/;
     proxy_set_header Host $host;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
