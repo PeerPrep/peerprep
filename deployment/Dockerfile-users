@@ -1,0 +1,25 @@
+# To build a Docker image from this file, run from the root directory:
+# docker build -f deployment/Dockerfile-users -t peerprep-users-service .
+
+# Intermediate image for building the Next app
+FROM node:18.17.1
+
+# Environment variables
+ENV APP_ROOT /users
+
+# Copy source code into container
+RUN mkdir --parents $APP_ROOT
+WORKDIR $APP_ROOT
+COPY users .
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Build app
+RUN yarn build
+
+# Expose port
+EXPOSE 6969
+
+# Final image for running the Express app
+CMD ["yarn", "start"]

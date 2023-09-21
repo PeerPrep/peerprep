@@ -3,8 +3,11 @@ import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql"
 
 import { applicationDefault, initializeApp } from "firebase-admin/app"
 import { DecodedIdToken, getAuth } from "firebase-admin/auth"
+import { env } from "process"
+import CORS from "cors"
 
 import ProfileRouter from "./profile"
+import ActivityRouter from "./activity"
 
 declare global {
     namespace Express {
@@ -19,9 +22,7 @@ async function initDatabase() {
     const orm = await MikroORM.init<PostgreSqlDriver>({
         entities: ["./dist/entities"],
         entitiesTs: ["./src/entities"],
-        dbName: "peerprep",
-        user: "peerprep",
-        password: "password"
+        clientUrl: process.env.POSTGRES_URL
     });
 
     const generator = orm.getSchemaGenerator();
@@ -60,11 +61,14 @@ initDatabase().then((orm) => {
     }
 
     app.use(Express.json())
+    app.use(CORS({ origin: "*" }))
     app.use(authFirebase)
     app.use(setORM)
-    app.use("/profile", ProfileRouter)
 
-    app.listen(3000, () => {
+    app.use("/api/v1/users/profile", ProfileRouter)
+    app.use("/api/v1/users/activity", ActivityRouter)
+
+    app.listen(6969, () => {
         console.log("Starting user service");
     });
 })
