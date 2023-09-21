@@ -1,13 +1,21 @@
 import Express, { Request, Response, NextFunction } from "express"
 import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql"
 
+import { applicationDefault, initializeApp } from "firebase-admin/app"
+import { DecodedIdToken, getAuth } from "firebase-admin/auth"
+
 import ProfileRouter from "./profile"
 
+const firebaseApp = initializeApp({
+    credential: applicationDefault()
+});
+
+const firebaseAuth = getAuth(firebaseApp)
 
 declare global {
     namespace Express {
         interface Request {
-            firebase: string
+            firebaseToken: DecodedIdToken
             orm: MikroORM
         }
     }
@@ -33,9 +41,17 @@ async function initDatabase() {
 initDatabase().then((orm) => {
     const app = Express()
 
-    const authFirebase = (req: Request, res: Response, next: NextFunction) => {
-        req.firebase = req.body.token.uid
-        next()
+    const authFirebase = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const firebaseToken = req.get("firebase-token");
+            if (!firebaseToken) {
+                throw "no firebase token";
+            }
+            req.firebaseToken = await firebaseAuth.verifyIdToken(firebaseToken);
+            next()
+        } catch {
+            res.status(401).send("Token invalid")
+        }
     }
 
     const setORM = (req: Request, res: Response, next: NextFunction) => {

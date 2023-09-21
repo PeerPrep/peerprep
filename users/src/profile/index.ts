@@ -7,7 +7,7 @@ const router = Router()
 router.post("/", async (req, res) => {
     const em = req.orm.em.fork();
     
-    const uid = req.firebase;
+    const uid = req.firebaseToken.uid;
     const body = req.body;
 
     const profile = await em.upsert(Profile,
