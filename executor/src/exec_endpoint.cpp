@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+constexpr long DIR_NAME_LEN = 12;
+
 constexpr long BUF_LEN = 1024;
 constexpr long MAX_RESPONSE_SIZE = 10 * 1024; 
 
@@ -44,9 +46,10 @@ bool read_to_buffer(std::array<uint8_t, BUFFER_SIZE>& buffer, long& read_size, i
     return read_size > 0;
 }
 
-cppevent::awaitable_task<void> upload(std::string_view dir, std::string_view name,
-                                      cppevent::output& o_stdout) {
-    int fd = executor::open_file(dir, name, O_RDONLY);
+cppevent::awaitable_task<void> executor::exec_endpoint::upload(std::string_view dir,
+                                                               std::string_view name,
+                                                               cppevent::output& o_stdout) {
+    int fd = open_file(dir, name, O_RDONLY);
     std::array<uint8_t, BUF_LEN> buffer;
     long response_size = 0;
     long read_size;
@@ -55,6 +58,7 @@ cppevent::awaitable_task<void> upload(std::string_view dir, std::string_view nam
         response_size += read_size;
     }
     close(fd);
+    m_unused_dirs.push(std::string { dir });
 }
 
 const std::unordered_map<std::string_view, std::string_view> source_file_names = {
@@ -74,20 +78,24 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
         co_await o_stdout.write("status: 400\ncontent-length: 16\n\nunknown language");
         co_return;
     }
-    char dir_name[12];
-    strcpy(dir_name, "code_XXXXXX");
-    if (mkdtemp(dir_name) == NULL) {
+
+    char dir_name[DIR_NAME_LEN];
+    strncpy(dir_name, "code_XXXXXX", DIR_NAME_LEN);
+    if (!m_unused_dirs.empty()) {
+        strncpy(dir_name, m_unused_dirs.front().c_str(), DIR_NAME_LEN);
+        m_unused_dirs.pop();
+    } else if (mkdtemp(dir_name) == NULL) {
         co_await o_stdout.write("status: 500\ncontent-type: text/plain\n\n");
         co_await o_stdout.write(strerror(errno));
         co_return;
     }
 
     const std::string_view& source_file_name = it->second;
-    const int source_fd = open_file(dir_name, source_file_name, O_WRONLY | O_CREAT);
+    const int source_fd = open_file(dir_name, source_file_name, O_WRONLY | O_CREAT | O_TRUNC);
     co_await download(content_len, s_stdin, source_fd);
     close(source_fd);
 
-    const int compile_err_fd = open_file(dir_name, COMPILE_ERR, O_WRONLY | O_CREAT);
+    const int compile_err_fd = open_file(dir_name, COMPILE_ERR, O_WRONLY | O_CREAT | O_TRUNC);
     bool compiled_success = co_await await_compile(compile_err_fd, m_loop, dir_name, lang);
     close(compile_err_fd);
 
@@ -97,7 +105,7 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
         co_return;
     }
 
-    const int run_out_fd = open_file(dir_name, RUN_STDOUT, O_WRONLY | O_CREAT);
+    const int run_out_fd = open_file(dir_name, RUN_STDOUT, O_WRONLY | O_CREAT | O_TRUNC);
     CODE_EXEC_STATUS run_status = co_await await_run(run_out_fd, m_loop, dir_name, lang);
     close(run_out_fd);
 
@@ -112,6 +120,5 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
             co_await o_stdout.write("status: 200\nx-exec-status: success\ncontent-type: text/plain\n\n");
             break;
     }
-
     co_await upload(dir_name, RUN_STDOUT, o_stdout);
 }
