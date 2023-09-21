@@ -1,30 +1,30 @@
 import { Entity, Enum, PrimaryKey, Property } from "@mikro-orm/core";
 
 enum Role {
-    USER = "user",
-    ADMIN = "admin"
+  USER = "user",
+  ADMIN = "admin",
 }
 
 enum Language {
-    CPP = "cpp",
-    JAVA = "java",
-    PYTHON = "python"
+  CPP = "cpp",
+  JAVA = "java",
+  PYTHON = "python",
 }
 
 @Entity({ tableName: "profiles" })
 export class Profile {
-    @PrimaryKey()
-    uid!: string;
+  @PrimaryKey()
+  uid!: string;
 
-    @Property()
-    name!: string;
+  @Property()
+  name!: string;
 
-    @Property({ nullable: true })
-    imageUrl?: string;
+  @Property({ nullable: true })
+  imageUrl?: string;
 
-    @Enum(() => Language)
-    preferredLang!: Language;
+  @Enum(() => Language)
+  preferredLang!: Language;
 
-    @Enum({ items: () => Role, default: Role.USER })
-    role!: Role;
+  @Enum({ items: () => Role, default: Role.USER })
+  role!: Role;
 }

@@ -3,42 +3,44 @@ import { Activity } from "../entities/Activity";
 import { ApiResponse, StatusMessageType } from "../types";
 import { handleServerError } from "../utils";
 
-const router = Router()
+const router = Router();
 
 router.post("/", async (req, res) => {
-    const em = req.orm.em.fork();
-    
-    const uid = req.firebaseToken.uid;
-    const body = req.body;
+  const em = req.orm.em.fork();
 
-    try {
-        const activity = await em.upsert(Activity,
-                { uid: uid, questionId: body.questionId })
+  const uid = req.firebaseToken.uid;
+  const body = req.body;
 
-        await em.persistAndFlush(activity);
+  try {
+    const activity = await em.upsert(Activity, {
+      uid: uid,
+      questionId: body.questionId,
+    });
 
-        const response: ApiResponse = {
-            statusMessage: {
-                type: StatusMessageType.SUCCESS,
-                message: "Updated user activity"  
-            },
-            payload: activity
-        }
+    await em.persistAndFlush(activity);
 
-        res.send(response);
-    } catch (err: any) {
-        handleServerError(err, res)
-    }
+    const response: ApiResponse = {
+      statusMessage: {
+        type: StatusMessageType.SUCCESS,
+        message: "Updated user activity",
+      },
+      payload: activity,
+    };
+
+    res.send(response);
+  } catch (err: any) {
+    handleServerError(err, res);
+  }
 });
 
 router.get("/", async (req, res) => {
-    const em = req.orm.em.fork();
-    
-    const uid = req.firebaseToken.uid;
-    
-    const activities = await em.find(Activity, { uid: uid });
+  const em = req.orm.em.fork();
 
-    res.send(activities);
+  const uid = req.firebaseToken.uid;
+
+  const activities = await em.find(Activity, { uid: uid });
+
+  res.send(activities);
 });
 
-export default router
+export default router;
