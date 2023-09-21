@@ -90,6 +90,7 @@ services:
     container_name: peerprep-frontend
     restart: always
     depends_on:
+      - users
       - questions
       - innkeeper
       - executor

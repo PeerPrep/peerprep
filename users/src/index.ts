@@ -20,7 +20,7 @@ declare global {
 
 async function initDatabase() {
   const orm = await MikroORM.init<PostgreSqlDriver>({
-    entities: ["./dist/entities"],
+    entities: ["./build/entities"],
     entitiesTs: ["./src/entities"],
     clientUrl: process.env.POSTGRES_URL,
   });
