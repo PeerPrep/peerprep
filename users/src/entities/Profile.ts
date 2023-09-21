@@ -27,11 +27,4 @@ export class Profile {
 
     @Enum({ items: () => Role, default: Role.USER })
     role!: Role;
-
-    constructor(uid: string, name: string, preferredLang: Language, imageUrl?: string) {
-        this.uid = uid;
-        this.name = name;
-        this.imageUrl = imageUrl;
-        this.preferredLang = preferredLang;
-    }
 }

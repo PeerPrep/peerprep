@@ -6,12 +6,6 @@ import { DecodedIdToken, getAuth } from "firebase-admin/auth"
 
 import ProfileRouter from "./profile"
 
-const firebaseApp = initializeApp({
-    credential: applicationDefault()
-});
-
-const firebaseAuth = getAuth(firebaseApp)
-
 declare global {
     namespace Express {
         interface Request {
@@ -40,6 +34,12 @@ async function initDatabase() {
 
 initDatabase().then((orm) => {
     const app = Express()
+
+    const firebaseApp = initializeApp({
+        credential: applicationDefault()
+    });
+    
+    const firebaseAuth = getAuth(firebaseApp)
 
     const authFirebase = async (req: Request, res: Response, next: NextFunction) => {
         try {
