@@ -60,6 +60,14 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
   
+  location /api/v1/users/ {
+    proxy_pass http://peerprep-users-service:6969/api/v1/users/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
   location /api/v1/innkeeper/ {
     proxy_pass http://peerprep-innkeeper-service:4100/;
     proxy_set_header Host $host;

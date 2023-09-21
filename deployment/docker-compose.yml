@@ -14,6 +14,22 @@ services:
     expose:
       - "27017"
 
+  postgres:
+    container_name: peerprep-postgres
+    image: postgres
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    logging:
+      driver: journald
+    networks:
+      - peerprep-network
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: "peerprep"
+      POSTGRES_PASSWORD: "3bSHJyojs5pCPh9sH39MQOEqHuuEZq"
+
   executor:
     image: ghcr.io/peerprep/peerprep-executor-service:latest
     container_name: peerprep-executor-service
@@ -50,6 +66,24 @@ services:
       - "4000"
     environment:
       MONGODB_URL: "mongodb://peerprep-mongo:27017/questions"
+
+  users:
+    image: ghcr.io/peerprep/peerprep-users-service:latest
+    container_name: peerprep-users-service
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - peerprep-network
+    logging:
+      driver: journald
+    expose:
+      - "6969"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: "/firebase-auth/service-account.json"
+      POSTGRES_URL: "postgres://peerprep:3bSHJyojs5pCPh9sH39MQOEqHuuEZq@peerprep-postgres/peerprep"
 
   frontend:
     image: ghcr.io/peerprep/peerprep-frontend:latest
