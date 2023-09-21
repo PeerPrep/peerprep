@@ -3,11 +3,11 @@ import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql"
 
 import { applicationDefault, initializeApp } from "firebase-admin/app"
 import { DecodedIdToken, getAuth } from "firebase-admin/auth"
-import { env } from "process"
 import CORS from "cors"
 
 import ProfileRouter from "./profile"
 import ActivityRouter from "./activity"
+import { handleServerError } from "./utils"
 
 declare global {
     namespace Express {
@@ -50,8 +50,8 @@ initDatabase().then((orm) => {
             }
             req.firebaseToken = await firebaseAuth.verifyIdToken(firebaseToken);
             next()
-        } catch {
-            res.status(401).send("Token invalid")
+        } catch (err: any) {
+            handleServerError(err, res)
         }
     }
 
