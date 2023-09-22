@@ -1,7 +1,7 @@
 import Express, { Request, Response, NextFunction } from "express";
 import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql";
 
-import { applicationDefault, initializeApp } from "firebase-admin/app";
+import { App, applicationDefault, initializeApp } from "firebase-admin/app";
 import { DecodedIdToken, getAuth } from "firebase-admin/auth";
 import CORS from "cors";
 
@@ -12,7 +12,8 @@ import { handleServerError } from "./utils";
 declare global {
   namespace Express {
     interface Request {
-      firebaseToken: DecodedIdToken;
+      firebaseApp: App;
+      userToken: DecodedIdToken;
       orm: MikroORM;
     }
   }
@@ -52,22 +53,23 @@ initDatabase().then((orm) => {
       if (!firebaseToken) {
         throw "no firebase token";
       }
-      req.firebaseToken = await firebaseAuth.verifyIdToken(firebaseToken);
+      req.userToken = await firebaseAuth.verifyIdToken(firebaseToken);
       next();
     } catch (err: any) {
       handleServerError(err, res);
     }
   };
 
-  const setORM = (req: Request, res: Response, next: NextFunction) => {
+  const injectDependencies = (req: Request, res: Response, next: NextFunction) => {
     req.orm = orm;
+    req.firebaseApp = firebaseApp;
     next();
   };
 
   app.use(Express.json());
   app.use(CORS({ origin: "*" }));
   app.use(authFirebase);
-  app.use(setORM);
+  app.use(injectDependencies);
 
   app.use("/api/v1/users/profile", ProfileRouter);
   app.use("/api/v1/users/activity", ActivityRouter);

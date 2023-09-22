@@ -16,14 +16,14 @@ export class Profile {
   @PrimaryKey()
   uid!: string;
 
-  @Property()
-  name!: string;
+  @Property({ nullable: true })
+  name?: string;
 
   @Property({ nullable: true })
   imageUrl?: string;
 
-  @Enum(() => Language)
-  preferredLang!: Language;
+  @Enum({ items: () => Language, nullable: true})
+  preferredLang?: Language;
 
   @Enum({ items: () => Role, default: Role.USER })
   role!: Role;
