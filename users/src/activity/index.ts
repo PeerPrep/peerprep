@@ -8,7 +8,7 @@ const router = Router();
 router.post("/", async (req, res) => {
   const em = req.orm.em.fork();
 
-  const uid = req.firebaseToken.uid;
+  const uid = req.userToken.uid;
   const body = req.body;
 
   try {
@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   const em = req.orm.em.fork();
 
-  const uid = req.firebaseToken.uid;
+  const uid = req.userToken.uid;
 
   const activities = await em.find(Activity, { uid: uid });
 
