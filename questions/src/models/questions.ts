@@ -44,6 +44,11 @@ const getAllQuestions = async () =>
 const getQuestionById = async (id: string) =>
   QuestionModel.findById(id).then((question) => question?.toObject());
 
+const getQuestionsByGroupOfIds = async (ids: string[]) =>
+  QuestionModel.find({ _id: { $in: ids } }).then((questions) =>
+    questions.map((q) => q.toObject())
+  );
+
 const createQuestion = async (
   title: string,
   description: string,
@@ -76,6 +81,7 @@ const deleteQuestion = async (id: string) => {
 
 export const QuestionDao = {
   getAllQuestions,
+  getQuestionsByGroupOfIds,
   getQuestionById,
   createQuestion,
   updateQuestion,

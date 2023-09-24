@@ -52,6 +52,38 @@ export const getQuestion = async (
   }
 };
 
+// GET /questions/group/:ids
+export const getQuestionsByGroupOfIds = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const ids = req.params.ids.split("-");
+    if (!ids || ids.length === 0) {
+      handleCustomError(res, {
+        type: StatusMessageType.ERROR,
+        message: "Question IDs must be provided",
+      });
+    }
+
+    const questions = await QuestionDao.getQuestionsByGroupOfIds(ids);
+    if (!questions || questions.length === 0) {
+      handleCustomError(res, {
+        type: StatusMessageType.ERROR,
+        message: "Questions not found",
+      });
+    }
+
+    const response: ApiResponse = {
+      payload: questions,
+      statusMessage: null,
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    handleServerError(error, res);
+  }
+};
+
 // POST /questions
 export const createQuestion = async (
   req: express.Request,
