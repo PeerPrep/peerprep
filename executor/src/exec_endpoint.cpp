@@ -16,6 +16,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 constexpr long DIR_NAME_LEN = 12;
 
@@ -84,7 +85,7 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
     if (!m_unused_dirs.empty()) {
         strncpy(dir_name, m_unused_dirs.front().c_str(), DIR_NAME_LEN);
         m_unused_dirs.pop();
-    } else if (mkdtemp(dir_name) == NULL) {
+    } else if (mkdtemp(dir_name) == NULL || chmod(dir_name, 0755) < 0) {
         co_await o_stdout.write("status: 500\ncontent-type: text/plain\n\n");
         co_await o_stdout.write(strerror(errno));
         co_return;
