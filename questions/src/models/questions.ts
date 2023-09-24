@@ -38,6 +38,9 @@ const QuestionSchema = new mongoose.Schema({
 
 export const QuestionModel = mongoose.model("Question", QuestionSchema);
 
+const getAllQuestions = async () =>
+  QuestionModel.find().then((questions) => questions.map((q) => q.toObject()));
+
 const getQuestionById = async (id: string) =>
   QuestionModel.findById(id).then((question) => question?.toObject());
 
@@ -72,6 +75,7 @@ const deleteQuestion = async (id: string) => {
 };
 
 export const QuestionDao = {
+  getAllQuestions,
   getQuestionById,
   createQuestion,
   updateQuestion,
