@@ -21,11 +21,13 @@ using namespace std::chrono_literals;
 
 constexpr std::chrono::seconds EXECUTION_TIMEOUT = 5s;
 
+constexpr int SOURCE_PROGRAM_UID = 1500;
+
 int executor::open_file(std::string_view dir_name, std::string_view name, int flags) {
     std::string path { dir_name };
     path.push_back('/');
     path.append(name);
-    int fd = open(path.c_str(), flags, S_IRWXU);
+    int fd = open(path.c_str(), flags, 0755);
     cppevent::throw_if_error(fd, "File open failed: ");
     return fd;
 }
@@ -65,16 +67,25 @@ void run_in_child(pid_t child_pid, int out_fd, const char* dir, std::string_view
     if (child_pid != 0) {
         return;
     }
-    cppevent::throw_if_error(chdir(dir), "Error when changing working directory: ");
-    cppevent::throw_if_error(dup2(out_fd, STDOUT_FILENO), "Error when dup2: ");
-    cppevent::throw_if_error(dup2(out_fd, STDERR_FILENO), "Error when dup2: ");
-    if (lang == "cpp") {
-        execl("./source", "./source", (char*) NULL);
-    } else if (lang == "java") {
-        execlp("java", "java", "Source", (char*) NULL);
-    } else if (lang == "python") {
-        execlp("python3", "python3", "source.py", (char*) NULL);
-    }
+    try {
+        cppevent::throw_if_error(chdir(dir), "Error when changing working directory: ");
+        cppevent::throw_if_error(dup2(out_fd, STDOUT_FILENO), "Error when dup2: ");
+        cppevent::throw_if_error(dup2(out_fd, STDERR_FILENO), "Error when dup2: ");
+        cppevent::throw_if_error(setreuid(SOURCE_PROGRAM_UID, SOURCE_PROGRAM_UID),
+                                 "Error when setuid: ");
+        int exec_status;
+        if (lang == "cpp") {
+            exec_status = execl("source", "source", (char*) NULL);
+        } else if (lang == "java") {
+            exec_status = execlp("java", "java", "Source", (char*) NULL);
+        } else if (lang == "python") {
+            exec_status = execlp("python3", "python3", "source.py", (char*) NULL);
+        }
+        cppevent::throw_if_error(exec_status, "Error when exec: ");
+    } catch (std::runtime_error err) {
+        std::cerr << "(Server error) " << err.what() << std::endl;
+        exit(1);
+    } 
 }
 
 cppevent::awaitable_task<bool> await_child_and_signal(int pid_fd,
