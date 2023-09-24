@@ -2,11 +2,13 @@ import express from "express";
 import {
   createQuestion,
   deleteQuestion,
+  getAllQuestions,
   getQuestion,
   updateQuestion,
 } from "../controllers/questions";
 
 export default (router: express.Router) => {
+  router.get("/questions", getAllQuestions);
   router.get("/questions/:id", getQuestion);
   router.post("/questions", createQuestion);
   router.put("/questions/:id", updateQuestion);

@@ -3,6 +3,23 @@ import { QuestionDao } from "../models/questions";
 import { ApiResponse, StatusMessageType } from "../types";
 import { handleCustomError, handleServerError } from "../utils";
 
+// GET /questions
+export const getAllQuestions = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const questions = await QuestionDao.getAllQuestions();
+    const response: ApiResponse = {
+      payload: questions,
+      statusMessage: null,
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    handleServerError(error, res);
+  }
+};
+
 // GET /questions/:id
 export const getQuestion = async (
   req: express.Request,
