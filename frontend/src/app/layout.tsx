@@ -5,6 +5,11 @@ import { Montserrat } from "next/font/google";
 import Navbar from "./components/navbar/Navbar";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import Providers from "@/utils/provider";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import { useEffect, useState } from "react";
+import { User } from "@firebase/auth-types";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -37,7 +42,7 @@ export default function RootLayout({
     <html lang="en" data-theme="myTheme">
       <body className={montserrat.className}>
         <Navbar />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
