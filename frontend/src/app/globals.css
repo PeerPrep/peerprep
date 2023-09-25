@@ -46,3 +46,24 @@ div.select__menu-list {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--pf));
 }
+
+.ant-table-thead > tr > th {
+  background-color: hsl(var(--p)) !important;
+  color: white !important;
+  font-size: 1.5rem;
+}
+
+.ant-table-thead > tr > th:first-child {
+  padding-left: 2rem;
+}
+
+.ant-table-tbody > tr > td {
+  background-color: hsl(var(--s)) !important;
+  color: white !important;
+}
+
+.ant-table-tbody > tr > td:first-child {
+  padding-left: 2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}

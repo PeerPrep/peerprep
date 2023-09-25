@@ -1,28 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Select, { MultiValue } from "react-select";
-import topicsOptions from "../questionTypeData";
 import Button from "@/app/components/button/Button";
-import { Input, Table, message, notification } from "antd";
+import { Input, Table, message } from "antd";
+import { useState } from "react";
+
+import { fetchAllQuestionsUrl, fetchQuestionDescriptionUrl } from "@/app/api";
 import {
   DeleteOutlined,
   EditOutlined,
-  SearchOutlined,
   EyeOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
-import {
-  createQuestionUrl,
-  fetchAllQuestionsUrl,
-  fetchQuestionDescriptionUrl,
-} from "@/app/api";
-import { useMutation, useQuery } from "@tanstack/react-query";
-
-interface SelectOptionType {
-  label: string;
-  value: string;
-}
+import AddQuestionModal from "@/app/components/modal/AddQuestionModal";
 
 export interface QuestionType {
   title: string;
@@ -37,14 +28,6 @@ interface FetchQuestionResponse {
 }
 
 const QuestionPage = () => {
-  const [selectedQnType, setSelectedQnType] = useState<
-    MultiValue<SelectOptionType>
-  >([]);
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
-    "Easy",
-  );
-  const [api, contextHolder] = message.useMessage();
-
   const [currQnId, setCurrQnId] = useState<number | null>(null);
 
   const onClickModal = (modalId: string) => {
@@ -52,65 +35,17 @@ const QuestionPage = () => {
       (document.getElementById(modalId) as HTMLFormElement).showModal();
     }
   };
-  const closeModal = (modalId: string) => {
-    (document.getElementById(modalId) as HTMLFormElement).close();
-    setSelectedQnType([]);
-  };
 
-  const handleSelectChange = (
-    selectedOptions: MultiValue<SelectOptionType>,
-  ) => {
-    setSelectedQnType(selectedOptions);
-  };
-
-  const onEscKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
-    if (e.key == "Escape" || e.key === "Esc") {
-      e.preventDefault();
-    }
-  };
-
-  const createQuestionMutation = useMutation(
-    async (newQuestion: QuestionType) => createQuestionUrl(newQuestion),
-    {
-      onSuccess: () => {
-        closeModal("my_modal_1");
-        api.open({
-          type: "success",
-          content: "Successfully added question!",
-        });
-      },
-    },
-  );
-
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Map selected options from Select component to values
-    const selectedTypes = selectedQnType.map((option) => option.value);
-    const formElements = e.currentTarget.elements as HTMLFormControlsCollection;
-    const titleValue =
-      (formElements.namedItem("title") as HTMLInputElement)?.value || "";
-
-    const submissionData = {
-      title: titleValue,
-      difficulty: difficulty,
-      tags: selectedTypes,
-      description: e.currentTarget.description.value,
-    };
-
-    console.log("Form Submission Data:", submissionData);
-    createQuestionMutation.mutate(submissionData);
-  };
-
-  const columns = [
+  const columns: any = [
     {
       title: "Question",
       dataIndex: "title",
-      align: "center",
+      width: 200,
     },
     {
       title: "Difficulty",
       dataIndex: "difficulty",
+      width: 20,
       sorter: (a: QuestionType, b: QuestionType) => a.difficulty < b.difficulty,
       align: "center",
       render: (difficulty: string) => {
@@ -120,19 +55,19 @@ const QuestionPage = () => {
         let color = difficulty.length > 5 ? "geekblue" : "green";
         switch (difficulty.toLowerCase()) {
           case "easy":
-            color = "green";
+            color = "bg-success text-white";
             break;
           case "medium":
-            color = "orange";
+            color = "bg-warning text-white";
             break;
           case "hard":
-            color = "red";
+            color = "bg-error text-white";
             break;
         }
 
         return (
           <div
-            className={`inline-block px-2 py-1 text-xs font-semibold text-${color}-900 bg-${color}-300 rounded-full`}
+            className={`inline-block rounded-full border border-white px-4 py-1 ${color} text-sm font-semibold`}
           >
             {difficulty.toUpperCase()}
           </div>
@@ -145,13 +80,14 @@ const QuestionPage = () => {
       sortDirections: ["descend"],
       sorter: (a: QuestionType, b: QuestionType) => a.tags < b.tags,
       align: "center",
+      width: 125,
       render: (tags: string[]) => (
         <>
           {tags?.map((tag) => {
             return (
               <div
                 key={tag}
-                className={`inline-block rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold`}
+                className={`m-1 inline-block rounded-full border border-white bg-accent px-2 py-1 text-xs font-semibold`}
               >
                 {tag.toUpperCase()}
               </div>
@@ -178,11 +114,13 @@ const QuestionPage = () => {
       title: "Actions",
       dataIndex: "actions",
       align: "center",
+      width: 10,
       render: (text: string, _: never, index: number) => (
-        <div className="flex flex-row justify-around">
-          <EditOutlined />
-          <DeleteOutlined />
+        <div className="flex justify-center gap-2">
+          <EditOutlined className="border-1 p-2 text-xl hover:rounded-full hover:bg-primary-focus" />
+          <DeleteOutlined className="p-2 text-xl hover:rounded-full hover:bg-primary-focus" />
           <EyeOutlined
+            className="p-2 text-xl hover:rounded-full hover:bg-primary-focus"
             onClick={() => {
               onClickModal("my_modal_2");
               setCurrQnId(index);
@@ -238,164 +176,45 @@ const QuestionPage = () => {
 
   return (
     <>
-      {contextHolder}
-      <section>
-        <button
-          className="btn btn-success text-white"
-          onClick={() => onClickModal("my_modal_1")}
-        >
-          Add Question
-        </button>
-        <dialog
-          id="my_modal_1"
-          className="modal"
-          onKeyDown={(e) => onEscKeyDown(e)}
-        >
-          <div className="modal-box p-6">
-            <form
-              id="question-form"
-              className="flex flex-col gap-6"
-              onSubmit={onSubmit}
-            >
-              <div>
-                <label
-                  htmlFor="title"
-                  className="mb-2 block font-medium text-white"
-                >
-                  Title
-                </label>
-                <input
-                  required
-                  type="text"
-                  id="title"
-                  name="title"
-                  className="block w-full rounded-md border-gray-300 p-2 text-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-4 focus:outline-accent"
+      <section className="flex flex-col gap-4 p-12">
+        <div className="mx-auto flex w-[90svw] flex-col gap-4 lg:w-[70svw]">
+          <div className="flex flex-row justify-between">
+            <h1 className="text-5xl font-bold text-white underline">
+              All Questions
+            </h1>
+            <div>
+              <div className="flex flex-row items-center gap-4">
+                <AddQuestionModal />
+                <Button className="btn-primary btn-sm h-5 w-24 rounded-3xl">
+                  Filter
+                </Button>
+                <Input
+                  className="ml-3 h-10 w-64 rounded-3xl"
+                  prefix={<SearchOutlined className="bg-white" />}
+                  placeholder="Search"
                 />
               </div>
-              <div>
-                <label
-                  htmlFor="difficulty"
-                  className="mb-2 block font-medium text-white"
-                >
-                  Difficulty
-                </label>
-                <div className="join">
-                  <button
-                    type="button"
-                    className={`btn btn-primary join-item text-white ${
-                      difficulty == "Easy" && "btn-success"
-                    }`}
-                    onClick={() => setDifficulty("Easy")}
-                  >
-                    Easy
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn btn-primary join-item text-white ${
-                      difficulty == "Medium" && "btn-warning"
-                    }`}
-                    onClick={() => setDifficulty("Medium")}
-                  >
-                    Medium
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn btn-primary join-item text-white ${
-                      difficulty == "Hard" && "btn-error"
-                    }`}
-                    onClick={() => setDifficulty("Hard")}
-                  >
-                    Hard
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label
-                  htmlFor="questionType"
-                  className="mb-2 block font-medium text-white"
-                >
-                  Question Type
-                </label>
-                <Select
-                  instanceId="question-type-selector"
-                  isMulti
-                  required
-                  value={selectedQnType}
-                  onChange={handleSelectChange}
-                  name="question type"
-                  options={topicsOptions}
-                  className="basic-multi-select text-black"
-                  classNamePrefix="select"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="description"
-                  className="mb-2 block font-medium text-white"
-                >
-                  Description
-                </label>
-                <textarea
-                  required
-                  id="description"
-                  name="description"
-                  rows={4}
-                  className="block w-full rounded-md border-gray-300 p-2 text-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-4 focus:outline-accent"
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="reset"
-                  onClick={() => closeModal("my_modal_1")}
-                  className="btn btn-error btn-sm text-white hover:bg-red-500"
-                >
-                  X Close
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-accent btn-sm text-white"
-                >
-                  + Add
-                </button>
-              </div>
-            </form>
-          </div>
-        </dialog>
-      </section>
-      <section className=" p-10">
-        <div className="flex flex-row justify-between">
-          <h1 className="text-xl font-bold text-white underline">
-            All Questions
-          </h1>
-
-          <div>
-            <div className="flex flex-row items-center">
-              <Button className="h-10 w-36 rounded-3xl">Filter</Button>
-              <Input
-                className="ml-3 h-10 w-64 rounded-3xl"
-                prefix={<SearchOutlined className="bg-white" />}
-                placeholder="Search"
-              />
             </div>
           </div>
-        </div>
-        <dialog
-          id="my_modal_2"
-          className="modal"
-          onKeyDown={(e) => onEscKeyDown(e)}
-        >
-          <div className="modal-box p-6">
-            <ReactMarkdown className="prose h-[40svh] min-w-[90svw] overflow-y-scroll rounded-b-md bg-secondary p-6 lg:h-[80svh] lg:min-w-[45svw]">
-              {questionDescription ?? ""}
-            </ReactMarkdown>
-          </div>
-        </dialog>
+          <dialog id="my_modal_2" className="modal">
+            <div className="modal-box p-6">
+              <form method="dialog" className="pb">
+                <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
+                  ✕
+                </button>
+              </form>
+              <ReactMarkdown className="prose min-w-[40svh] rounded-b-md bg-secondary p-6">
+                {questionDescription ?? ""}
+              </ReactMarkdown>
+            </div>
+          </dialog>
 
-        <Table
-          className="p-4"
-          columns={columns}
-          dataSource={allQuestions?.payload}
-        />
+          <Table
+            bordered
+            columns={columns}
+            dataSource={allQuestions?.payload}
+          />
+        </div>
       </section>
     </>
   );
