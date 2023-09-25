@@ -67,3 +67,11 @@ div.select__menu-list {
   font-size: 1.25rem;
   font-weight: 600;
 }
+
+.ant-pagination-item {
+  background-color: white !important;
+}
+.ant-pagination-item-link {
+  color: white !important;
+  font-size: 700;
+}

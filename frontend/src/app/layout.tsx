@@ -41,8 +41,12 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="myTheme">
       <body className={montserrat.className}>
-        <Navbar />
-        <Providers>{children}</Providers>
+        <div className="flex h-[100svh] flex-col">
+          <Navbar />
+          <div className="grow">
+            <Providers>{children}</Providers>
+          </div>
+        </div>
       </body>
     </html>
   );

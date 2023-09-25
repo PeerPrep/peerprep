@@ -4,6 +4,7 @@ import { message } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { createQuestionUrl } from "@/app/api";
 import topicsOptions from "@/app/admin/questionTypeData";
+import Button from "../button/Button";
 
 interface SelectOptionType {
   label: string;
@@ -52,7 +53,6 @@ const AddQuestionModal = () => {
     async (newQuestion: QuestionType) => createQuestionUrl(newQuestion),
     {
       onSuccess: () => {
-        closeModal("my_modal_1");
         api.open({
           type: "success",
           content: "Successfully added question!",
@@ -79,18 +79,19 @@ const AddQuestionModal = () => {
 
     console.log("Form Submission Data:", submissionData);
     createQuestionMutation.mutate(submissionData);
+    closeModal("my_modal_1");
   };
 
   return (
     <>
       {contextHolder}
       <section>
-        <button
-          className="btn btn-success btn-sm rounded-full text-white"
+        <Button
+          className="btn btn-success btn-sm w-44 rounded-full text-white"
           onClick={() => onClickModal("my_modal_1")}
         >
           Add Question
-        </button>
+        </Button>
         <dialog
           id="my_modal_1"
           className="modal"

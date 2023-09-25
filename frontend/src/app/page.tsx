@@ -1,7 +1,12 @@
+"use client";
 import Image from "next/image";
 import Button from "./components/button/Button";
+import useLogin from "./hooks/useLogin";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  useLogin();
   return (
     <main>
       <Image
@@ -19,6 +24,7 @@ export default function Home() {
           dream job interviews.
         </h2>
         <Button
+          onClick={() => router.push("/login")}
           className="btn-accent m-2 w-36"
           children={<span>Get Started!</span>}
         />

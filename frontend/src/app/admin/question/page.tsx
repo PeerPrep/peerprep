@@ -1,8 +1,8 @@
 "use client";
 
 import Button from "@/app/components/button/Button";
-import { Input, Table, message } from "antd";
 import { useState } from "react";
+import Skeleton from "react-loading-skeleton";
 
 import { fetchAllQuestionsUrl, fetchQuestionDescriptionUrl } from "@/app/api";
 import {
@@ -14,6 +14,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
 import AddQuestionModal from "@/app/components/modal/AddQuestionModal";
+import dynamic from "next/dynamic";
+import { Input } from "antd";
 
 export interface QuestionType {
   title: string;
@@ -27,6 +29,19 @@ interface FetchQuestionResponse {
   statusMessage: string;
 }
 
+const Table = dynamic(() => import("antd/lib/Table"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton
+      width="70svw"
+      count={15}
+      baseColor="#383D4B"
+      highlightColor="#22242D"
+      height="2rem"
+    />
+  ),
+});
+
 const QuestionPage = () => {
   const [currQnId, setCurrQnId] = useState<number | null>(null);
 
@@ -35,6 +50,32 @@ const QuestionPage = () => {
       (document.getElementById(modalId) as HTMLFormElement).showModal();
     }
   };
+
+  // const Table = dynamic(() => import("antd/lib/Table"), {
+  //   ssr: false,
+  //   loading: () => (
+  //     <Skeleton
+  //       width="70svw"
+  //       count={15}
+  //       baseColor="#383D4B"
+  //       highlightColor="#22242D"
+  //       height="2rem"
+  //     />
+  //   ),
+  // });
+
+  // const Input = dynamic(() => import("antd/lib/input"), {
+  //   ssr: false,
+  //   loading: () => (
+  //     <Skeleton
+  //       width="10rem"
+  //       baseColor="#383D4B"
+  //       highlightColor="#22242D"
+  //       height="2rem"
+  //       className="rounded-md"
+  //     />
+  //   ),
+  // });
 
   const columns: any = [
     {
@@ -117,10 +158,10 @@ const QuestionPage = () => {
       width: 10,
       render: (text: string, _: never, index: number) => (
         <div className="flex justify-center gap-2">
-          <EditOutlined className="border-1 p-2 text-xl hover:rounded-full hover:bg-primary-focus" />
-          <DeleteOutlined className="p-2 text-xl hover:rounded-full hover:bg-primary-focus" />
+          <EditOutlined className="border-1 p-2 text-xl hover:cursor-pointer hover:rounded-full hover:bg-primary-focus" />
+          <DeleteOutlined className="p-2 text-xl hover:cursor-pointer hover:rounded-full hover:bg-primary-focus" />
           <EyeOutlined
-            className="p-2 text-xl hover:rounded-full hover:bg-primary-focus"
+            className="p-2 text-xl hover:cursor-pointer hover:rounded-full hover:bg-primary-focus"
             onClick={() => {
               onClickModal("my_modal_2");
               setCurrQnId(index);
@@ -209,11 +250,22 @@ const QuestionPage = () => {
             </div>
           </dialog>
 
-          <Table
-            bordered
-            columns={columns}
-            dataSource={allQuestions?.payload}
-          />
+          <div>
+            <Table
+              bordered
+              columns={columns}
+              dataSource={allQuestions?.payload}
+              pagination={{ position: ["bottomCenter"] }}
+            />
+            {allQuestionsLoading && (
+              <Skeleton
+                className="w-[90svw] lg:w-[70svw]"
+                baseColor="#383D4B"
+                highlightColor="#22242D"
+                height="2rem"
+              />
+            )}
+          </div>
         </div>
       </section>
     </>
