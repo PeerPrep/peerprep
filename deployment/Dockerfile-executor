@@ -1,0 +1,21 @@
+# To build a Docker image from this file, run from the root directory:
+# docker build -f deployment/Dockerfile-executor -t peerprep-executor .
+
+FROM nixos/nix:2.3.12
+
+# Environment variables
+ENV APP_ROOT /executor
+
+WORKDIR $APP_ROOT
+COPY executor .
+
+RUN nix-channel --update
+RUN nix-env -iA nixpkgs.shadow nixpkgs.gcc12 nixpkgs.python3Minimal nixpkgs.jdk19_headless
+RUN nix-env -if default.nix
+
+RUN groupadd -g 1300 -r peerprep
+RUN useradd -g 1300 -u 1500 -r executor
+
+EXPOSE 9000
+
+CMD ["executor"]

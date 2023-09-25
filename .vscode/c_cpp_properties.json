@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/executor/libs/cppevent-base/src",
+                "${workspaceFolder}/executor/libs/cppevent-net/src",
+                "${workspaceFolder}/executor/libs/cppevent-fcgi/src",
+                "${workspaceFolder}/executor/src"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cpptools"
+        }
+    ],
+    "version": 4
+}

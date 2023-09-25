@@ -7,11 +7,143 @@ on:
       - master
 
 env:
+  USERS_IMAGE_NAME: peerprep-users-service
+  EXECUTOR_IMAGE_NAME: peerprep-executor-service
+  INNKEEPER_IMAGE_NAME: peerprep-innkeeper-service
+  QUESTIONS_IMAGE_NAME: peerprep-questions-service
   FRONTEND_IMAGE_NAME: peerprep-frontend
   NGINX_IMAGE_NAME: peerprep-nginx
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      users: ${{ steps.changes.outputs.users }}
+      executor: ${{ steps.changes.outputs.executor }}
+      innkeeper: ${{ steps.changes.outputs.innkeeper }}
+      questions: ${{ steps.changes.outputs.questions }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      nginx: ${{ steps.changes.outputs.nginx }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            users:
+              - 'users/**/*'
+            executor:
+              - 'executor/**/*'
+            innkeeper:
+              - 'innkeeper/**/*'
+            questions:
+              - 'questions/**/*'
+            frontend:
+              - 'frontend/**/*'
+            nginx:
+              - 'deployment/**/*'
+
+  build-users-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.users == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out Source
+        uses: actions/checkout@v2
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: peerprep
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: deployment/Dockerfile-users
+          push: true
+          tags: ghcr.io/peerprep/${{ env.USERS_IMAGE_NAME }}:latest
+
+  build-executor-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.executor == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out Source
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: peerprep
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: deployment/Dockerfile-executor
+          push: true
+          tags: ghcr.io/peerprep/${{ env.EXECUTOR_IMAGE_NAME }}:latest
+
+  build-innkeeper-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.innkeeper == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out Source
+        uses: actions/checkout@v2
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: peerprep
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: deployment/Dockerfile-innkeeper
+          push: true
+          tags: ghcr.io/peerprep/${{ env.INNKEEPER_IMAGE_NAME }}:latest
+
+  build-questions-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.questions == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out Source
+        uses: actions/checkout@v2
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: peerprep
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: deployment/Dockerfile-questions
+          push: true
+          tags: ghcr.io/peerprep/${{ env.QUESTIONS_IMAGE_NAME }}:latest
+
   build-frontend-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,6 +166,8 @@ jobs:
           tags: ghcr.io/peerprep/${{ env.FRONTEND_IMAGE_NAME }}:latest
 
   build-nginx-image:
+    needs: changes
+    if: ${{ needs.changes.outputs.nginx == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
