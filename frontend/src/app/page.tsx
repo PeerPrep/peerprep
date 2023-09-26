@@ -8,14 +8,14 @@ export default function Home() {
   const router = useRouter();
   useLogin();
   return (
-    <main>
+    <main className="h-full">
       <Image
         src="/backdrop.jpg"
         alt="backdrop"
         className="-z-10 opacity-50"
         layout="fill"
       />
-      <section className="z-20 flex flex-col items-center gap-4 px-24 py-24 lg:py-36">
+      <section className="z-20 flex h-full flex-col items-center justify-center gap-4 px-24 py-24 lg:py-36">
         <h1 className="m-5 text-center text-5xl font-bold text-white lg:text-7xl">
           Streamlining Technical Interview Preparation.
         </h1>

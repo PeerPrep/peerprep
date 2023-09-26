@@ -238,7 +238,7 @@ const QuestionPage = () => {
             </div>
           </div>
           <dialog id="my_modal_2" className="modal">
-            <div className="modal-box p-6">
+            <div className="modal-box max-w-screen-xl p-6">
               <form method="dialog" className="pb">
                 <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
                   ✕

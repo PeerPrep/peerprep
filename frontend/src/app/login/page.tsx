@@ -1,7 +1,7 @@
 "use client";
 import Button from "../components/button/Button";
-import { FcGoogle } from "react-icons/fc";
-import { BsGithub } from "react-icons/bs";
+import { FcGoogle } from "@react-icons/all-files/fc/FcGoogle";
+import { AiFillGithub } from "@react-icons/all-files/ai/AiFillGithub";
 
 import { signInWithRedirect } from "firebase/auth";
 import {
@@ -29,7 +29,7 @@ const roomPage = () => {
             className="bg-primary px-4"
             onClick={() => signInWithRedirect(auth, githubProvider)}
           >
-            <BsGithub className="text-xl" />
+            <AiFillGithub className="text-xl" />
             GitHub
           </Button>
         </div>

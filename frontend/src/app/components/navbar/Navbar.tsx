@@ -5,9 +5,9 @@ import { User, onAuthStateChanged, signOut, getAuth } from "@firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { IoPeopleCircleSharp } from "react-icons/io5";
+import { IoPeopleCircleSharp } from "@react-icons/all-files/io5/IoPeopleCircleSharp";
 import Button from "../button/Button";
-import { RiArrowDropDownLine } from "react-icons/ri";
+import { RiArrowDropDownLine } from "@react-icons/all-files/ri/RiArrowDropDownLine";
 import { FiLogOut } from "react-icons/fi";
 
 const Navbar = () => {
