@@ -11,7 +11,13 @@ interface SelectOptionType {
   value: string;
 }
 
-const EditQuestionModal = ({ question, successCallback }: { question?: QuestionType, successCallback: () => void }) => {
+const EditQuestionModal = ({
+  question,
+  successCallback,
+}: {
+  question?: QuestionType;
+  successCallback: () => void;
+}) => {
   const [selectedQnType, setSelectedQnType] = useState<
     MultiValue<SelectOptionType>
   >(question?.tags?.map((tag) => ({ value: tag, label: tag })) ?? []);
@@ -58,9 +64,9 @@ const EditQuestionModal = ({ question, successCallback }: { question?: QuestionT
         closeModal("edit_modal");
         api.open({
           type: "success",
-          content: "Successfully added question!",
+          content: "Successfully edited question!",
         });
-        successCallback()
+        successCallback();
       },
     },
   );
@@ -200,7 +206,7 @@ const EditQuestionModal = ({ question, successCallback }: { question?: QuestionT
                   type="submit"
                   className="btn btn-accent btn-sm text-white"
                 >
-                  + Add
+                  + Edit
                 </button>
               </div>
             </form>
