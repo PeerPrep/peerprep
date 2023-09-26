@@ -89,12 +89,6 @@ const EditQuestionModal = ({ question, successCallback }: { question?: QuestionT
     <>
       {contextHolder}
       <section>
-        <button
-          className="btn btn-success btn-sm rounded-full text-white"
-          onClick={() => onClickModal("edit_modal")}
-        >
-          Add Question
-        </button>
         <dialog
           id="edit_modal"
           className="modal"
