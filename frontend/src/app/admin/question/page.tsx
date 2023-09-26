@@ -16,6 +16,7 @@ import ReactMarkdown from "react-markdown";
 import AddQuestionModal from "@/app/components/modal/AddQuestionModal";
 
 export interface QuestionType {
+  _id: string;
   title: string;
   difficulty: "Easy" | "Medium" | "Hard";
   tags: string[];
@@ -28,7 +29,7 @@ interface FetchQuestionResponse {
 }
 
 const QuestionPage = () => {
-  const [currQnId, setCurrQnId] = useState<number | null>(null);
+  const [currQnId, setCurrQnId] = useState<string | null>(null);
 
   const onClickModal = (modalId: string) => {
     if (document) {
@@ -115,15 +116,16 @@ const QuestionPage = () => {
       dataIndex: "actions",
       align: "center",
       width: 10,
-      render: (text: string, _: never, index: number) => (
+      render: (text: string, record: QuestionType, index: number) => (
         <div className="flex justify-center gap-2">
           <EditOutlined className="border-1 p-2 text-xl hover:rounded-full hover:bg-primary-focus" />
           <DeleteOutlined className="p-2 text-xl hover:rounded-full hover:bg-primary-focus" />
           <EyeOutlined
             className="p-2 text-xl hover:rounded-full hover:bg-primary-focus"
             onClick={() => {
+              console.log({ record });
               onClickModal("my_modal_2");
-              setCurrQnId(index);
+              setCurrQnId(record._id);
             }}
           />
         </div>
@@ -131,12 +133,9 @@ const QuestionPage = () => {
     },
   ];
 
-  // TODO: Add API call to get question description based on currQnId using tanstack
-  const {
-    data: questionDescription,
-    error,
-    isLoading: questionDescriptionLoading,
-  } = useQuery(["question", currQnId], () => {
+  const { data: questionObj, isLoading: questionDescriptionLoading } = useQuery<
+    { payload: QuestionType } | undefined
+  >(["question", currQnId], () => {
     if (currQnId) {
       return fetchQuestionDescriptionUrl(currQnId);
     }
@@ -146,33 +145,6 @@ const QuestionPage = () => {
     useQuery<FetchQuestionResponse>(["questions"], () => {
       return fetchAllQuestionsUrl();
     });
-
-  const data = [
-    {
-      key: "1",
-      question: "John Brown",
-      date: 32,
-      duration: "New York No. 1 Lake Park",
-      language: "English",
-      history: "English",
-    },
-    {
-      key: "2",
-      question: "Jim Green",
-      date: 42,
-      duration: "London No. 1 Lake Park",
-      language: "English",
-      history: "English",
-    },
-    {
-      key: "3",
-      question: "Joe Black",
-      date: 32,
-      duration: "Sidney No. 1 Lake Park",
-      language: "English",
-      history: "English",
-    },
-  ];
 
   return (
     <>
@@ -197,14 +169,14 @@ const QuestionPage = () => {
             </div>
           </div>
           <dialog id="my_modal_2" className="modal">
-            <div className="modal-box p-6">
+            <div className=" modal-box max-w-4xl p-6">
               <form method="dialog" className="pb">
                 <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
                   ✕
                 </button>
               </form>
-              <ReactMarkdown className="prose min-w-[40svh] rounded-b-md bg-secondary p-6">
-                {questionDescription ?? ""}
+              <ReactMarkdown className="prose min-w-[40svh] max-w-none rounded-b-md bg-secondary p-6">
+                {questionObj?.payload?.description ?? ""}
               </ReactMarkdown>
             </div>
           </dialog>

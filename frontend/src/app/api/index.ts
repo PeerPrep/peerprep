@@ -3,7 +3,7 @@ import { QuestionType } from "../admin/question/page";
 // TODO: change to env variable
 export const API_URL = "https://peerprep.sivarn.com/api/v1";
 
-export const fetchQuestionDescriptionUrl = async (qnId: number) => {
+export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   return await fetch(`${API_URL}/questions/${qnId}`).then((res) => res.json());
 };
 
