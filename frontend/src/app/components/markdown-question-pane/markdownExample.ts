@@ -3,6 +3,8 @@ export const markdownExample = `
 
 **Difficulty**: **Easy**
 
+![https://user-images.githubusercontent.com/7360964/269261306-6cac0c92-1f82-437e-a7eb-a58d1633a3bb.png](https://assets.leetcode.com/uploads/2023/05/15/image-20230516011718-12.png)
+
 Given an array of integers \`nums\` and an integer \`target\`, return indices of the two numbers such that they add up to \`target\`.
 
 You may assume that each input would have **exactly one solution**, and you may not use the same element twice.
