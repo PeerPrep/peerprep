@@ -54,7 +54,7 @@ const AddQuestionModal = ({
         closeModal("my_modal_1");
         api.open({
           type: "success",
-          content: "Successfully edited question!",
+          content: "Successfully added question!",
         });
         successCallback();
       },
