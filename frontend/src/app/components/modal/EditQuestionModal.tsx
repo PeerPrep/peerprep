@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 import { message } from "antd";
 import { useMutation } from "@tanstack/react-query";
@@ -11,18 +11,22 @@ interface SelectOptionType {
   value: string;
 }
 
-const AddQuestionModal = ({
-  successCallback,
-}: {
-  successCallback: () => void;
-}) => {
+const EditQuestionModal = ({ question, successCallback }: { question?: QuestionType, successCallback: () => void }) => {
   const [selectedQnType, setSelectedQnType] = useState<
     MultiValue<SelectOptionType>
-  >([]);
+  >(question?.tags?.map((tag) => ({ value: tag, label: tag })) ?? []);
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
-    "Easy",
+    question?.difficulty ?? "Easy",
   );
   const [api, contextHolder] = message.useMessage();
+
+  // Please dont kill me for this
+  useEffect(() => {
+    setSelectedQnType(
+      question?.tags?.map((tag) => ({ value: tag, label: tag })) ?? [],
+    );
+    setDifficulty(question?.difficulty ?? "Easy");
+  }, [question]);
 
   const onClickModal = (modalId: string) => {
     if (document) {
@@ -51,12 +55,12 @@ const AddQuestionModal = ({
     async (newQuestion: QuestionType) => createQuestionUrl(newQuestion),
     {
       onSuccess: () => {
-        closeModal("my_modal_1");
+        closeModal("edit_modal");
         api.open({
           type: "success",
-          content: "Successfully edited question!",
+          content: "Successfully added question!",
         });
-        successCallback();
+        successCallback()
       },
     },
   );
@@ -87,12 +91,12 @@ const AddQuestionModal = ({
       <section>
         <button
           className="btn btn-success btn-sm rounded-full text-white"
-          onClick={() => onClickModal("my_modal_1")}
+          onClick={() => onClickModal("edit_modal")}
         >
           Add Question
         </button>
         <dialog
-          id="my_modal_1"
+          id="edit_modal"
           className="modal"
           onKeyDown={(e) => onEscKeyDown(e)}
         >
@@ -115,6 +119,7 @@ const AddQuestionModal = ({
                   id="title"
                   name="title"
                   className="block w-full rounded-md border-gray-300 p-2 text-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-4 focus:outline-accent"
+                  defaultValue={question?.title ?? ""}
                 />
               </div>
               <div>
@@ -186,12 +191,13 @@ const AddQuestionModal = ({
                   name="description"
                   rows={4}
                   className="block w-full rounded-md border-gray-300 p-2 text-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-4 focus:outline-accent"
+                  defaultValue={question?.description ?? ""}
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="reset"
-                  onClick={() => closeModal("my_modal_1")}
+                  onClick={() => closeModal("edit_modal")}
                   className="btn btn-error btn-sm text-white hover:bg-red-500"
                 >
                   X Close
@@ -211,4 +217,4 @@ const AddQuestionModal = ({
   );
 };
 
-export default AddQuestionModal;
+export default EditQuestionModal;
