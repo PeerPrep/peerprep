@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { RoomState } from 'types/room';
+import { RoomState } from '../types';
 
 // TODO: Eventually the roomStatesMap should be moved to Redis. In memory for now.
 const roomStatesMap = new Map<string, RoomState>();
@@ -10,7 +10,7 @@ export const getRoomId = (userId: string): string | null => {
   return matchingRooms.length === 0 ? null : matchingRooms[0].roomId;
 };
 
-export const getRoomState = (roomId: string): RoomState => {
+export const getRoomState = (roomId: string): RoomState | undefined => {
   return roomStatesMap.get(roomId);
 };
 
