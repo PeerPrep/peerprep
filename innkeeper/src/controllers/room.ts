@@ -1,16 +1,16 @@
-import { getRoomState as getRoomStateFromRoomId, removeRoom, setRoomState } from '../models/room';
 import { sendNotification } from '../controllers';
+import { InnState } from '../models';
 import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, PartialRoomState, RoomState, UserState } from '../types';
 import { getUnixTimestamp } from '../utils';
 
-export const getRoomState = (socket: InnkeeperIoSocket | InnkeeperOtherSockets): RoomState | undefined => {
+export const getRoomState = (inn: InnState, socket: InnkeeperIoSocket | InnkeeperOtherSockets): RoomState | undefined => {
   const { roomId } = socket.data;
   if (!roomId) {
     console.error(`Unexpected undefined roomId for socket ${socket.id}. Data: ${socket.data}.`);
     return undefined;
   }
 
-  const roomState = getRoomStateFromRoomId(roomId);
+  const roomState = inn.getRoomState(roomId);
   if (!roomState) {
     console.error(`Unexpected undefined roomState for socket ${socket.id}. Data: ${socket.data}.`);
     return undefined;
@@ -32,8 +32,8 @@ const getSelfAndOtherUser = (room: RoomState, userId: string): [UserState, UserS
 };
 
 /** Ensure new roommate and existing roommate have the same state. */
-export const joinAssignedRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocket | InnkeeperOtherSockets): void => {
-  const roomState = getRoomState(socket);
+export const joinAssignedRoom = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket | InnkeeperOtherSockets): void => {
+  const roomState = getRoomState(inn, socket);
   if (!roomState) {
     sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
     return;
@@ -64,7 +64,7 @@ export const joinAssignedRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocke
     userStates: [userState, otherUserState],
   };
 
-  setRoomState(roomId, newRoomState);
+  inn.setRoomState(roomId, newRoomState);
 
   // If continuously active, don't sendPartialRoomState to other user.
   if (previousUserStatus === 'ACTIVE') {
@@ -84,8 +84,8 @@ export const joinAssignedRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocke
     );
 };
 
-export const handleSendUpdate = (io: InnkeeperIoServer, socket: InnkeeperIoSocket, update: PartialRoomState): void => {
-  const roomState = getRoomState(socket);
+export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket, update: PartialRoomState): void => {
+  const roomState = getRoomState(inn, socket);
   if (!roomState) {
     sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
     return;
@@ -109,7 +109,7 @@ export const handleSendUpdate = (io: InnkeeperIoServer, socket: InnkeeperIoSocke
     userStates: [userState, otherUserState], // userState cannot be edited by user.
   };
 
-  setRoomState(roomId, newRoomState);
+  inn.setRoomState(roomId, newRoomState);
   io.in(roomState.roomId)
     .fetchSockets()
     .then(sockets =>
@@ -121,8 +121,8 @@ export const handleSendUpdate = (io: InnkeeperIoServer, socket: InnkeeperIoSocke
     );
 };
 
-export const handleRequestCompleteState = (io: InnkeeperIoServer, socket: InnkeeperIoSocket): void => {
-  const roomState = getRoomState(socket);
+export const handleRequestCompleteState = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
+  const roomState = getRoomState(inn, socket);
   if (!roomState) {
     sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
     return;
@@ -131,8 +131,8 @@ export const handleRequestCompleteState = (io: InnkeeperIoServer, socket: Innkee
   socket.emit('sendCompleteRoomState', roomState);
 };
 
-export const handleLeaveRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocket): void => {
-  const roomState = getRoomState(socket);
+export const handleLeaveRoom = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
+  const roomState = getRoomState(inn, socket);
   if (!roomState) {
     sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
     return;
@@ -156,12 +156,12 @@ export const handleLeaveRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocket
     userStates: [userState, otherUserState],
   };
 
-  removeRoom(roomId);
+  inn.removeRoom(roomId);
   io.in(roomId).emit('closeRoom', newRoomState);
 };
 
-export const handleDisconnect = (io: InnkeeperIoServer, socket: InnkeeperIoSocket): void => {
-  const roomState = getRoomState(socket);
+export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
+  const roomState = getRoomState(inn, socket);
   if (!roomState) {
     sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
     return;
@@ -185,6 +185,6 @@ export const handleDisconnect = (io: InnkeeperIoServer, socket: InnkeeperIoSocke
     userStates: [userState, otherUserState],
   };
 
-  setRoomState(roomId, newRoomState);
+  inn.setRoomState(roomId, newRoomState);
   io.in(roomId).emit('sendPartialRoomState', { userStates: [userState, otherUserState] }); // Notify that one user is inactive.
 };
