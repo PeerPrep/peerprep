@@ -1,13 +1,8 @@
+import { sendNotification } from '../controllers';
 import { addUserToQueue, getWaitingUsers, queueUserOrReturnMatchResult, removeUserFromQueue } from '../models/users';
-import { NotificationMessage } from '../types';
-import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, MatchingParameters, WaitingUsersCount } from '../types/lobby';
+import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, MatchingParameters, WaitingUsersCount } from '../types';
 import { getUnixTimestamp } from '../utils';
-
-export const sendNotification = (socket: InnkeeperIoSocket | InnkeeperOtherSockets, { type, message }: NotificationMessage) => {
-  const socketData = `${socket.id} (userId: ${socket.data.userId})`;
-  console.log(`Sending ${type} notification to ${socketData}: ${message}`);
-  socket.emit('sendNotification', { type, message });
-};
+import { joinAssignedRoom } from './room';
 
 const sendAvailableMatches = (socket: InnkeeperIoSocket | InnkeeperOtherSockets, availableMatches: WaitingUsersCount): void => {
   socket.emit('availableMatches', availableMatches);
@@ -56,7 +51,9 @@ export const handleMatchingRequest = (io: InnkeeperIoServer, socket: InnkeeperIo
       }
 
       socket.emit('sendToRoom', roomState.roomId);
+      joinAssignedRoom(io, socket);
       otherSocket.emit('sendToRoom', roomState.roomId);
+      joinAssignedRoom(io, otherSocket);
       return;
     }
 

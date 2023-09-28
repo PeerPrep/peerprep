@@ -1,26 +1,58 @@
 import { getRoomState as getRoomStateFromRoomId, removeRoom, setRoomState } from '../models/room';
-import { NotificationMessage } from '../types';
-import { PartialRoomState, RoomIoNamespace, RoomIoSocket, RoomOtherSockets, RoomState } from '../types/room';
+import { sendNotification } from '../controllers';
+import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, PartialRoomState, RoomState, UserState } from '../types';
 import { getUnixTimestamp } from '../utils';
 
-export const sendNotification = (socket: RoomIoSocket | RoomOtherSockets, { type, message }: NotificationMessage): void => {
-  const socketData = `${socket.id} (userId: ${socket.data.userId}, room: ${socket.data.roomId})`;
-  console.log(`Sending ${type} notification to ${socketData}: ${message}`);
-  socket.emit('sendNotification', { type, message });
+export const getRoomState = (socket: InnkeeperIoSocket | InnkeeperOtherSockets): RoomState | undefined => {
+  const { roomId } = socket.data;
+  if (!roomId) {
+    console.error(`Unexpected undefined roomId for socket ${socket.id}. Data: ${socket.data}.`);
+    return undefined;
+  }
+
+  const roomState = getRoomStateFromRoomId(roomId);
+  if (!roomState) {
+    console.error(`Unexpected undefined roomState for socket ${socket.id}. Data: ${socket.data}.`);
+    return undefined;
+  }
+
+  return roomState;
 };
 
-export const getRoomState = (socket: RoomIoSocket): RoomState => {
-  const { roomId } = socket.data;
-  return getRoomStateFromRoomId(roomId);
+const getSelfAndOtherUser = (room: RoomState, userId: string): [UserState, UserState] | undefined => {
+  const { userStates } = room;
+  const userState = userStates.find(s => s.userId === userId);
+  const otherUserState = userStates.find(s => s.userId !== userId);
+  if (!userState || !otherUserState) {
+    console.error(`Unexpected user states in ${room.roomId}: ${userStates} (asking for ${userId} & roommate).`);
+    return undefined;
+  }
+
+  return [userState, otherUserState];
 };
 
 /** Ensure new roommate and existing roommate have the same state. */
-export const handleConnect = (ioRoom: RoomIoNamespace, socket: RoomIoSocket): void => {
-  const { questionId, textEditor, userStates }: RoomState = getRoomState(socket);
-  const { userId, roomId } = socket.data;
+export const joinAssignedRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocket | InnkeeperOtherSockets): void => {
+  const roomState = getRoomState(socket);
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
 
-  const userState = userStates.find(s => s.userId === userId);
-  const otherUserState = userStates.find(s => s.userId !== userId);
+  const { roomId, questionId, textEditor, userStates } = roomState;
+  const { userId } = socket.data;
+
+  // If user is already in room, don't join again.
+  socket.rooms.has(roomId) || socket.join(roomId);
+
+  const getSelfAndOtherUserResult = getSelfAndOtherUser(roomState, userId);
+  if (!getSelfAndOtherUserResult) {
+    sendNotification(socket, { type: 'ERROR', message: 'User state not found.' });
+    return;
+  }
+
+  const [userState, otherUserState] = getSelfAndOtherUserResult;
+  const previousUserStatus = userState.status;
 
   userState.status = 'ACTIVE';
   userState.lastSeen = getUnixTimestamp();
@@ -33,26 +65,41 @@ export const handleConnect = (ioRoom: RoomIoNamespace, socket: RoomIoSocket): vo
   };
 
   setRoomState(roomId, newRoomState);
+
+  // If continuously active, don't sendPartialRoomState to other user.
+  if (previousUserStatus === 'ACTIVE') {
+    return;
+  }
+
+  // If new / rejoined connection, sendCompleteRoomState to user and sendPartialRoomState to other user.
   socket.emit('sendCompleteRoomState', newRoomState);
-  ioRoom
-    .in(roomId)
+  io.in(roomId)
     .fetchSockets()
     .then(sockets =>
       sockets
         .filter(s => s.id !== socket.id)
-        .forEach((s: RoomOtherSockets) => {
+        .forEach((s: InnkeeperOtherSockets) => {
           s.emit('sendPartialRoomState', { userStates: newRoomState.userStates });
-          sendNotification(s, { type: 'SUCCESS', message: 'Your partner has joined.' });
         }),
     );
 };
 
-export const handleSendUpdate = (ioRoom: RoomIoNamespace, socket: RoomIoSocket, update: PartialRoomState): void => {
-  const roomState: RoomState = getRoomState(socket);
-  const { roomId, questionId, textEditor } = roomState;
+export const handleSendUpdate = (io: InnkeeperIoServer, socket: InnkeeperIoSocket, update: PartialRoomState): void => {
+  const roomState = getRoomState(socket);
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
 
-  const userState = roomState.userStates.find(s => s.userId === socket.data.userId);
-  const otherUserState = roomState.userStates.find(s => s.userId !== socket.data.userId);
+  const getSelfAndOtherUserResult = getSelfAndOtherUser(roomState, socket.data.userId);
+  if (!getSelfAndOtherUserResult) {
+    sendNotification(socket, { type: 'ERROR', message: 'User state not found.' });
+    return;
+  }
+
+  const { roomId, questionId, textEditor } = roomState;
+  const [userState, otherUserState] = getSelfAndOtherUserResult;
+
   userState.lastSeen = getUnixTimestamp();
 
   const newRoomState: RoomState = {
@@ -63,28 +110,42 @@ export const handleSendUpdate = (ioRoom: RoomIoNamespace, socket: RoomIoSocket, 
   };
 
   setRoomState(roomId, newRoomState);
-  ioRoom
-    .in(roomState.roomId)
+  io.in(roomState.roomId)
     .fetchSockets()
     .then(sockets =>
       sockets
         .filter(s => s.id !== socket.id)
-        .forEach((s: RoomOtherSockets) => {
+        .forEach((s: InnkeeperOtherSockets) => {
           s.emit('sendPartialRoomState', update);
         }),
     );
 };
 
-export const handleRequestCompleteState = (ioRoom: RoomIoNamespace, socket: RoomIoSocket): void => {
-  socket.emit('sendCompleteRoomState', getRoomState(socket));
+export const handleRequestCompleteState = (io: InnkeeperIoServer, socket: InnkeeperIoSocket): void => {
+  const roomState = getRoomState(socket);
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
+
+  socket.emit('sendCompleteRoomState', roomState);
 };
 
-export const handleLeaveRoom = (ioRoom: RoomIoNamespace, socket: RoomIoSocket): void => {
-  const { questionId, textEditor, userStates }: RoomState = getRoomState(socket);
-  const { userId, roomId } = socket.data;
+export const handleLeaveRoom = (io: InnkeeperIoServer, socket: InnkeeperIoSocket): void => {
+  const roomState = getRoomState(socket);
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
 
-  const userState = userStates.find(s => s.userId === userId);
-  const otherUserState = userStates.find(s => s.userId !== userId);
+  const getSelfAndOtherUserResult = getSelfAndOtherUser(roomState, socket.data.userId);
+  if (!getSelfAndOtherUserResult) {
+    sendNotification(socket, { type: 'ERROR', message: 'User state not found.' });
+    return;
+  }
+
+  const [userState, otherUserState] = getSelfAndOtherUserResult;
+  const { questionId, textEditor, roomId } = roomState;
 
   userState.status = 'EXITED';
   userState.lastSeen = getUnixTimestamp();
@@ -96,15 +157,24 @@ export const handleLeaveRoom = (ioRoom: RoomIoNamespace, socket: RoomIoSocket): 
   };
 
   removeRoom(roomId);
-  ioRoom.in(roomId).emit('closeRoom', newRoomState);
+  io.in(roomId).emit('closeRoom', newRoomState);
 };
 
-export const handleDisconnect = (ioRoom: RoomIoNamespace, socket: RoomIoSocket): void => {
-  const { questionId, textEditor, userStates }: RoomState = getRoomState(socket);
-  const { userId, roomId } = socket.data;
+export const handleDisconnect = (io: InnkeeperIoServer, socket: InnkeeperIoSocket): void => {
+  const roomState = getRoomState(socket);
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
 
-  const userState = userStates.find(s => s.userId === userId);
-  const otherUserState = userStates.find(s => s.userId !== userId);
+  const getSelfAndOtherUserResult = getSelfAndOtherUser(roomState, socket.data.userId);
+  if (!getSelfAndOtherUserResult) {
+    sendNotification(socket, { type: 'ERROR', message: 'User state not found.' });
+    return;
+  }
+
+  const [userState, otherUserState] = getSelfAndOtherUserResult;
+  const { questionId, textEditor, roomId } = roomState;
 
   userState.status = 'INACTIVE';
   userState.lastSeen = getUnixTimestamp();
@@ -115,6 +185,6 @@ export const handleDisconnect = (ioRoom: RoomIoNamespace, socket: RoomIoSocket):
     userStates: [userState, otherUserState],
   };
 
-  ioRoom.in(roomId).emit('closeRoom', newRoomState); // Notify both users that one has exited.
-  removeRoom(roomId);
+  setRoomState(roomId, newRoomState);
+  io.in(roomId).emit('sendPartialRoomState', { userStates: [userState, otherUserState] }); // Notify that one user is inactive.
 };

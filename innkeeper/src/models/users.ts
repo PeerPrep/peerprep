@@ -1,5 +1,4 @@
-import { MatchingParameters, WaitingUsersCount } from '../types/lobby';
-import { RoomState } from '../types/room';
+import { MatchingParameters, RoomState, WaitingUsersCount } from '../types';
 import { createRoomId } from './room';
 
 export const queueUserOrReturnMatchResult = (userId: string, parameters: MatchingParameters): [string, RoomState] | null => {

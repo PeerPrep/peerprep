@@ -1,59 +1,34 @@
 import { Server } from 'socket.io';
-import {
-  handleConnect as handleLobbyConnect,
-  handleDisconnect as handleLobbyDisconnect,
-  handleMatchingRequest,
-  sendNotification as sendLobbyNotification,
-} from './controllers/lobby';
+import { handleConnect as handleLobbyConnect, handleDisconnect as handleLobbyDisconnect, handleMatchingRequest } from './controllers/lobby';
 import {
   handleLeaveRoom,
   handleRequestCompleteState,
-  handleConnect as handleRoomConnect,
   handleDisconnect as handleRoomDisconnect,
   handleSendUpdate,
-  sendNotification as sendRoomNotification,
+  joinAssignedRoom,
 } from './controllers/room';
-import { InnkeeperIoServer, InnkeeperIoSocket } from './types/lobby';
-import { RoomIoNamespace, RoomIoSocket } from './types/room';
-import { setRoomIdIfPresent, validateUserToken } from './utils';
+import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
+import { requireMatchedUser, requireUnmatchedUser } from './utils';
 
 const io: InnkeeperIoServer = new Server(4100);
 
-io.use(validateUserToken); // Validates JWT token and sets socket.data.userId.
-io.use(setRoomIdIfPresent); // Sets socket.data.roomId if user has an existing Room ID.
-
 // Register lobby.
 io.on('connection', (socket: InnkeeperIoSocket) => {
-  if (socket.data.roomId) {
-    sendLobbyNotification(socket, { type: 'ERROR', message: 'User already has a room, switch to namespace /room.' });
-    return;
+  if (!socket.data.roomId) {
+    handleLobbyConnect(io, socket);
+  } else {
+    // For reconnecting matched users, directly send them to their room.
+    joinAssignedRoom(io, socket);
   }
 
-  handleLobbyConnect(io, socket);
+  socket.on('makeMatchingRequest', params => requireUnmatchedUser(io, socket) && handleMatchingRequest(io, socket, params));
 
-  socket.on('makeMatchingRequest', params => handleMatchingRequest(io, socket, params));
-  socket.on('disconnect', () => handleLobbyDisconnect(io, socket));
-});
+  socket.on('sendUpdate', update => requireMatchedUser(io, socket) && handleSendUpdate(io, socket, update));
+  socket.on('requestCompleteRoomState', () => requireMatchedUser(io, socket) && handleRequestCompleteState(io, socket));
+  socket.on('leaveRoom', () => requireMatchedUser(io, socket) && handleLeaveRoom(io, socket));
 
-// Register room namespace.
-const ioRoom: RoomIoNamespace = io.of('/room');
-
-ioRoom.use(validateUserToken); // Validates JWT token and sets socket.data.userId.
-ioRoom.use(setRoomIdIfPresent); // Sets socket.data.roomId if user has an existing Room ID.
-
-ioRoom.on('connection', (socket: RoomIoSocket) => {
-  const { roomId } = socket.data;
-  if (!roomId) {
-    sendRoomNotification(socket, { type: 'ERROR', message: 'User has not been assigned a room.' });
-    return;
-  }
-
-  socket.join(roomId);
-
-  handleRoomConnect(ioRoom, socket);
-
-  socket.on('sendUpdate', update => handleSendUpdate(ioRoom, socket, update));
-  socket.on('requestCompleteRoomState', () => handleRequestCompleteState(ioRoom, socket));
-  socket.on('leaveRoom', () => handleLeaveRoom(ioRoom, socket));
-  socket.on('disconnect', () => handleRoomDisconnect(ioRoom, socket));
+  socket.on('disconnect', () =>
+    // At the point of disconnect, check if roomId is set.
+    socket.data.roomId ? handleRoomDisconnect(io, socket) : handleLobbyDisconnect(io, socket),
+  );
 });
