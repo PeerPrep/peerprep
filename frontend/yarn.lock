@@ -3571,6 +3571,16 @@ jose@^4.10.4:
   resolved "https://registry.yarnpkg.com/jose/-/jose-4.14.6.tgz#94dca1d04a0ad8c6bff0998cdb51220d473cc3af"
   integrity sha512-EqJPEUlZD0/CSUMubKtMaYUOtWe91tZXTWMJZoKSbLk+KtdhNdcvppH8lA9XwVu2V4Ailvsj0GBZJ2ZwDjfesQ==
 
+jotai-optics@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/jotai-optics/-/jotai-optics-0.3.1.tgz#7ff38470551429460cc41d9cd1320193665354e0"
+  integrity sha512-KibUx9IneM2hGWGIYGs/v0KCxU985lg7W2c6dt5RodJCB2XPbmok8rkkLmdVk9+fKsn2shkPMi+AG8XzHgB3+w==
+
+jotai@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-2.4.3.tgz#a8eff8ca6de968d6a04616329dd1335ce52e70f3"
+  integrity sha512-CSAHX9LqWG5WCrU8OgBoZbBJ+Bo9rQU0mPusEF4e0CZ/SNFgurG26vb3UpgvCSJZgYVcUQNiUBM5q86PA8rstQ==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
