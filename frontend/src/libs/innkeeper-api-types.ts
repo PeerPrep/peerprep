@@ -36,7 +36,7 @@ export type RoomState = {
  */
 export type PartialRoomState = {
   questionId?: string;
-  textEditor?: Partial<TextEditorState>;
+  textEditor?: TextEditorState;
   userStates?: [UserState, UserState];
 };
 
