@@ -162,6 +162,7 @@ jobs:
           envkey_NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           envkey_NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
           envkey_NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          envkey_NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL }}
           directory: frontend
           file_name: .env
           fail_on_empty: true
