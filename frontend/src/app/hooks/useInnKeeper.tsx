@@ -80,6 +80,7 @@ function _useInnkeeperSocket(authToken: string) {
 
     console.log("connecting to innkeeper socket...");
     const socket = io(innkeeperUrl, {
+      path: "/api/v1/innkeeper/",
       auth: {
         // This is the correct way to authenticate, but InnKeeper currently ignores this value
         token: authToken,

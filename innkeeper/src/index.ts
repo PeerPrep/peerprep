@@ -14,7 +14,6 @@ import { requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
 const io: InnkeeperIoServer = new Server(4100, {
   cors: {
     origin: '*',
-    methods: ['GET', 'POST'],
   },
   path: '/api/v1/innkeeper',
 });
