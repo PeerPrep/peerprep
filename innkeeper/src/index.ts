@@ -16,6 +16,7 @@ const io: InnkeeperIoServer = new Server(4100, {
     origin: '*',
     methods: ['GET', 'POST'],
   },
+  path: '/api/v1/innkeeper',
 });
 const inn: InnState = new InnState();
 
