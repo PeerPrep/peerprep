@@ -1,10 +1,8 @@
 "use client";
-import { ViewUpdate } from "@uiw/react-codemirror";
+import { ReactCodeMirrorProps } from "@uiw/react-codemirror";
 import dynamic from "next/dynamic";
-import Skeleton from "react-loading-skeleton";
 import { useEffect, useState } from "react";
-
-type CodeMirrorOnChangeProps = (value: string, viewUpdate: ViewUpdate) => void;
+import Skeleton from "react-loading-skeleton";
 
 let desiredWidth = "50vw";
 if (typeof window !== "undefined") {
@@ -25,8 +23,10 @@ const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
 
 const CodeMirrorEditor = ({
   onChange,
+  value,
 }: {
-  onChange: CodeMirrorOnChangeProps;
+  value: ReactCodeMirrorProps["value"];
+  onChange: ReactCodeMirrorProps["onChange"];
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [languageExtension, setLanguageExtension] = useState<any>(null);
@@ -79,9 +79,9 @@ const CodeMirrorEditor = ({
       <CodeMirror
         className="w-[90svw] lg:w-[50svw]"
         height="80vh"
-        value="console.log('hello world!');"
         theme="dark"
         extensions={languageExtension}
+        value={value}
         onChange={onChange}
       />
     </section>
