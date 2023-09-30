@@ -29,7 +29,7 @@
     "antd": "^5.9.2",
     "autoprefixer": "10.4.15",
     "codemirror": "5.57.0",
-    "daisyui": "^3.7.3",
+    "daisyui": "^3.8.1",
     "encoding": "^0.1.13",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
