@@ -11,7 +11,13 @@ import { InnState } from './models';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
 import { requireMatchedUser, requireUnmatchedUser } from './utils';
 
-const io: InnkeeperIoServer = new Server(4100);
+const io: InnkeeperIoServer = new Server(4100, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+  path: '/api/v1/innkeeper',
+});
 const inn: InnState = new InnState();
 
 // Register lobby.
