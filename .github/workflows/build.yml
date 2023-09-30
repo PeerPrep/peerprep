@@ -7,31 +7,7 @@ on:
   pull_request:
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      frontend: ${{ steps.changes.outputs.frontend }}
-      users: ${{ steps.changes.outputs.users }}
-      questions: ${{ steps.changes.outputs.questions }}
-      innkeeper: ${{ steps.changes.outputs.innkeeper }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            frontend:
-              - 'frontend/**/*'
-            users:
-              - 'users/**/*'
-            questions:
-              - 'questions/**/*'
-            innkeeper:
-              - 'innkeeper/**/*'
-
   build-frontend:
-    needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -56,36 +32,48 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
 
   build-questions:
-    needs: changes
-    if: ${{ needs.changes.outputs.questions == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
+      - uses: actions/cache@v2
+        with:
+          path: questions/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - run: yarn install
         working-directory: questions
       - run: yarn build
         working-directory: questions
 
   build-users:
-    needs: changes
-    if: ${{ needs.changes.outputs.users == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
+      - uses: actions/cache@v2
+        with:
+          path: users/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - run: yarn install
         working-directory: users
       - run: yarn build
         working-directory: users
 
   build-innkeeper:
-    needs: changes
-    if: ${{ needs.changes.outputs.innkeeper == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
+      - uses: actions/cache@v2
+        with:
+          path: innkeeper/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - run: yarn install
         working-directory: innkeeper
       - run: yarn build
