@@ -9,7 +9,7 @@ import {
 } from './controllers/room';
 import { InnState } from './models';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
-import { requireMatchedUser, requireUnmatchedUser } from './utils';
+import { requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
 
 const io: InnkeeperIoServer = new Server(4100, {
   cors: {
@@ -22,6 +22,11 @@ const inn: InnState = new InnState();
 
 // Register lobby.
 io.on('connection', (socket: InnkeeperIoSocket) => {
+  if (!requireUser(io, inn, socket)) {
+    // Sending error already handled in requireUser.
+    return;
+  }
+
   if (!socket.data.roomId) {
     handleLobbyConnect(io, inn, socket);
   } else {

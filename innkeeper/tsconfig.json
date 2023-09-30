@@ -5,7 +5,9 @@
     "baseUrl": "src",
     "outDir": "build",
     "sourceMap": true,
+    "esModuleInterop": true,
     "strict": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
 }

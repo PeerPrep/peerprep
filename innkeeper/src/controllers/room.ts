@@ -105,7 +105,7 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
   const newRoomState: RoomState = {
     roomId,
     questionId: update.questionId ?? questionId,
-    textEditor: update.textEditor ?? textEditor,
+    textEditor: { code: update.textEditor?.code ?? textEditor.code },
     userStates: [userState, otherUserState], // userState cannot be edited by user.
   };
 

@@ -8,21 +8,24 @@ const notifyOnQueue = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIo
   sendNotification(socket, { type: 'INFO', message: 'Added to queue.' });
   const waitingUsers = inn.getWaitingUsers();
 
-  io.fetchSockets().then(otherSockets => {
-    for (const otherSocket of otherSockets) {
-      if (otherSocket.data.userId === socket.data.userId) {
-        continue;
-      }
+  io.in('lobby')
+    .fetchSockets()
+    .then(otherSockets => {
+      for (const otherSocket of otherSockets) {
+        if (otherSocket.data.userId === socket.data.userId) {
+          continue;
+        }
 
-      otherSocket.emit('availableMatches', waitingUsers);
-      return;
-    }
-  });
+        otherSocket.emit('availableMatches', waitingUsers);
+        return;
+      }
+    });
 };
 
 export const handleConnect = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
   console.log(`User ${socket.data?.userId} connected to lobby.`);
   const waitingUsers = inn.getWaitingUsers();
+  socket.join('lobby');
   socket.emit('availableMatches', waitingUsers);
 };
 
@@ -50,28 +53,32 @@ export const handleMatchingRequest = (
   const [otherUserId, roomState] = maybeMatch;
   console.log(`Matched users ${userId} and ${otherUserId} in room ${roomState.roomId}.`);
 
-  io.fetchSockets().then(otherSockets => {
-    for (const otherSocket of otherSockets) {
-      if (otherSocket.data.userId !== otherUserId) {
-        continue;
+  io.in('lobby')
+    .fetchSockets()
+    .then(otherSockets => {
+      for (const otherSocket of otherSockets) {
+        if (otherSocket.data.userId !== otherUserId) {
+          continue;
+        }
+
+        socket.data.roomId = roomState.roomId;
+        socket.emit('sendToRoom', roomState.roomId);
+        joinAssignedRoom(io, inn, socket);
+        otherSocket.data.roomId = roomState.roomId;
+        otherSocket.emit('sendToRoom', roomState.roomId);
+        joinAssignedRoom(io, inn, otherSocket);
+
+        console.log(`Sent users ${userId} and ${otherUserId} to room ${roomState.roomId}.`);
+        return;
       }
 
-      socket.emit('sendToRoom', roomState.roomId);
-      joinAssignedRoom(io, inn, socket);
-      otherSocket.emit('sendToRoom', roomState.roomId);
-      joinAssignedRoom(io, inn, otherSocket);
+      // socket with matching otherUserId could not be found, remove from queue.
+      console.error(`Could not find socket for userId ${otherUserId} (returned from queue).`);
+      inn.removeUserFromQueue(otherUserId);
 
-      console.log(`Sent users ${userId} and ${otherUserId} to room ${roomState.roomId}.`);
-      return;
-    }
-
-    // socket with matching otherUserId could not be found, remove from queue.
-    console.error(`Could not find socket for userId ${otherUserId} (returned from Redis queue).`);
-    inn.removeUserFromQueue(otherUserId);
-
-    inn.addUserToQueue(userId, params);
-    notifyOnQueue(io, inn, socket);
-  });
+      inn.addUserToQueue(userId, params);
+      notifyOnQueue(io, inn, socket);
+    });
 };
 
 export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
