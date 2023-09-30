@@ -35,7 +35,7 @@ interface FetchQuestionResponse {
   statusMessage: string;
 }
 
-const Table = dynamic(() => import("antd/lib/Table"), {
+const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
   ssr: false,
   loading: () => (
     <Skeleton
