@@ -15,7 +15,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: frontend/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('frontend/**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn install
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: questions/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('questions/**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn install
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: users/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('users/**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn install
@@ -71,7 +71,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: innkeeper/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('innkeeper/**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn install
