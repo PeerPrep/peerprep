@@ -31,7 +31,7 @@ export class InnState {
     const newRoomState: RoomState = {
       roomId,
       questionId: '',
-      textEditor: {},
+      textEditor: { code: `console.log('Hello world!');` },
       userStates: [
         { userId: userIds[0], status: 'INACTIVE', lastSeen: 0 },
         { userId: userIds[1], status: 'INACTIVE', lastSeen: 0 },

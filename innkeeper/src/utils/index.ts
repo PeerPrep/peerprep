@@ -7,7 +7,7 @@ export const getUnixTimestamp = (): number => {
   return Math.floor(Date.now() / 1000);
 };
 
-const requireUser = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): boolean => {
+export const requireUser = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): boolean => {
   // Refer to: https://socket.io/docs/v4/middlewares/#sending-credentials
 
   // TODO: Implement real auth. Skipping auth and reading from header for easier testing with postman.
@@ -23,13 +23,15 @@ const requireUser = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSo
   socket.data.userId = userId;
   socket.data.roomId = inn.getRoomId(userId);
   socket.data.lastMessage = getUnixTimestamp();
+
+  console.log(`User ${userId} connected, with room ${socket.data.roomId}.`);
   return true;
 };
 
 export const requireMatchedUser = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): boolean => {
   if (!requireUser(io, inn, socket)) return false;
 
-  if (socket.data.roomId) {
+  if (!socket.data.roomId) {
     sendNotification(socket, { type: 'ERROR', message: 'User has not been matched.' });
     return false;
   }
