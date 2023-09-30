@@ -28,7 +28,7 @@
     "@uiw/react-codemirror": "^4.21.13",
     "antd": "^5.9.2",
     "autoprefixer": "10.4.15",
-    "codemirror": "5.57.0",
+    "codemirror": "5.58.2",
     "daisyui": "^3.7.3",
     "encoding": "^0.1.13",
     "eslint": "8.49.0",
