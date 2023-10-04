@@ -12,6 +12,7 @@ const useLogin = () => {
       if (user) {
         // User is authenticated, redirect to the desired page
         router.push("/admin/question"); // Replace with your desired destination
+        return user;
       }
     });
 
