@@ -8,6 +8,7 @@ import { useState } from "react";
 import { IoPeopleCircleSharp } from "@react-icons/all-files/io5/IoPeopleCircleSharp";
 import Button from "../button/Button";
 import { RiArrowDropDownLine } from "@react-icons/all-files/ri/RiArrowDropDownLine";
+import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";
 import { FiLogOut } from "react-icons/fi";
 
 const Navbar = () => {
@@ -34,6 +35,14 @@ const Navbar = () => {
       setUser(null);
     }
   });
+
+  const handleBlur = () => {
+    const elem: any = document.activeElement;
+    if (elem) {
+      elem?.blur();
+    }
+  };
+
   return (
     <nav>
       <div className="flex items-center justify-between bg-neutral p-2 px-16">
@@ -45,7 +54,7 @@ const Navbar = () => {
         </div>
 
         {user ? (
-          <div className="dropdown dropdown-hover">
+          <div className="dropdown-hover dropdown">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />
@@ -58,6 +67,19 @@ const Navbar = () => {
               tabIndex={0}
               className="menu dropdown-content btn-primary rounded-box z-[1] w-48 p-2 shadow"
             >
+              {" "}
+              <li>
+                <button
+                  onClick={() => {
+                    router.push("/settings");
+                    handleBlur();
+                  }}
+                  className="flex"
+                >
+                  <AiFillSetting />
+                  <span className="font-medium text-white">Settings</span>
+                </button>
+              </li>
               <li>
                 <button onClick={onClickLogout} className="flex">
                   <FiLogOut />
