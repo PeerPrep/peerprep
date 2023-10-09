@@ -193,21 +193,21 @@
     mikro-orm "~5.8.4"
     reflect-metadata "0.1.13"
 
-"@mikro-orm/knex@~5.8.4":
-  version "5.8.4"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/knex/-/knex-5.8.4.tgz#97d137c7fdc16c699304d343fc11a0286b7073fe"
-  integrity sha512-D0J0ZPLMFQWu/5dCOjtFDVABqv7cEfnGfNT0PH2Q/Qwv0FETV7jjLS1GQk/ixDmgXZ5YBFbx95/6HJ3NuLMW0Q==
+"@mikro-orm/knex@5.8.7":
+  version "5.8.7"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/knex/-/knex-5.8.7.tgz#d11a7c4418312b7f07bad6a26a5ae2f9060ebe0b"
+  integrity sha512-CD5lF4dY9pKeHaNuZ6Fn5Q3GrroJWkStI5WPdyaNKmyAPqpsT15OGoiaj1h0XFI53rAdP1EGN7sZf4cExxN4VQ==
   dependencies:
     fs-extra "11.1.1"
     knex "2.5.1"
     sqlstring "2.3.3"
 
-"@mikro-orm/postgresql@^5.8.4":
-  version "5.8.4"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/postgresql/-/postgresql-5.8.4.tgz#3a4b2e3b7aa0f2c081ea18760238733e5d3936b4"
-  integrity sha512-3uaBT9QfbGE/W8tHRVXi6p4pKONvBE6D3ldFq9cQKcnNmOwjor414/mazLwsWwQdUujS5vyr1ZdAxf0jd4W5bQ==
+"@mikro-orm/postgresql@^5.8.7":
+  version "5.8.7"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/postgresql/-/postgresql-5.8.7.tgz#5325a8803ace22b39bcfe1b5bd8ccb13517f92ac"
+  integrity sha512-k/ukn62O/EK8MEVWShTk22Mce+WNXw1Lhju/mumvaiIDE+IY30lh/mTxvuEKqTy6YQnkwtHRm8ZHRrcS0Fy5Fg==
   dependencies:
-    "@mikro-orm/knex" "~5.8.4"
+    "@mikro-orm/knex" "5.8.7"
     pg "8.11.3"
 
 "@nodelib/fs.scandir@2.1.5":
