@@ -2,7 +2,9 @@
 import Button from "@/app/components/button/Button";
 import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
 import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
+import StatusBar from "@/app/components/status-bar/StatusBar";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
+import { UserState } from "@/libs/innkeeper-api-types";
 import {
   innkeeperWriteAtom,
   isConnectedAtom,
@@ -70,11 +72,35 @@ const roomPage = () => {
     return <Lobby />;
   }
 
+  //For status bar
+
+  const executeFunction = () => undefined;
+
+  const user1: UserState = {
+    userId: "hello 1",
+    status: "ACTIVE",
+    lastSeen: 10,
+  };
+
+  const user2: UserState = {
+    userId: "hello 1",
+    status: "EXITED",
+    lastSeen: 10,
+  };
+
   return (
-    <section className="flex flex-col items-center justify-center gap-4 p-6 lg:flex-row">
-      <MarkdownQuestionPane />
-      <CodeMirrorEditor value={code} onChange={setCode} />
-    </section>
+    <div className="flex h-full flex-col justify-between">
+      <section className="flex flex-col items-center justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
+        <MarkdownQuestionPane />
+        <CodeMirrorEditor value={code} onChange={setCode} />
+      </section>
+      <StatusBar
+        exitMethod={executeFunction}
+        executeFunction={executeFunction}
+        user1State={user1}
+        user2State={user2}
+      />
+    </div>
   );
 };
 

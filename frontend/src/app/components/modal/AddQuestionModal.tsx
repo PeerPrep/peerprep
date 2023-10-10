@@ -6,6 +6,8 @@ import { createQuestionUrl } from "@/app/api";
 import topicsOptions from "@/app/admin/questionTypeData";
 import Button from "../button/Button";
 import { QuestionType } from "@/app/admin/question/page";
+import PreviewModalButton from "./PreviewModalButton";
+import QuestionModal from "./QuestionModal";
 
 interface SelectOptionType {
   label: string;
@@ -23,6 +25,8 @@ const AddQuestionModal = ({
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
     "Easy",
   );
+
+  const [description, setDescription] = useState("");
   const [api, contextHolder] = message.useMessage();
 
   const onClickModal = (modalId: string) => {
@@ -31,9 +35,15 @@ const AddQuestionModal = ({
     }
   };
 
+  const setDefaultValues = () => {
+    setDifficulty("Easy");
+    setDescription("");
+    setSelectedQnType([]);
+  };
+
   const closeModal = (modalId: string) => {
     (document.getElementById(modalId) as HTMLFormElement).close();
-    setSelectedQnType([]);
+    setDefaultValues();
   };
 
   const handleSelectChange = (
@@ -79,12 +89,15 @@ const AddQuestionModal = ({
 
     console.log("Form Submission Data:", submissionData);
     createQuestionMutation.mutate(submissionData);
+    e.currentTarget.reset();
+    setDefaultValues();
     closeModal("my_modal_1");
   };
 
   return (
     <>
       {contextHolder}
+      <QuestionModal />
       <section>
         <Button
           className="btn btn-success btn-sm w-44 rounded-full text-white"
@@ -100,6 +113,7 @@ const AddQuestionModal = ({
           <div className="modal-box p-6">
             <form
               id="question-form"
+              key="question-form"
               className="flex flex-col gap-6"
               onSubmit={onSubmit}
             >
@@ -174,17 +188,25 @@ const AddQuestionModal = ({
                   classNamePrefix="select"
                 />
               </div>
-              <div>
-                <label
-                  htmlFor="description"
-                  className="mb-2 block font-medium text-white"
-                >
-                  Description
-                </label>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="description"
+                    className="mb-2 inline grow font-medium text-white"
+                  >
+                    Description
+                  </label>
+                  <PreviewModalButton
+                    isDisabled={description.length == 0}
+                    content={description}
+                    className={`mx-auto inline`}
+                  />
+                </div>
                 <textarea
                   required
                   id="description"
                   name="description"
+                  onChange={(e) => setDescription(e.target.value)}
                   rows={4}
                   className="block w-full rounded-md border-gray-300 p-2 text-primary shadow-sm focus:outline focus:outline-2 focus:outline-offset-4 focus:outline-accent"
                 />
