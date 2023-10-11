@@ -30,18 +30,41 @@ function pullUpdates(
 }
 
 const editorViewStateAtom = atom<EditorView | null>(null);
+export const triggerSyncAtom = atom(null, (get, set) => {
+  const socket = get(socketAtom);
+  if (!socket) {
+    console.error(`Received trigger to sync before socket is ready!`);
+    return;
+  }
+
+  const state = get(editorViewStateAtom)?.state;
+  if (!state) {
+    console.error(`Received trigger to sync before editor state is ready!`);
+    return;
+  }
+  const lastKnownVersion = getSyncedVersion(state);
+  socket.emit("syncDocument", lastKnownVersion, []);
+});
 
 export const writeChangeSetAtom = atom(
   null,
   (get, set, updates: readonly Update[]) => {
     if (updates.length !== 0)
       console.log(`pulled ${updates.length} updates from server`);
-    const state = get(editorViewStateAtom);
+    const editorState = get(editorViewStateAtom);
+    const state = editorState?.state;
     if (!state) {
       console.error("editorViewStateAtom not set but updates received");
       return;
     }
-    state.dispatch(receiveUpdates(state.state, updates));
+
+    console.dir({
+      x: state,
+      xs: JSON.stringify(state),
+      u: updates,
+      us: JSON.stringify(updates),
+    });
+    editorState.dispatch(receiveUpdates(state, updates));
   },
 );
 

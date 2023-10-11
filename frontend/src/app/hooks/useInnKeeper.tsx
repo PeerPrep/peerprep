@@ -9,7 +9,7 @@ import { ChangeSet } from "@uiw/react-codemirror";
 import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import io from "socket.io-client";
-import { writeChangeSetAtom } from "./useCollab";
+import { triggerSyncAtom, writeChangeSetAtom } from "./useCollab";
 
 function _useInnkeeperSocket(authToken: string) {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
@@ -18,6 +18,7 @@ function _useInnkeeperSocket(authToken: string) {
   const setIsConnected = useSetAtom(isConnectedAtom);
   const setIsMatched = useSetAtom(isMatchedAtom);
   const [roomState, setRoomState] = useAtom(roomStateAtom);
+  const triggerDocumentSync = useSetAtom(triggerSyncAtom);
   const writeChangeSet = useSetAtom(writeChangeSetAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
@@ -81,6 +82,10 @@ function _useInnkeeperSocket(authToken: string) {
       console.log(`pushing ${updates.length} updates to editor`);
       writeChangeSet(updates);
       console.log(`wrote ${updates.length} updates to editor`);
+    },
+
+    sendDocumentChanged() {
+      triggerDocumentSync();
     },
 
     closeRoom(finalUpdate) {

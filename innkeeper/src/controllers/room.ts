@@ -146,17 +146,22 @@ export const handleSyncDocument = (
 
   userState.lastSeen = getUnixTimestamp();
   userState.version = version;
+  if (!docUpdates || docUpdates.length === 0) {
+    const changes = inn.getDocumentChanges(roomId);
+    if (!changes) {
+      console.error(`changes could not be found on request for ${roomId}`);
+      return;
+    }
+
+    socket.emit('pushDocumentChanges', changes.slice(version));
+    return;
+  }
+
   inn.syncDocumentChanges(roomId, docUpdates);
 
   io.in(roomState.roomId)
     .fetchSockets()
-    .then(sockets =>
-      sockets
-        .filter(s => s.id !== socket.id)
-        .forEach((s: InnkeeperOtherSockets) => {
-          s.emit('pushDocumentChanges', inn.getDocumentChanges(roomState.roomId)!);
-        }),
-    );
+    .then(sockets => sockets.filter(s => s.id !== socket.id).forEach((s: InnkeeperOtherSockets) => s.emit('sendDocumentChanged')));
 };
 
 export const handleRequestCompleteState = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {

@@ -39,9 +39,12 @@ export class InnState {
     }
 
     try {
-      const rebasedUpdates = rebaseUpdates(docUpdates, documentChanges);
+      const documentChangeDesc = documentChanges.map(({ changes, clientID }) => {
+        return { changes: changes.desc, clientID };
+      });
+
+      const rebasedUpdates = rebaseUpdates(docUpdates, documentChangeDesc);
       for (const update of rebasedUpdates) {
-        console.dir({ u: JSON.stringify(update), uc: JSON.stringify('changes' in update), ucx: update.changes.apply });
         roomState.textEditor.doc = ChangeSet.fromJSON(update.changes)
           .apply(Text.of(roomState.textEditor.doc.split('\n')))
           .toString();
