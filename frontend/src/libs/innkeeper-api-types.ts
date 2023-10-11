@@ -1,3 +1,5 @@
+import { Update } from "@codemirror/collab";
+
 export type NotificationMessage = {
   type: "SUCCESS" | "ERROR" | "INFO";
   message: string;
@@ -22,14 +24,6 @@ export type UserUpdate = {}; // Depends on @codemirror/collab types. Left empty 
 export type TextEditorState = {
   version: number;
   doc: string;
-};
-
-export type DocumentUpdate = {
-  /** Call ChangeSet.toJson() or .fromJson() */
-  stringifiedChangeSet: any;
-
-  /** Client that initiated change. */
-  clientId: string;
 };
 
 // Only used for reconnecting users / when users have lost history.
@@ -70,7 +64,7 @@ export interface ServerToClientEvents {
   sendPartialRoomState: (update: PartialRoomState) => void;
 
   /** Send text changes from code editor */
-  pushDocumentChanges: (changesets: DocumentUpdate[]) => void;
+  pushDocumentChanges: (changesets: readonly Update[]) => void;
 
   /**
    * Returns the last complete state, and notifies all users in a room that they must exit too.
@@ -87,10 +81,7 @@ export interface ClientToServerEvents {
   sendRoomUpdate: (partialUpdate: PartialRoomState) => void;
 
   /** Send text changes from code editor */
-  syncDocument: (
-    version: number,
-    localChanges: DocumentUpdate["stringifiedChangeSet"][],
-  ) => void;
+  syncDocument: (version: number, localChanges: readonly Update[]) => void;
 
   /** Requests for the complete state of the room. May be used after losing connection. */
   requestCompleteRoomState: () => void;
