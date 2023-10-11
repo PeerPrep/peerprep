@@ -1,46 +1,10 @@
 import { Router } from "express";
-import { Activity } from "../entities/Activity";
-import { ApiResponse, StatusMessageType } from "../types";
-import { handleServerError } from "../utils";
+import { updateActivityHandler } from "./update";
+import { listActivityHandler } from "./list";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
-  const em = req.orm.em.fork();
-
-  const uid = req.userToken.uid;
-  const body = req.body;
-
-  try {
-    const activity = await em.upsert(Activity, {
-      uid: uid,
-      questionId: body.questionId,
-    });
-
-    await em.persistAndFlush(activity);
-
-    const response: ApiResponse = {
-      statusMessage: {
-        type: StatusMessageType.SUCCESS,
-        message: "Updated user activity",
-      },
-      payload: activity,
-    };
-
-    res.send(response);
-  } catch (err: any) {
-    handleServerError(err, res);
-  }
-});
-
-router.get("/", async (req, res) => {
-  const em = req.orm.em.fork();
-
-  const uid = req.userToken.uid;
-
-  const activities = await em.find(Activity, { uid: uid });
-
-  res.send(activities);
-});
+router.post("/", updateActivityHandler);
+router.get("/", listActivityHandler);
 
 export default router;
