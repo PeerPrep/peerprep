@@ -55,14 +55,18 @@ const Navbar = () => {
             </Link>
             PeerPrep
           </div>
-          <NavbarPane link="/matching" label="Matching" />
-          <NavbarPaneDropdown
-            mainLabel="Admin"
-            navElements={[
-              { link: "/admin/portal", label: "Portal" },
-              { link: "/admin/question", label: "Question" },
-            ]}
-          />
+          {user && (
+            <>
+              <NavbarPane link="/matching" label="Matching" />
+              <NavbarPaneDropdown
+                mainLabel="Admin"
+                navElements={[
+                  { link: "/admin/portal", label: "Portal" },
+                  { link: "/admin/question", label: "Question" },
+                ]}
+              />
+            </>
+          )}
         </nav>
         {user ? (
           <div className="dropdown dropdown-hover">
@@ -78,7 +82,6 @@ const Navbar = () => {
               tabIndex={0}
               className="menu dropdown-content btn-primary rounded-box z-[1] w-48 p-2 shadow"
             >
-              {" "}
               <li>
                 <button
                   onClick={() => {

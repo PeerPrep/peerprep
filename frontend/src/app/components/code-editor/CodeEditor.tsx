@@ -3,6 +3,7 @@ import { ReactCodeMirrorProps } from "@uiw/react-codemirror";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
+import ResultsTab from "../tab/ResultsTab";
 
 let desiredWidth = "50vw";
 if (typeof window !== "undefined") {
@@ -30,6 +31,42 @@ const CodeMirrorEditor = ({
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [languageExtension, setLanguageExtension] = useState<any>(null);
+  const [dragging, setDragging] = useState<boolean>(false);
+  const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
+  const [editorHeight, setEditorHeight] = useState<number>(600);
+  const [initialHeight, setInitialHeight] = useState<number>(0); // Store the initial height when starting to drag
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    setDragging(true);
+    setStartY(e.clientY);
+    setInitialHeight(editorHeight);
+  };
+  let maxHeight = 0;
+
+  if (typeof window !== "undefined") {
+    maxHeight = window.innerHeight * 0.7;
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (dragging) {
+      const diffY = e.clientY - startY;
+      setEditorHeight(Math.min(initialHeight + diffY, maxHeight));
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragging, startY, initialHeight]);
 
   useEffect(() => {
     async function loadLanguageExtension() {
@@ -59,8 +96,8 @@ const CodeMirrorEditor = ({
   }, [selectedLanguage]);
 
   return (
-    <section>
-      <div className="flex items-center justify-between rounded-t-md bg-primary p-2 px-6">
+    <section className="flex flex-col items-center">
+      <div className="flex w-[90svw] items-center justify-between rounded-t-md bg-primary p-2 px-6 lg:w-[50svw]">
         <h2 className="text-2xl font-bold">Code Editor</h2>
         <div className="flex items-center gap-4">
           <h3>Language:</h3>
@@ -77,12 +114,19 @@ const CodeMirrorEditor = ({
         </div>
       </div>
       <CodeMirror
-        className="w-[90svw] lg:w-[50svw]"
-        height="80vh"
+        className="max-h-[70svw] w-[90svw] lg:w-[50svw]"
+        height={`${editorHeight}px`}
         theme="dark"
         extensions={languageExtension}
         value={value}
         onChange={onChange}
+      />
+      <div
+        className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"
+        onMouseDown={handleMouseDown}
+      />
+      <ResultsTab
+        height={Math.min(window.innerHeight * 0.7 - editorHeight, maxHeight)}
       />
     </section>
   );
