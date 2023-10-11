@@ -3,6 +3,7 @@ import Button from "@/app/components/button/Button";
 import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
 import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
 import StatusBar from "@/app/components/status-bar/StatusBar";
+import ResultsTab from "@/app/components/tab/ResultsTab";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
 import { UserState } from "@/libs/innkeeper-api-types";
 import {
@@ -90,7 +91,7 @@ const roomPage = () => {
 
   return (
     <div className="flex h-full flex-col justify-between">
-      <section className="flex flex-col items-center justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
+      <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
         <MarkdownQuestionPane />
         <CodeMirrorEditor value={code} onChange={setCode} />
       </section>
