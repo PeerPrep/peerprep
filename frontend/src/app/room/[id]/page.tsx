@@ -32,8 +32,7 @@ const sendMatchRequestAtom = atom(
   },
 );
 
-const Lobby = () => {
-  const [user, setUser] = useAtom(userAtom);
+const Lobby = ({ user, setUser }: any) => {
   const sendMatchRequest: (
     questionDifficulty: "EASY" | "MEDIUM" | "HARD",
   ) => void = useAtom(sendMatchRequestAtom)[1];
@@ -53,7 +52,7 @@ const Lobby = () => {
       <TextArea
         title="Change your username"
         value={user}
-        onChange={(e) => setUser(e.target.inputMode)}
+        onChange={(e) => (e ? setUser(e.target.value) : undefined)}
         size={"large"}
       />
     </section>
@@ -85,7 +84,7 @@ const Editor = ({
 };
 
 const roomPage = () => {
-  const user = useAtomValue(userAtom);
+  const [user, setUser] = useAtom(userAtom);
   useInnkeeperSocket(user);
 
   const isConnected = useAtomValue(isConnectedAtom);
@@ -102,7 +101,7 @@ const roomPage = () => {
   }
 
   if (isMatched !== "MATCHED" && isMatched !== "CLOSED") {
-    return <Lobby />;
+    return <Lobby user={user} setUser={setUser} />;
   }
 
   //For status bar
