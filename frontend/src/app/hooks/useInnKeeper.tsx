@@ -1,69 +1,112 @@
+import { PartialRoomState } from "@/libs/innkeeper-api-types";
 import {
   JotaiInnkeeperListenAdapter,
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
   socketAtom,
-  textEditorAtom,
-  userStatesAtom,
 } from "@/libs/room-jotai";
-import { useAtom } from "jotai";
+import { ChangeSet } from "@uiw/react-codemirror";
+import { atom, useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import io from "socket.io-client";
+import { triggerSyncAtom, writeChangeSetAtom } from "./useCollab";
+
+const partialRoomWriteAtom = atom(
+  null,
+  (get, set, partialUpdate: PartialRoomState) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("roomState not set but trying to write partial room state");
+      return;
+    }
+
+    if (partialUpdate.questionId)
+      set(roomStateAtom, {
+        ...roomState,
+        questionId: partialUpdate.questionId,
+      });
+    if (partialUpdate.userStates)
+      set(roomStateAtom, {
+        ...roomState,
+        userStates: partialUpdate.userStates,
+      });
+  },
+);
 
 function _useInnkeeperSocket(authToken: string) {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
   const [socket, setSocket] = useAtom(socketAtom);
 
-  const setIsConnected = useAtom(isConnectedAtom)[1];
-  const setIsMatched = useAtom(isMatchedAtom)[1];
-  const setRoomState = useAtom(roomStateAtom)[1];
-  const setTextEditor = useAtom(textEditorAtom)[1];
-  const setUserStates = useAtom(userStatesAtom)[1];
+  const setIsConnected = useSetAtom(isConnectedAtom);
+  const setIsMatched = useSetAtom(isMatchedAtom);
+  const setRoomState = useSetAtom(roomStateAtom);
+  const setPartialRoomState = useSetAtom(partialRoomWriteAtom);
+  const triggerDocumentSync = useSetAtom(triggerSyncAtom);
+  const writeChangeSet = useSetAtom(writeChangeSetAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
-    connect: () => {
+    connect() {
       console.log("connected to innkeeper socket");
       setIsConnected(true);
     },
 
-    disconnect: () => {
+    disconnect() {
       console.log("disconnected from innkeeper socket");
       setIsConnected(false);
     },
 
-    connect_error: (error) => {
+    connect_error(error) {
       console.log("received connect error:", error);
     },
 
-    sendNotification: (message) => {
+    sendNotification(message) {
       console.log("received notification:", message);
     },
 
-    sendToRoom: (message) => {
+    sendToRoom(message) {
       console.log("received sendToRoom:", message);
 
       setIsMatched("MATCHED");
     },
 
-    availableMatches: (message) => {
+    availableMatches(message) {
       console.log("received matches:", message);
     },
 
-    sendCompleteRoomState: (roomState) => {
+    sendCompleteRoomState(roomState) {
       console.log("received complete room state:", roomState);
+      triggerDocumentSync();
 
       setRoomState(roomState);
+      const [u1, u2] = roomState.userStates;
+      if (u1.status != "EXITED" && u2.status != "EXITED")
+        setIsMatched("MATCHED");
     },
 
-    sendPartialRoomState: (partialUpdate) => {
+    sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
-
-      if (partialUpdate.textEditor) setTextEditor(partialUpdate.textEditor);
-      if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
+      setPartialRoomState(partialUpdate);
     },
 
-    closeRoom: (finalUpdate) => {
+    pushDocumentChanges(changesets, previousVersion) {
+      console.log(
+        `received ${changesets.length} changesets from server given base ${previousVersion}`,
+      );
+      const updates = changesets.map((u) => ({
+        changes: ChangeSet.fromJSON(u.changes),
+        clientID: u.clientID,
+      }));
+
+      console.log(`pushing ${updates.length} updates to editor`);
+      console.log(`wrote ${updates.length} updates to editor`);
+    },
+
+    sendDocumentChanged() {
+      triggerDocumentSync();
+    },
+
+    closeRoom(finalUpdate) {
       setIsMatched("CLOSED");
 
       console.log("received partial room state:", finalUpdate);

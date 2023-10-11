@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@codemirror/collab": "^6.1.1",
+    "@codemirror/state": "^6.2.1",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
