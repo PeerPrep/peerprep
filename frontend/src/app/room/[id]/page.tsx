@@ -9,18 +9,13 @@ import {
   isMatchedAtom,
   roomStateAtom,
 } from "@/libs/room-jotai";
-import ReactCodeMirror from "@uiw/react-codemirror";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
+import CodeEditor from "../../components/code-editor/CodeEditor";
 import { useCollab } from "../../hooks/useCollab";
 
 const userAtom = atom("user_a");
-
-const editorStateAtom = atom<{ text: string; version: number }>({
-  text: ``,
-  version: 0,
-});
 
 const sendMatchRequestAtom = atom(
   null,
@@ -71,14 +66,7 @@ const Editor = ({
   return (
     <section className="flex flex-col items-center justify-center gap-4 p-6 lg:flex-row">
       <MarkdownQuestionPane />
-      <ReactCodeMirror
-        className={`flex-1 overflow-scroll text-left`}
-        height="100%"
-        basicSetup={false}
-        id="codeEditor"
-        extensions={[peerExtension]}
-        value={initialDoc}
-      />
+      <CodeEditor extensions={[peerExtension]} value={initialDoc} />
     </section>
   );
 };
