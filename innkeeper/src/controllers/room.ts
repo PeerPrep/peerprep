@@ -1,3 +1,4 @@
+import { DocumentUpdate } from 'types/innkeeper-api-types';
 import { sendNotification } from '../controllers';
 import { InnState } from '../models';
 import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, PartialRoomState, RoomState, UserState } from '../types';
@@ -105,7 +106,7 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
   const newRoomState: RoomState = {
     roomId,
     questionId: update.questionId ?? questionId,
-    textEditor: { code: update.textEditor?.code ?? textEditor.code },
+    textEditor, // textEditor cannot be edited by user.
     userStates: [userState, otherUserState], // userState cannot be edited by user.
   };
 
@@ -117,6 +118,53 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
         .filter(s => s.id !== socket.id)
         .forEach((s: InnkeeperOtherSockets) => {
           s.emit('sendPartialRoomState', update);
+        }),
+    );
+};
+
+export const handleSyncDocument = (
+  io: InnkeeperIoServer,
+  inn: InnState,
+  socket: InnkeeperIoSocket,
+  version: number,
+  docUpdates: DocumentUpdate['stringifiedChangeSet'][],
+): void => {
+  const roomState = getRoomState(inn, socket);
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
+
+  const getSelfAndOtherUserResult = getSelfAndOtherUser(roomState, socket.data.userId);
+  if (!getSelfAndOtherUserResult) {
+    sendNotification(socket, { type: 'ERROR', message: 'User state not found.' });
+    return;
+  }
+
+  const [userState, otherUserState] = getSelfAndOtherUserResult;
+  const { roomId, questionId, textEditor } = roomState;
+
+  userState.lastSeen = getUnixTimestamp();
+  userState.version = version;
+  inn.syncDocumentChanges(
+    roomId,
+    docUpdates.map(stringifiedChangeSet => {
+      return { stringifiedChangeSet, clientId: socket.data.userId };
+    }),
+  );
+
+  io.in(roomState.roomId)
+    .fetchSockets()
+    .then(sockets =>
+      sockets
+        .filter(s => s.id !== socket.id)
+        .forEach((s: InnkeeperOtherSockets) => {
+          s.emit(
+            'pushDocumentChanges',
+            inn.getDocumentChanges(roomState.roomId)!.map(({ changes, clientID }) => {
+              return { stringifiedChangeSet: changes.toJSON(), clientId: clientID };
+            }),
+          );
         }),
     );
 };

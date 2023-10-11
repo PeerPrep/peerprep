@@ -13,6 +13,7 @@ export {
   UserState,
   UserUpdate,
   WaitingUsersCount,
+  DocumentUpdate,
 } from './innkeeper-api-types';
 
 export type InnkeeperIoServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, InnkeeperSocketData>;

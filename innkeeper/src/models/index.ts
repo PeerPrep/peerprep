@@ -1,5 +1,8 @@
+/// <reference path="../codemirror__index.d.ts" />
+import { Update, rebaseUpdates } from '@codemirror/collab';
+import { ChangeSet, Text } from '@codemirror/state';
 import crypto from 'crypto';
-import { MatchingParameters, RoomState, WaitingUsersCount } from '../types';
+import { DocumentUpdate, MatchingParameters, RoomState, WaitingUsersCount } from '../types';
 
 // Avoid issues regarding hashing objects.
 type MatchingParametersHash = string;
@@ -7,6 +10,7 @@ type MatchingParametersHash = string;
 export class InnState {
   private matchingParameterToUserMap = new Map<MatchingParametersHash, string>();
   private roomStatesMap = new Map<string, RoomState>();
+  private documentChangesMap = new Map<string, Update[]>();
 
   getRoomId(userId: string): string | null {
     const roomStates = Array.from(this.roomStatesMap.values());
@@ -22,6 +26,32 @@ export class InnState {
     this.roomStatesMap.set(roomId, roomState);
   }
 
+  getDocumentChanges(roomId: string): Update[] | undefined {
+    return this.documentChangesMap.get(roomId);
+  }
+
+  syncDocumentChanges(roomId: string, docUpdates: DocumentUpdate[]): void {
+    const documentChanges = this.documentChangesMap.get(roomId);
+    const roomState = this.roomStatesMap.get(roomId);
+    if (!documentChanges || !roomState) {
+      console.error(`Unexpected undefined roomState / documentChange for roomId ${roomId}.`);
+      return;
+    }
+
+    const updates: readonly Update[] = docUpdates.map(update => ({
+      changes: ChangeSet.fromJSON(update.stringifiedChangeSet),
+      clientID: update.clientId,
+    }));
+
+    const rebasedUpdates = rebaseUpdates(updates, documentChanges);
+    for (const update of rebasedUpdates) {
+      roomState.textEditor.doc = update.changes.apply(Text.of(roomState.textEditor.doc.split('\n'))).toString();
+    }
+
+    this.roomStatesMap.set(roomId, roomState);
+    documentChanges.push(...rebasedUpdates);
+  }
+
   removeRoom(roomId: string): void {
     this.roomStatesMap.delete(roomId);
   }
@@ -31,10 +61,10 @@ export class InnState {
     const newRoomState: RoomState = {
       roomId,
       questionId: '',
-      textEditor: { code: `console.log('Hello world!');` },
+      textEditor: { version: 0, doc: `console.log('Hello world!');` },
       userStates: [
-        { userId: userIds[0], status: 'INACTIVE', lastSeen: 0 },
-        { userId: userIds[1], status: 'INACTIVE', lastSeen: 0 },
+        { userId: userIds[0], status: 'INACTIVE', lastSeen: 0, version: 0 },
+        { userId: userIds[1], status: 'INACTIVE', lastSeen: 0, version: 0 },
       ],
     };
     this.roomStatesMap.set(roomId, newRoomState);

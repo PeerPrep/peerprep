@@ -15,11 +15,21 @@ export type UserState = {
   userId: string;
   status: 'INACTIVE' | 'ACTIVE' | 'EXITED';
   lastSeen: number; // Unix time (seconds since epoch)
+  version: number;
 };
 
 export type UserUpdate = {}; // Depends on @codemirror/collab types. Left empty for now.
 export type TextEditorState = {
-  code: string;
+  version: number;
+  doc: string;
+};
+
+export type DocumentUpdate = {
+  /** Call ChangeSet.toJson() or .fromJson() */
+  stringifiedChangeSet: any;
+
+  /** Client that initiated change. */
+  clientId: string;
 };
 
 // Only used for reconnecting users / when users have lost history.
@@ -36,7 +46,6 @@ export type RoomState = {
  */
 export type PartialRoomState = {
   questionId?: string;
-  textEditor?: TextEditorState;
   userStates?: [UserState, UserState];
 };
 
@@ -60,6 +69,9 @@ export interface ServerToClientEvents {
   /** Updates every user on any changes to the last emitted room state. */
   sendPartialRoomState: (update: PartialRoomState) => void;
 
+  /** Send text changes from code editor */
+  pushDocumentChanges: (changesets: DocumentUpdate[]) => void;
+
   /**
    * Returns the last complete state, and notifies all users in a room that they must exit too.
    * Checking the user states will reveal one 'EXITED' user who initiated the closing.
@@ -71,8 +83,11 @@ export interface ClientToServerEvents {
   /** Use to set matching parameters to make a match. Note that it can be called repeatedly to change matching parameter. */
   makeMatchingRequest: (params: MatchingParameters) => void;
 
-  /** Placeholder function, true signature will depend on @codemirror/collab */
-  sendUpdate: (update: PartialRoomState) => void;
+  /** Send non-text changes from room */
+  sendRoomUpdate: (partialUpdate: PartialRoomState) => void;
+
+  /** Send text changes from code editor */
+  syncDocument: (version: number, localChanges: DocumentUpdate['stringifiedChangeSet'][]) => void;
 
   /** Requests for the complete state of the room. May be used after losing connection. */
   requestCompleteRoomState: () => void;
