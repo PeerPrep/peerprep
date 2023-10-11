@@ -2,7 +2,7 @@
 import { Update, rebaseUpdates } from '@codemirror/collab';
 import { ChangeSet, Text } from '@codemirror/state';
 import crypto from 'crypto';
-import { DocumentUpdate, MatchingParameters, RoomState, WaitingUsersCount } from '../types';
+import { MatchingParameters, RoomState, WaitingUsersCount } from '../types';
 
 // Avoid issues regarding hashing objects.
 type MatchingParametersHash = string;
@@ -30,7 +30,7 @@ export class InnState {
     return this.documentChangesMap.get(roomId);
   }
 
-  syncDocumentChanges(roomId: string, docUpdates: DocumentUpdate[]): void {
+  syncDocumentChanges(roomId: string, docUpdates: readonly Update[]): void {
     const documentChanges = this.documentChangesMap.get(roomId);
     const roomState = this.roomStatesMap.get(roomId);
     if (!documentChanges || !roomState) {
@@ -38,18 +38,21 @@ export class InnState {
       return;
     }
 
-    const updates: readonly Update[] = docUpdates.map(update => ({
-      changes: ChangeSet.fromJSON(update.stringifiedChangeSet),
-      clientID: update.clientId,
-    }));
+    try {
+      const rebasedUpdates = rebaseUpdates(docUpdates, documentChanges);
+      for (const update of rebasedUpdates) {
+        console.dir({ u: JSON.stringify(update), uc: JSON.stringify('changes' in update), ucx: update.changes.apply });
+        roomState.textEditor.doc = ChangeSet.fromJSON(update.changes)
+          .apply(Text.of(roomState.textEditor.doc.split('\n')))
+          .toString();
+      }
 
-    const rebasedUpdates = rebaseUpdates(updates, documentChanges);
-    for (const update of rebasedUpdates) {
-      roomState.textEditor.doc = update.changes.apply(Text.of(roomState.textEditor.doc.split('\n'))).toString();
+      this.roomStatesMap.set(roomId, roomState);
+      documentChanges.push(...rebasedUpdates);
+    } catch (e: any) {
+      console.error(`Failed to deal with ${roomId} (${e}).\ndocUpdates: ${JSON.stringify(docUpdates)}`);
+      return;
     }
-
-    this.roomStatesMap.set(roomId, roomState);
-    documentChanges.push(...rebasedUpdates);
   }
 
   removeRoom(roomId: string): void {
@@ -68,6 +71,7 @@ export class InnState {
       ],
     };
     this.roomStatesMap.set(roomId, newRoomState);
+    this.documentChangesMap.set(roomId, []);
 
     return newRoomState;
   }

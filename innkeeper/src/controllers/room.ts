@@ -1,4 +1,4 @@
-import { DocumentUpdate } from 'types/innkeeper-api-types';
+import { Update } from '@codemirror/collab';
 import { sendNotification } from '../controllers';
 import { InnState } from '../models';
 import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, PartialRoomState, RoomState, UserState } from '../types';
@@ -127,7 +127,7 @@ export const handleSyncDocument = (
   inn: InnState,
   socket: InnkeeperIoSocket,
   version: number,
-  docUpdates: DocumentUpdate['stringifiedChangeSet'][],
+  docUpdates: readonly Update[],
 ): void => {
   const roomState = getRoomState(inn, socket);
   if (!roomState) {
@@ -146,12 +146,7 @@ export const handleSyncDocument = (
 
   userState.lastSeen = getUnixTimestamp();
   userState.version = version;
-  inn.syncDocumentChanges(
-    roomId,
-    docUpdates.map(stringifiedChangeSet => {
-      return { stringifiedChangeSet, clientId: socket.data.userId };
-    }),
-  );
+  inn.syncDocumentChanges(roomId, docUpdates);
 
   io.in(roomState.roomId)
     .fetchSockets()
@@ -159,12 +154,7 @@ export const handleSyncDocument = (
       sockets
         .filter(s => s.id !== socket.id)
         .forEach((s: InnkeeperOtherSockets) => {
-          s.emit(
-            'pushDocumentChanges',
-            inn.getDocumentChanges(roomState.roomId)!.map(({ changes, clientID }) => {
-              return { stringifiedChangeSet: changes.toJSON(), clientId: clientID };
-            }),
-          );
+          s.emit('pushDocumentChanges', inn.getDocumentChanges(roomState.roomId)!);
         }),
     );
 };
