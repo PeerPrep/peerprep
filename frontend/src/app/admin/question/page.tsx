@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/app/components/button/Button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 
 import {
@@ -175,6 +175,22 @@ const QuestionPage = () => {
     return fetchAllQuestionsUrl();
   });
 
+  const [searchValue, setSearchValue] = useState("");
+
+  const allQuestionsFiltered = useMemo(
+    () =>
+      allQuestions?.payload.filter((question) => {
+        return (
+          question.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+          question.tags.some((tag) =>
+            tag.toLowerCase().includes(searchValue.toLowerCase()),
+          ) ||
+          question.difficulty.toLowerCase().includes(searchValue.toLowerCase())
+        );
+      }),
+    [allQuestions?.payload, searchValue],
+  );
+
   const deleteQuestionMutation = useMutation(
     async (questionId: string) => deleteQuestionUrl(questionId),
     {
@@ -212,6 +228,7 @@ const QuestionPage = () => {
                   className="ml-3 h-10 w-64 rounded-3xl"
                   prefix={<SearchOutlined className="bg-white" />}
                   placeholder="Search"
+                  onChange={(e) => setSearchValue(e.target.value)}
                 />
               </div>
             </div>
@@ -264,7 +281,7 @@ const QuestionPage = () => {
             <Table
               bordered
               columns={columns}
-              dataSource={allQuestions?.payload}
+              dataSource={allQuestionsFiltered}
               pagination={{ position: ["bottomCenter"] }}
             />
             {allQuestionsLoading && (
