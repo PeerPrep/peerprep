@@ -1,3 +1,4 @@
+import { PartialRoomState } from "@/libs/innkeeper-api-types";
 import {
   JotaiInnkeeperListenAdapter,
   isConnectedAtom,
@@ -6,10 +7,32 @@ import {
   socketAtom,
 } from "@/libs/room-jotai";
 import { ChangeSet } from "@uiw/react-codemirror";
-import { useAtom, useSetAtom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import io from "socket.io-client";
 import { triggerSyncAtom, writeChangeSetAtom } from "./useCollab";
+
+const partialRoomWriteAtom = atom(
+  null,
+  (get, set, partialUpdate: PartialRoomState) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("roomState not set but trying to write partial room state");
+      return;
+    }
+
+    if (partialUpdate.questionId)
+      set(roomStateAtom, {
+        ...roomState,
+        questionId: partialUpdate.questionId,
+      });
+    if (partialUpdate.userStates)
+      set(roomStateAtom, {
+        ...roomState,
+        userStates: partialUpdate.userStates,
+      });
+  },
+);
 
 function _useInnkeeperSocket(authToken: string) {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
@@ -17,7 +40,8 @@ function _useInnkeeperSocket(authToken: string) {
 
   const setIsConnected = useSetAtom(isConnectedAtom);
   const setIsMatched = useSetAtom(isMatchedAtom);
-  const [roomState, setRoomState] = useAtom(roomStateAtom);
+  const setRoomState = useSetAtom(roomStateAtom);
+  const setPartialRoomState = useSetAtom(partialRoomWriteAtom);
   const triggerDocumentSync = useSetAtom(triggerSyncAtom);
   const writeChangeSet = useSetAtom(writeChangeSetAtom);
 
@@ -61,15 +85,7 @@ function _useInnkeeperSocket(authToken: string) {
 
     sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
-      if (!roomState) {
-        console.error("roomState not set but partial room state received");
-        return;
-      }
-
-      if (partialUpdate.questionId)
-        setRoomState({ ...roomState, questionId: partialUpdate.questionId });
-      if (partialUpdate.userStates)
-        setRoomState({ ...roomState, userStates: partialUpdate.userStates });
+      setPartialRoomState(partialUpdate);
     },
 
     pushDocumentChanges(changesets) {
