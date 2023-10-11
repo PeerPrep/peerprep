@@ -66,6 +66,9 @@ export interface ServerToClientEvents {
   /** Send text changes from code editor */
   pushDocumentChanges: (changesets: readonly Update[]) => void;
 
+  /** Notify document has changed to code editor */
+  sendDocumentChanged: () => void;
+
   /**
    * Returns the last complete state, and notifies all users in a room that they must exit too.
    * Checking the user states will reveal one 'EXITED' user who initiated the closing.
