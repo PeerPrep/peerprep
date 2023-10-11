@@ -53,6 +53,9 @@ function _useInnkeeperSocket(authToken: string) {
       console.log("received complete room state:", roomState);
 
       setRoomState(roomState);
+      const [u1, u2] = roomState.userStates;
+      if (u1.status != "EXITED" && u2.status != "EXITED")
+        setIsMatched("MATCHED");
     },
 
     sendPartialRoomState(partialUpdate) {
@@ -71,8 +74,8 @@ function _useInnkeeperSocket(authToken: string) {
     pushDocumentChanges(changesets) {
       console.log(`received ${changesets.length} changesets from server`);
       const updates = changesets.map((u) => ({
-        changes: ChangeSet.fromJSON(u.stringifiedChangeSet),
-        clientID: u.clientId,
+        changes: ChangeSet.fromJSON(u.changes),
+        clientID: u.clientID,
       }));
 
       console.log(`pushing ${updates.length} updates to editor`);

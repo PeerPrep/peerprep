@@ -69,14 +69,7 @@ export const useCollab = (startVersion: number) => {
       console.log(
         `syncing ${updates.length} updates from ver ${lastKnownVersion}`,
       );
-      socket.emit(
-        "syncDocument",
-        lastKnownVersion,
-        updates.map((u) => ({
-          stringifiedChangeSet: JSON.stringify(u.changes),
-          clientId: u.clientID,
-        })),
-      );
+      socket.emit("syncDocument", lastKnownVersion, updates);
     };
 
     // Doesn't seem necessary for us?
