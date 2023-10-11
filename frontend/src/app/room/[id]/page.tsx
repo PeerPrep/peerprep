@@ -1,31 +1,26 @@
 "use client";
 import Button from "@/app/components/button/Button";
-import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
 import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
 import StatusBar from "@/app/components/status-bar/StatusBar";
-import ResultsTab from "@/app/components/tab/ResultsTab";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
-import { UserState } from "@/libs/innkeeper-api-types";
 import {
   innkeeperWriteAtom,
   isConnectedAtom,
   isMatchedAtom,
-  textEditorAtom,
+  roomStateAtom,
 } from "@/libs/room-jotai";
+import ReactCodeMirror from "@uiw/react-codemirror";
 import { Space } from "antd";
-import { atom, useAtom } from "jotai";
+import TextArea from "antd/lib/input/TextArea";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { useCollab } from "../../hooks/useCollab";
 
-const codeAtom = atom(
-  (get) => get(textEditorAtom)?.code,
-  (get, set, update: string) => {
-    if (get(textEditorAtom)?.code === update) return;
+const userAtom = atom("user_a");
 
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{ textEditor: { code: update } }],
-    });
-  },
-);
+const editorStateAtom = atom<{ text: string; version: number }>({
+  text: ``,
+  version: 0,
+});
 
 const sendMatchRequestAtom = atom(
   null,
@@ -38,30 +33,67 @@ const sendMatchRequestAtom = atom(
 );
 
 const Lobby = () => {
+  const [user, setUser] = useAtom(userAtom);
   const sendMatchRequest: (
     questionDifficulty: "EASY" | "MEDIUM" | "HARD",
   ) => void = useAtom(sendMatchRequestAtom)[1];
 
   return (
     <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
-      <h1 className="text-4xl font-bold">Choose a question difficulty...</h1>
+      <h1 className="text-4xl font-bold">
+        Choose a question difficulty, '{user}':
+      </h1>
       <Space>
         <Button onClick={() => sendMatchRequest("EASY")}>Easy</Button>
         <Button onClick={() => sendMatchRequest("MEDIUM")}>Medium</Button>
         <Button onClick={() => sendMatchRequest("HARD")}>Hard</Button>
       </Space>
+
+      {/* TextField and button that sets the value of setUser to the value of the textfield. */}
+      <TextArea
+        title="Change your username"
+        value={user}
+        onChange={(e) => setUser(e.target.inputMode)}
+        size={"large"}
+      />
+    </section>
+  );
+};
+
+const Editor = ({
+  initialVersion,
+  initialDoc,
+}: {
+  initialVersion: number;
+  initialDoc: string;
+}) => {
+  const peerExtension = useCollab(initialVersion);
+
+  return (
+    <section className="flex flex-col items-center justify-center gap-4 p-6 lg:flex-row">
+      <MarkdownQuestionPane />
+      <ReactCodeMirror
+        className={`flex-1 overflow-scroll text-left`}
+        height="100%"
+        basicSetup={false}
+        id="codeEditor"
+        extensions={[peerExtension]}
+        value={initialDoc}
+      />
     </section>
   );
 };
 
 const roomPage = () => {
-  useInnkeeperSocket("user_a");
-  const isConnected = useAtom(isConnectedAtom)[0];
-  const isMatched = useAtom(isMatchedAtom)[0];
-  const [code, setCode] = useAtom(codeAtom);
+  const user = useAtomValue(userAtom);
+  useInnkeeperSocket(user);
+
+  const isConnected = useAtomValue(isConnectedAtom);
+  const isMatched = useAtomValue(isMatchedAtom);
+  const roomState = useAtomValue(roomStateAtom);
 
   if (!isConnected) {
-    console.log({ isConnected });
+    console.log({ isConnected, at: "rendering room page" });
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Connecting to InnKeeper...</h1>
@@ -77,24 +109,23 @@ const roomPage = () => {
 
   const executeFunction = () => undefined;
 
-  const user1: UserState = {
-    userId: "hello 1",
-    status: "ACTIVE",
-    lastSeen: 10,
-  };
+  // Connected, matched but hasn't received room state yet.
+  if (!roomState) {
+    return (
+      <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
+        <h1 className="text-4xl font-bold">Loading...</h1>
+      </section>
+    );
+  }
 
-  const user2: UserState = {
-    userId: "hello 1",
-    status: "EXITED",
-    lastSeen: 10,
-  };
+  const [user1, user2] = roomState.userStates;
 
   return (
     <div className="flex h-full flex-col justify-between">
-      <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
-        <MarkdownQuestionPane />
-        <CodeMirrorEditor value={code} onChange={setCode} />
-      </section>
+      <Editor
+        initialVersion={roomState.textEditor.version}
+        initialDoc={roomState.textEditor.doc}
+      />
       <StatusBar
         exitMethod={executeFunction}
         executeFunction={executeFunction}
