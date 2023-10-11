@@ -1,10 +1,10 @@
 export type NotificationMessage = {
-  type: 'SUCCESS' | 'ERROR' | 'INFO';
+  type: "SUCCESS" | "ERROR" | "INFO";
   message: string;
 };
 
 export type MatchingParameters = {
-  questionDifficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  questionDifficulty: "EASY" | "MEDIUM" | "HARD";
 };
 
 export type WaitingUsersCount = {
@@ -13,7 +13,7 @@ export type WaitingUsersCount = {
 
 export type UserState = {
   userId: string;
-  status: 'INACTIVE' | 'ACTIVE' | 'EXITED';
+  status: "INACTIVE" | "ACTIVE" | "EXITED";
   lastSeen: number; // Unix time (seconds since epoch)
   version: number;
 };
@@ -22,14 +22,6 @@ export type UserUpdate = {}; // Depends on @codemirror/collab types. Left empty 
 export type TextEditorState = {
   version: number;
   doc: string;
-};
-
-export type ShrunkDocumentUpdate = {
-  /** Call ChangeDesc.toJson() or .fromJson() */
-  stringifiedChangeDesc: any;
-
-  /** Client that initiated change. */
-  clientId: string;
 };
 
 export type DocumentUpdate = {
@@ -78,7 +70,7 @@ export interface ServerToClientEvents {
   sendPartialRoomState: (update: PartialRoomState) => void;
 
   /** Send text changes from code editor */
-  pushDocumentChanges: (changesets: ShrunkDocumentUpdate[]) => void;
+  pushDocumentChanges: (changesets: DocumentUpdate[]) => void;
 
   /**
    * Returns the last complete state, and notifies all users in a room that they must exit too.
@@ -95,7 +87,10 @@ export interface ClientToServerEvents {
   sendRoomUpdate: (partialUpdate: PartialRoomState) => void;
 
   /** Send text changes from code editor */
-  syncDocument: (version: number, localChanges: DocumentUpdate['stringifiedChangeSet'][]) => void;
+  syncDocument: (
+    version: number,
+    localChanges: DocumentUpdate["stringifiedChangeSet"][],
+  ) => void;
 
   /** Requests for the complete state of the room. May be used after losing connection. */
   requestCompleteRoomState: () => void;
