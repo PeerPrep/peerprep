@@ -7,6 +7,8 @@ import CORS from "cors";
 
 import ProfileRouter from "./profile";
 import ActivityRouter from "./activity";
+import AdminRouter from "./admin";
+
 import { handleServerError } from "./utils";
 
 declare global {
@@ -39,6 +41,7 @@ initDatabase().then((orm) => {
 
   const firebaseApp = initializeApp({
     credential: applicationDefault(),
+    storageBucket: process.env.BUCKET_NAME
   });
 
   const firebaseAuth = getAuth(firebaseApp);
@@ -73,6 +76,7 @@ initDatabase().then((orm) => {
 
   app.use("/api/v1/users/profile", ProfileRouter);
   app.use("/api/v1/users/activity", ActivityRouter);
+  app.use("/api/v1/users/admin", AdminRouter);
 
   app.listen(6969, () => {
     console.log("Starting user service");
