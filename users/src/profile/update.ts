@@ -4,6 +4,7 @@ import { ApiResponse, StatusMessageType } from "../types";
 import { handleCustomError, handleServerError } from "../utils";
 import { getDownloadURL, getStorage } from "firebase-admin/storage"
 import multer from "multer"
+import crypto from "crypto"
 
 const upload = multer({ storage: multer.diskStorage({}) });
 
@@ -18,19 +19,19 @@ interface ImageUploadStatus {
 }
 
 async function uploadImage(uid: string, req: Express.Request): Promise<ImageUploadStatus> {
-    if (!req.files) {
+    const imageFile = (req.files as Express.Multer.File[])[0];
+    if (!imageFile) {
         return { unsupportedImage: false, imageUrl: undefined };
     }
-
-    const imageFile = (req.files as Express.Multer.File[])[0];
     const extension = mimeExtensionMap.get(imageFile.mimetype);
     if (!extension) {
         return { unsupportedImage: true, imageUrl: undefined };
     }
     
     const bucket = getStorage(req.firebaseApp).bucket();
+    const filename = `${crypto.randomBytes(20).toString('hex')}.${extension}`;
     const file = (await bucket.upload(imageFile.path, {
-        destination: `public/${uid}_image.${extension}`,
+        destination: `public/${filename}`,
         metadata: {
             contentType: imageFile.mimetype,
             cacheControl: "public, max-age=604800"
@@ -56,21 +57,35 @@ export async function updateProfileHandler(req: Request, res: Response) {
             });
         }
 
-        const profile = await em.upsert(Profile, {
-            uid: uid,
-            name: body.name,
-            preferredLang: body.preferredLang,
-            imageUrl: imageStatus.imageUrl,
+        const loadedProfile = await em.findOne(Profile, {
+            uid: uid
         });
 
-        await em.persistAndFlush(profile);
+        let result: Profile;
+
+        if (!loadedProfile) {
+            const profile = await em.insert(Profile, {
+                uid: uid,
+                name: body.name,
+                preferredLang: body.preferredLang,
+                imageUrl: imageStatus.imageUrl
+            });
+            await em.persistAndFlush(profile);
+            result = profile;
+        } else {
+            loadedProfile.name = body.name ?? loadedProfile.name;
+            loadedProfile.preferredLang = body.preferredLang ?? loadedProfile.preferredLang;
+            loadedProfile.imageUrl = imageStatus.imageUrl ?? loadedProfile.imageUrl;
+            await em.flush()
+            result = loadedProfile;
+        }
 
         const response: ApiResponse = {
             statusMessage: {
             message: "Profile updated successfully",
                 type: StatusMessageType.SUCCESS,
             },
-            payload: profile,
+            payload: result,
         };
         res.status(200).send(response);
     } catch (err: any) {

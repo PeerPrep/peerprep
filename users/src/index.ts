@@ -41,6 +41,7 @@ initDatabase().then((orm) => {
 
   const firebaseApp = initializeApp({
     credential: applicationDefault(),
+    storageBucket: process.env.BUCKET_NAME
   });
 
   const firebaseAuth = getAuth(firebaseApp);
