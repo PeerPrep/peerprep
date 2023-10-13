@@ -64,8 +64,12 @@ services:
       driver: journald
     expose:
       - "4000"
+    volumes:
+      - ./firebase-auth:/firebase-auth
     environment:
+      GOOGLE_APPLICATION_CREDENTIALS: "/firebase-auth/service-account.json"
       MONGODB_URL: "mongodb://peerprep-mongo:27017/questions"
+      BUCKET_NAME: "peerprep3219.appspot.com"
 
   users:
     image: ghcr.io/peerprep/peerprep-users-service:latest
