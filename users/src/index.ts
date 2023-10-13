@@ -1,5 +1,6 @@
 import Express, { Request, Response, NextFunction } from "express";
 import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql";
+import "dotenv/config"
 
 import { App, applicationDefault, initializeApp } from "firebase-admin/app";
 import { DecodedIdToken, getAuth } from "firebase-admin/auth";
@@ -30,8 +31,10 @@ async function initDatabase() {
 
   const generator = orm.getSchemaGenerator();
 
-  const createDump = await generator.getCreateSchemaSQL();
-  console.log(createDump);
+  const updateDump = await generator.getUpdateSchemaSQL();
+  console.log(updateDump);
+
+  await generator.updateSchema();
 
   return orm;
 }
