@@ -124,13 +124,6 @@
     "@codemirror/view" "^6.6.0"
     "@lezer/common" "^1.0.0"
 
-"@codemirror/collab@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@codemirror/collab/-/collab-6.1.1.tgz#51e60685374fdcc59c316081b788d8197e296756"
-  integrity sha512-tkIn9Jguh98ie12dbBuba3lE8LHUkaMrIFuCVeVGhncSczFdKmX25vC12+58+yqQW5AXi3py6jWY0W+jelyglA==
-  dependencies:
-    "@codemirror/state" "^6.0.0"
-
 "@codemirror/commands@^6.0.0", "@codemirror/commands@^6.1.0":
   version "6.2.5"
   resolved "https://registry.yarnpkg.com/@codemirror/commands/-/commands-6.2.5.tgz#e889f93f9cc85b32f6b2844d85d08688f695a6b8"

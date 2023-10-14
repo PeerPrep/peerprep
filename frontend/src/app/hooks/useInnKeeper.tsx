@@ -1,38 +1,15 @@
-import { PartialRoomState } from "@/libs/innkeeper-api-types";
 import {
   JotaiInnkeeperListenAdapter,
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
   socketAtom,
+  textEditorAtom,
+  userStatesAtom,
 } from "@/libs/room-jotai";
-import { ChangeSet } from "@uiw/react-codemirror";
-import { atom, useAtom, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import io from "socket.io-client";
-import { triggerSyncAtom, writeChangeSetAtom } from "./useCollab";
-
-const partialRoomWriteAtom = atom(
-  null,
-  (get, set, partialUpdate: PartialRoomState) => {
-    const roomState = get(roomStateAtom);
-    if (!roomState) {
-      console.error("roomState not set but trying to write partial room state");
-      return;
-    }
-
-    if (partialUpdate.questionId)
-      set(roomStateAtom, {
-        ...roomState,
-        questionId: partialUpdate.questionId,
-      });
-    if (partialUpdate.userStates)
-      set(roomStateAtom, {
-        ...roomState,
-        userStates: partialUpdate.userStates,
-      });
-  },
-);
 
 function _useInnkeeperSocket(authToken: string) {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
@@ -41,9 +18,8 @@ function _useInnkeeperSocket(authToken: string) {
   const setIsConnected = useSetAtom(isConnectedAtom);
   const setIsMatched = useSetAtom(isMatchedAtom);
   const setRoomState = useSetAtom(roomStateAtom);
-  const setPartialRoomState = useSetAtom(partialRoomWriteAtom);
-  const triggerDocumentSync = useSetAtom(triggerSyncAtom);
-  const writeChangeSet = useSetAtom(writeChangeSetAtom);
+  const setTextEditor = useSetAtom(textEditorAtom);
+  const setUserStates = useSetAtom(userStatesAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
     connect() {
@@ -76,34 +52,21 @@ function _useInnkeeperSocket(authToken: string) {
 
     sendCompleteRoomState(roomState) {
       console.log("received complete room state:", roomState);
-      triggerDocumentSync();
 
       setRoomState(roomState);
-      const [u1, u2] = roomState.userStates;
-      if (u1.status != "EXITED" && u2.status != "EXITED")
+      const [user1, user2] = roomState.userStates;
+      if ("EXITED" in [user1.status, user2.status]) {
+        setIsMatched("CLOSED");
+      } else {
         setIsMatched("MATCHED");
+      }
     },
 
     sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
-      setPartialRoomState(partialUpdate);
-    },
 
-    pushDocumentChanges(changesets, previousVersion) {
-      console.log(
-        `received ${changesets.length} changesets from server given base ${previousVersion}`,
-      );
-      const updates = changesets.map((u) => ({
-        changes: ChangeSet.fromJSON(u.changes),
-        clientID: u.clientID,
-      }));
-
-      console.log(`pushing ${updates.length} updates to editor`);
-      console.log(`wrote ${updates.length} updates to editor`);
-    },
-
-    sendDocumentChanged() {
-      triggerDocumentSync();
+      if (partialUpdate.textEditor) setTextEditor(partialUpdate.textEditor);
+      if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
     },
 
     closeRoom(finalUpdate) {

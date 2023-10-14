@@ -1,5 +1,10 @@
 import { atom } from "jotai";
-import { ClientToServerEvents, RoomState } from "./innkeeper-api-types";
+import {
+  ClientToServerEvents,
+  RoomState,
+  TextEditorState,
+  UserState,
+} from "./innkeeper-api-types";
 import { InnkeeperSocket, InnkeeperSocketEvents } from "./innkeeper-types";
 
 export const socketAtom = atom<InnkeeperSocket | null>(null);
@@ -15,6 +20,30 @@ export const isMatchedAtom = atom<"UNMATCHED" | "MATCHED" | "CLOSED">(
 );
 
 export const roomStateAtom = atom<RoomState | null>(null);
+export const textEditorAtom = atom(
+  (get) => get(roomStateAtom)?.textEditor,
+  (get, set, update: TextEditorState) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("Room state not initialized but text editor updated");
+      return;
+    }
+
+    set(roomStateAtom, { ...roomState, textEditor: update });
+  },
+);
+export const userStatesAtom = atom(
+  (get) => get(roomStateAtom)?.userStates,
+  (get, set, update: [UserState, UserState]) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("Room state not initialized but user state updated");
+      return;
+    }
+
+    set(roomStateAtom, { ...roomState, userStates: update });
+  },
+);
 
 export type JotaiInnkeeperListenAdapter = {
   [K in keyof InnkeeperSocketEvents]: (

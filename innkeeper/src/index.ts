@@ -5,7 +5,6 @@ import {
   handleRequestCompleteState,
   handleDisconnect as handleRoomDisconnect,
   handleSendUpdate,
-  handleSyncDocument,
   joinAssignedRoom,
 } from './controllers/room';
 import { InnState } from './models';
@@ -36,12 +35,7 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
 
   socket.on('makeMatchingRequest', params => requireUnmatchedUser(io, inn, socket) && handleMatchingRequest(io, inn, socket, params));
 
-  socket.on('sendRoomUpdate', update => requireMatchedUser(io, inn, socket) && handleSendUpdate(io, inn, socket, update));
-  socket.on(
-    'syncDocument',
-    (version, localChanges) => requireMatchedUser(io, inn, socket) && handleSyncDocument(io, inn, socket, version, localChanges),
-  );
-
+  socket.on('sendUpdate', update => requireMatchedUser(io, inn, socket) && handleSendUpdate(io, inn, socket, update));
   socket.on('requestCompleteRoomState', () => requireMatchedUser(io, inn, socket) && handleRequestCompleteState(io, inn, socket));
   socket.on('leaveRoom', () => requireMatchedUser(io, inn, socket) && handleLeaveRoom(io, inn, socket));
 

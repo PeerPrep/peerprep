@@ -1,5 +1,6 @@
 "use client";
 import Button from "@/app/components/button/Button";
+import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
 import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
 import StatusBar from "@/app/components/status-bar/StatusBar";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
@@ -8,14 +9,23 @@ import {
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
+  textEditorAtom,
 } from "@/libs/room-jotai";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
-import CodeEditor from "../../components/code-editor/CodeEditor";
-import { useCollab } from "../../hooks/useCollab";
 
-const userAtom = atom("user_a");
+const codeAtom = atom(
+  (get) => get(textEditorAtom)?.code,
+  (get, set, update: string) => {
+    if (get(textEditorAtom)?.code === update) return;
+
+    set(innkeeperWriteAtom, {
+      eventName: "sendUpdate",
+      eventArgs: [{ textEditor: { code: update } }],
+    });
+  },
+);
 
 const sendMatchRequestAtom = atom(
   null,
@@ -43,7 +53,6 @@ const Lobby = ({ user, setUser }: any) => {
         <Button onClick={() => sendMatchRequest("HARD")}>Hard</Button>
       </Space>
 
-      {/* TextField and button that sets the value of setUser to the value of the textfield. */}
       <TextArea
         title="Change your username"
         value={user}
@@ -54,24 +63,7 @@ const Lobby = ({ user, setUser }: any) => {
   );
 };
 
-const Editor = ({
-  initialVersion,
-  initialDoc,
-}: {
-  initialVersion: number;
-  initialDoc: string;
-}) => {
-  const peerExtension = useCollab(initialVersion);
-
-  if (!peerExtension) return <div>Peer extension not ready</div>;
-
-  return (
-    <section className="flex flex-col items-center justify-center gap-4 p-6 lg:flex-row">
-      <MarkdownQuestionPane />
-      <CodeEditor extensions={[peerExtension]} value={initialDoc} />
-    </section>
-  );
-};
+const userAtom = atom("user_a");
 
 const roomPage = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -80,6 +72,7 @@ const roomPage = () => {
   const isConnected = useAtomValue(isConnectedAtom);
   const isMatched = useAtomValue(isMatchedAtom);
   const roomState = useAtomValue(roomStateAtom);
+  const [code, setCode] = useAtom(codeAtom);
 
   if (!isConnected) {
     console.log({ isConnected, at: "rendering room page" });
@@ -111,7 +104,10 @@ const roomPage = () => {
 
   return (
     <div className="flex h-full flex-col justify-between">
-      <Editor initialVersion={0} initialDoc={""} />
+      <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
+        <MarkdownQuestionPane />
+        <CodeMirrorEditor value={code} onChange={setCode} />
+      </section>
       <StatusBar
         exitMethod={executeFunction}
         executeFunction={executeFunction}

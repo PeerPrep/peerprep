@@ -23,11 +23,13 @@ const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
 });
 
 const CodeMirrorEditor = ({
+  onChange,
   value,
   extensions,
 }: {
   value: ReactCodeMirrorProps["value"];
-  extensions: ReactCodeMirrorProps["extensions"];
+  extensions?: ReactCodeMirrorProps["extensions"];
+  onChange: ReactCodeMirrorProps["onChange"];
 }) => {
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [languageExtension, setLanguageExtension] = useState<any>(null);
@@ -121,6 +123,7 @@ const CodeMirrorEditor = ({
         id="codeEditor"
         extensions={[languageExtension, ...(extensions ?? [])]}
         value={value}
+        onChange={onChange}
       />
       <div
         className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"

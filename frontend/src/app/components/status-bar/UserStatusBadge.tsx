@@ -1,7 +1,7 @@
 import { UserState } from "@/libs/innkeeper-api-types";
 
 interface UserStateBadgeProps {
-  userState: Omit<UserState, "version">; // Update the prop name to 'userState'
+  userState: UserState; // Update the prop name to 'userState'
 }
 
 const UserStateBadge: React.FC<UserStateBadgeProps> = ({ userState }) => {

@@ -5,8 +5,8 @@ import UserStateBadge from "./UserStatusBadge";
 interface StatusBarProps {
   executeFunction: () => void;
   exitMethod: () => void;
-  user1State: Omit<UserState, "version">;
-  user2State: Omit<UserState, "version">;
+  user1State: UserState;
+  user2State: UserState;
 }
 
 const StatusBar = ({

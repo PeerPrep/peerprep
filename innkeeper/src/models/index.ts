@@ -1,5 +1,3 @@
-/// <reference path="../codemirror__index.d.ts" />
-import { Update, rebaseUpdates } from '@codemirror/collab';
 import crypto from 'crypto';
 import { MatchingParameters, RoomState, WaitingUsersCount } from '../types';
 
@@ -9,7 +7,6 @@ type MatchingParametersHash = string;
 export class InnState {
   private matchingParameterToUserMap = new Map<MatchingParametersHash, string>();
   private roomStatesMap = new Map<string, RoomState>();
-  private documentChangesMap = new Map<string, Update[]>();
 
   getRoomId(userId: string): string | null {
     const roomStates = Array.from(this.roomStatesMap.values());
@@ -25,30 +22,6 @@ export class InnState {
     this.roomStatesMap.set(roomId, roomState);
   }
 
-  getDocumentChanges(roomId: string): Update[] | undefined {
-    return this.documentChangesMap.get(roomId);
-  }
-
-  syncDocumentChanges(roomId: string, docUpdates: readonly Update[]): void {
-    const documentChanges = this.documentChangesMap.get(roomId);
-    if (!documentChanges) {
-      console.error(`Unexpected undefined documentChange for roomId ${roomId}.`);
-      return;
-    }
-
-    try {
-      const documentChangeDesc = documentChanges.map(({ changes, clientID }) => {
-        return { changes: changes.desc, clientID };
-      });
-
-      const rebasedUpdates = rebaseUpdates(docUpdates, documentChangeDesc);
-      documentChanges.push(...rebasedUpdates);
-    } catch (e: any) {
-      console.error(`Failed to deal with ${roomId} (${e}).\ndocUpdates: ${JSON.stringify(docUpdates)}`);
-      return;
-    }
-  }
-
   removeRoom(roomId: string): void {
     this.roomStatesMap.delete(roomId);
   }
@@ -58,13 +31,13 @@ export class InnState {
     const newRoomState: RoomState = {
       roomId,
       questionId: '',
+      textEditor: { code: `console.log('Hello world!');` },
       userStates: [
-        { userId: userIds[0], status: 'INACTIVE', lastSeen: 0, version: 0 },
-        { userId: userIds[1], status: 'INACTIVE', lastSeen: 0, version: 0 },
+        { userId: userIds[0], status: 'INACTIVE', lastSeen: 0 },
+        { userId: userIds[1], status: 'INACTIVE', lastSeen: 0 },
       ],
     };
     this.roomStatesMap.set(roomId, newRoomState);
-    this.documentChangesMap.set(roomId, []);
 
     return newRoomState;
   }
