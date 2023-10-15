@@ -12,7 +12,6 @@ import {
 import useRedirectLogin from "../hooks/useRedirectLogin";
 
 const roomPage = () => {
-  useRedirectLogin();
   return (
     <div className="flex h-full flex-col items-center justify-center">
       <section className="flex h-[30svh] flex-col items-center justify-center gap-4 rounded-md bg-white px-12 shadow-md">
