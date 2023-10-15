@@ -1,5 +1,4 @@
 import { atom } from "jotai";
-import { focusAtom } from "jotai-optics";
 import {
   ClientToServerEvents,
   RoomState,
@@ -7,18 +6,6 @@ import {
   UserState,
 } from "./innkeeper-api-types";
 import { InnkeeperSocket, InnkeeperSocketEvents } from "./innkeeper-types";
-
-const initialRoomState: RoomState = {
-  roomId: "",
-  questionId: "",
-  textEditor: {
-    code: `console.log("Hello World");`,
-  },
-  userStates: [
-    { userId: "user_A", status: "ACTIVE", lastSeen: 0 },
-    { userId: "user_A", status: "ACTIVE", lastSeen: 0 },
-  ],
-};
 
 export const socketAtom = atom<InnkeeperSocket | null>(null);
 export const isConnectedAtom = atom(false);
@@ -32,16 +19,31 @@ export const isMatchedAtom = atom<"UNMATCHED" | "MATCHED" | "CLOSED">(
   "UNMATCHED",
 );
 
-export const roomStateAtom = atom<RoomState>(initialRoomState);
-export const textEditorAtom = focusAtom<RoomState, TextEditorState, void>(
-  roomStateAtom,
-  (optic) => optic.prop("textEditor"),
+export const roomStateAtom = atom<RoomState | null>(null);
+export const textEditorAtom = atom(
+  (get) => get(roomStateAtom)?.textEditor,
+  (get, set, update: TextEditorState) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("Room state not initialized but text editor updated");
+      return;
+    }
+
+    set(roomStateAtom, { ...roomState, textEditor: update });
+  },
 );
-export const userStatesAtom = focusAtom<
-  RoomState,
-  [UserState, UserState],
-  void
->(roomStateAtom, (optic) => optic.prop("userStates"));
+export const userStatesAtom = atom(
+  (get) => get(roomStateAtom)?.userStates,
+  (get, set, update: [UserState, UserState]) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("Room state not initialized but user state updated");
+      return;
+    }
+
+    set(roomStateAtom, { ...roomState, userStates: update });
+  },
+);
 
 export type JotaiInnkeeperListenAdapter = {
   [K in keyof InnkeeperSocketEvents]: (

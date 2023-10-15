@@ -1,5 +1,6 @@
 import Express, { Request, Response, NextFunction } from "express";
 import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql";
+import "dotenv/config"
 
 import { App, applicationDefault, initializeApp } from "firebase-admin/app";
 import { DecodedIdToken, getAuth } from "firebase-admin/auth";
@@ -7,6 +8,8 @@ import CORS from "cors";
 
 import ProfileRouter from "./profile";
 import ActivityRouter from "./activity";
+import AdminRouter from "./admin";
+
 import { handleServerError } from "./utils";
 
 declare global {
@@ -28,8 +31,10 @@ async function initDatabase() {
 
   const generator = orm.getSchemaGenerator();
 
-  const createDump = await generator.getCreateSchemaSQL();
-  console.log(createDump);
+  const updateDump = await generator.getUpdateSchemaSQL();
+  console.log(updateDump);
+
+  await generator.updateSchema();
 
   return orm;
 }
@@ -39,6 +44,7 @@ initDatabase().then((orm) => {
 
   const firebaseApp = initializeApp({
     credential: applicationDefault(),
+    storageBucket: process.env.BUCKET_NAME
   });
 
   const firebaseAuth = getAuth(firebaseApp);
@@ -73,6 +79,7 @@ initDatabase().then((orm) => {
 
   app.use("/api/v1/users/profile", ProfileRouter);
   app.use("/api/v1/users/activity", ActivityRouter);
+  app.use("/api/v1/users/admin", AdminRouter);
 
   app.listen(6969, () => {
     console.log("Starting user service");

@@ -15,8 +15,10 @@ export const getAllQuestions = async (
       statusMessage: null,
     };
     res.status(200).json(response);
+    return;
   } catch (error) {
     handleServerError(error, res);
+    return;
   }
 };
 
@@ -32,6 +34,7 @@ export const getQuestion = async (
         type: StatusMessageType.ERROR,
         message: "Question ID must be provided",
       });
+      return;
     }
 
     const question = await QuestionDao.getQuestionById(id);
@@ -40,6 +43,7 @@ export const getQuestion = async (
         type: StatusMessageType.ERROR,
         message: "Question not found",
       });
+      return;
     }
 
     const response: ApiResponse = {
@@ -47,8 +51,10 @@ export const getQuestion = async (
       statusMessage: null,
     };
     res.status(200).json(response);
+    return;
   } catch (error) {
     handleServerError(error, res);
+    return;
   }
 };
 
@@ -64,6 +70,7 @@ export const getQuestionsByGroupOfIds = async (
         type: StatusMessageType.ERROR,
         message: "Question IDs must be provided",
       });
+      return;
     }
 
     const questions = await QuestionDao.getQuestionsByGroupOfIds(ids);
@@ -72,6 +79,7 @@ export const getQuestionsByGroupOfIds = async (
         type: StatusMessageType.ERROR,
         message: "Questions not found",
       });
+      return;
     }
 
     const response: ApiResponse = {
@@ -79,8 +87,10 @@ export const getQuestionsByGroupOfIds = async (
       statusMessage: null,
     };
     res.status(200).json(response);
+    return;
   } catch (error) {
     handleServerError(error, res);
+    return;
   }
 };
 
@@ -96,6 +106,7 @@ export const createQuestion = async (
         type: StatusMessageType.ERROR,
         message: "Title, description and difficulty must be provided",
       });
+      return;
     }
 
     if (!tags || tags.length === 0) {
@@ -103,6 +114,7 @@ export const createQuestion = async (
         type: StatusMessageType.ERROR,
         message: "At least one tag must be provided",
       });
+      return;
     }
 
     const question = await QuestionDao.createQuestion(
@@ -119,8 +131,10 @@ export const createQuestion = async (
       },
     };
     res.status(201).json(response);
+    return;
   } catch (error) {
     handleServerError(error, res);
+    return;
   }
 };
 
@@ -138,6 +152,7 @@ export const updateQuestion = async (
         message:
           "Question ID, title, description and difficulty must be provided",
       });
+      return;
     }
 
     if (!tags || tags.length === 0) {
@@ -145,6 +160,7 @@ export const updateQuestion = async (
         type: StatusMessageType.ERROR,
         message: "At least one tag must be provided",
       });
+      return;
     }
 
     const question = await QuestionDao.updateQuestion(
@@ -159,6 +175,7 @@ export const updateQuestion = async (
         type: StatusMessageType.ERROR,
         message: "Question not found",
       });
+      return;
     }
 
     const response: ApiResponse = {
@@ -169,8 +186,10 @@ export const updateQuestion = async (
       },
     };
     res.status(200).json(response);
+    return;
   } catch (error) {
     handleServerError(error, res);
+    return;
   }
 };
 
@@ -186,6 +205,7 @@ export const deleteQuestion = async (
         type: StatusMessageType.ERROR,
         message: "Question ID must be provided",
       });
+      return;
     }
 
     const question = await QuestionDao.deleteQuestion(id);
@@ -194,6 +214,7 @@ export const deleteQuestion = async (
         type: StatusMessageType.ERROR,
         message: "Question not found",
       });
+      return;
     }
 
     const response: ApiResponse = {
@@ -204,7 +225,9 @@ export const deleteQuestion = async (
       },
     };
     res.status(200).json(response);
+    return;
   } catch (error) {
     handleServerError(error, res);
+    return;
   }
 };

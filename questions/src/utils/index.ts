@@ -16,6 +16,7 @@ export const handleCustomError = (
   };
 
   res.status(400).json(response);
+  return;
 };
 
 export const handleServerError = (error: Error, res: express.Response) => {
@@ -30,4 +31,5 @@ export const handleServerError = (error: Error, res: express.Response) => {
   };
 
   res.status(500).json(response);
+  return;
 };

@@ -8,6 +8,6 @@ export class Activity {
   @PrimaryKey()
   questionId!: number;
 
-  @Property({ onUpdate: () => new Date(), defaultRaw: "now()" })
+  @Property()
   submitted!: Date;
 }

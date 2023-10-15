@@ -7,7 +7,7 @@ import {
   textEditorAtom,
   userStatesAtom,
 } from "@/libs/room-jotai";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import io from "socket.io-client";
 
@@ -15,55 +15,61 @@ function _useInnkeeperSocket(authToken: string) {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
   const [socket, setSocket] = useAtom(socketAtom);
 
-  const setIsConnected = useAtom(isConnectedAtom)[1];
-  const setIsMatched = useAtom(isMatchedAtom)[1];
-  const setRoomState = useAtom(roomStateAtom)[1];
-  const setTextEditor = useAtom(textEditorAtom)[1];
-  const setUserStates = useAtom(userStatesAtom)[1];
+  const setIsConnected = useSetAtom(isConnectedAtom);
+  const setIsMatched = useSetAtom(isMatchedAtom);
+  const setRoomState = useSetAtom(roomStateAtom);
+  const setTextEditor = useSetAtom(textEditorAtom);
+  const setUserStates = useSetAtom(userStatesAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
-    connect: () => {
+    connect() {
       console.log("connected to innkeeper socket");
       setIsConnected(true);
     },
 
-    disconnect: () => {
+    disconnect() {
       console.log("disconnected from innkeeper socket");
       setIsConnected(false);
     },
 
-    connect_error: (error) => {
+    connect_error(error) {
       console.log("received connect error:", error);
     },
 
-    sendNotification: (message) => {
+    sendNotification(message) {
       console.log("received notification:", message);
     },
 
-    sendToRoom: (message) => {
+    sendToRoom(message) {
       console.log("received sendToRoom:", message);
 
       setIsMatched("MATCHED");
     },
 
-    availableMatches: (message) => {
+    availableMatches(message) {
       console.log("received matches:", message);
     },
 
-    sendCompleteRoomState: (roomState) => {
+    sendCompleteRoomState(roomState) {
       console.log("received complete room state:", roomState);
 
       setRoomState(roomState);
+      const [user1, user2] = roomState.userStates;
+      if ("EXITED" in [user1.status, user2.status]) {
+        setIsMatched("CLOSED");
+      } else {
+        setIsMatched("MATCHED");
+      }
     },
 
-    sendPartialRoomState: (partialUpdate) => {
+    sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
 
       if (partialUpdate.textEditor) setTextEditor(partialUpdate.textEditor);
       if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
     },
 
-    closeRoom: (finalUpdate) => {
+    closeRoom(finalUpdate) {
       setIsMatched("CLOSED");
 
       console.log("received partial room state:", finalUpdate);
