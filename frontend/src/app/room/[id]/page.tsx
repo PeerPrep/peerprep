@@ -9,20 +9,20 @@ import {
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
-  textEditorAtom,
 } from "@/libs/room-jotai";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
 
+// TODO: Remove below
 const codeAtom = atom(
-  (get) => get(textEditorAtom)?.code,
+  (get) => "",
   (get, set, update: string) => {
-    if (get(textEditorAtom)?.code === update) return;
+    if ("" === update) return;
 
     set(innkeeperWriteAtom, {
       eventName: "sendUpdate",
-      eventArgs: [{ textEditor: { code: update } }],
+      eventArgs: [{}],
     });
   },
 );

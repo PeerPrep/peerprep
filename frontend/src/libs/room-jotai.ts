@@ -20,18 +20,6 @@ export const isMatchedAtom = atom<"UNMATCHED" | "MATCHED" | "CLOSED">(
 );
 
 export const roomStateAtom = atom<RoomState | null>(null);
-export const textEditorAtom = atom(
-  (get) => get(roomStateAtom)?.textEditor,
-  (get, set, update: TextEditorState) => {
-    const roomState = get(roomStateAtom);
-    if (!roomState) {
-      console.error("Room state not initialized but text editor updated");
-      return;
-    }
-
-    set(roomStateAtom, { ...roomState, textEditor: update });
-  },
-);
 export const userStatesAtom = atom(
   (get) => get(roomStateAtom)?.userStates,
   (get, set, update: [UserState, UserState]) => {
