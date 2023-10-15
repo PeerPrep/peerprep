@@ -16,7 +16,7 @@ import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { yCollab } from "y-codemirror.next";
+import { yCollab } from "y-codemirror";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
 
