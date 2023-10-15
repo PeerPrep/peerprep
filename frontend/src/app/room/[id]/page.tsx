@@ -4,28 +4,21 @@ import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
 import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
 import StatusBar from "@/app/components/status-bar/StatusBar";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
+import { RoomState } from "@/libs/innkeeper-api-types";
 import {
   innkeeperWriteAtom,
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
 } from "@/libs/room-jotai";
+import { EditorState } from "@uiw/react-codemirror";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
-
-// TODO: Remove below
-const codeAtom = atom(
-  (get) => "",
-  (get, set, update: string) => {
-    if ("" === update) return;
-
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{}],
-    });
-  },
-);
+import { useEffect, useState } from "react";
+import { yCollab } from "y-codemirror.next";
+import { SocketIOProvider } from "y-socket.io";
+import * as Y from "yjs";
 
 const sendMatchRequestAtom = atom(
   null,
@@ -63,44 +56,83 @@ const Lobby = ({ user, setUser }: any) => {
   );
 };
 
-const userAtom = atom("user_a");
+const docAtom = atom<Y.Doc | null>(null);
+const roomIdAtom = atom<string | null>(null);
+const yjsProviderAtom = atom<SocketIOProvider | null>(null);
 
-const roomPage = () => {
-  const [user, setUser] = useAtom(userAtom);
-  useInnkeeperSocket(user);
+const Editor = ({
+  user,
+  roomState,
+}: {
+  user: string;
+  roomState: RoomState;
+}) => {
+  const [user1, user2] = roomState.userStates;
+  const roomId = roomState.roomId;
 
-  const isConnected = useAtomValue(isConnectedAtom);
-  const isMatched = useAtomValue(isMatchedAtom);
-  const roomState = useAtomValue(roomStateAtom);
-  const [code, setCode] = useAtom(codeAtom);
+  const [doc, setDoc] = useAtom(docAtom);
+  const [provider, setProvider] = useAtom(yjsProviderAtom);
+  const [connected, setConnected] = useState(false);
 
-  if (!isConnected) {
-    console.log({ isConnected, at: "rendering room page" });
-    return (
-      <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
-        <h1 className="text-4xl font-bold">Connecting to InnKeeper...</h1>
-      </section>
-    );
-  }
+  useEffect(() => {
+    if (!roomId) {
+      console.error("No room id yet!");
+    }
+  }, [roomId]);
 
-  if (isMatched !== "MATCHED" && isMatched !== "CLOSED") {
-    return <Lobby user={user} setUser={setUser} />;
-  }
+  useEffect(() => {
+    if (roomId && !doc) {
+      console.log("setting doc");
+      const _doc = new Y.Doc();
+      setDoc(_doc);
+    }
+  }, [roomId, doc]);
+
+  useEffect(() => {
+    if (roomId && doc && !provider) {
+      console.log("setting providers");
+      const socketIOProvider = new SocketIOProvider(
+        process.env.NEXT_PUBLIC_INNKEEPER_URL!,
+        roomId,
+        doc,
+        {
+          autoConnect: true,
+          // disableBc: true,
+          // auth: { token: 'valid-token' },
+        },
+      );
+      socketIOProvider.awareness.setLocalState({
+        id: Math.random(),
+        name: user,
+      });
+      socketIOProvider.on("sync", (isSync: boolean) =>
+        console.log("websocket sync", isSync),
+      );
+      socketIOProvider.on(
+        "status",
+        ({ status: _status }: { status: string }) => {
+          if (!!_status) setConnected(true);
+        },
+      );
+      setProvider(socketIOProvider);
+    }
+  }, [roomId, doc, provider]);
 
   //For status bar
-
   const executeFunction = () => undefined;
 
-  // Connected, matched but hasn't received room state yet.
-  if (!roomState) {
-    return (
-      <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
-        <h1 className="text-4xl font-bold">Loading...</h1>
-      </section>
-    );
-  }
+  if (!connected) return <h1>Connecting...</h1>;
 
-  const [user1, user2] = roomState.userStates;
+  const yText = doc!.getText("code");
+  const undoManager = new Y.UndoManager(yText);
+  const state = EditorState.create({
+    doc: yText.toString(),
+    extensions: [
+      basicSetup,
+      javascript(),
+      yCollab(yText, provider!.awareness, { undoManager }),
+    ],
+  });
 
   return (
     <div className="flex h-full flex-col justify-between">
@@ -116,6 +148,41 @@ const roomPage = () => {
       />
     </div>
   );
+};
+
+const userAtom = atom("user_a");
+
+const roomPage = () => {
+  const [user, setUser] = useAtom(userAtom);
+  useInnkeeperSocket(user);
+
+  const isConnected = useAtomValue(isConnectedAtom);
+  const isMatched = useAtomValue(isMatchedAtom);
+  const roomState = useAtomValue(roomStateAtom);
+
+  if (!isConnected) {
+    console.log({ isConnected, at: "rendering room page" });
+    return (
+      <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
+        <h1 className="text-4xl font-bold">Connecting to InnKeeper...</h1>
+      </section>
+    );
+  }
+
+  if (isMatched !== "MATCHED" && isMatched !== "CLOSED") {
+    return <Lobby user={user} setUser={setUser} />;
+  }
+
+  // Connected, matched but hasn't received room state yet.
+  if (!roomState) {
+    return (
+      <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
+        <h1 className="text-4xl font-bold">Loading...</h1>
+      </section>
+    );
+  }
+
+  return <Editor user={user} roomState={roomState} />;
 };
 
 export default roomPage;

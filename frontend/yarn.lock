@@ -3994,7 +3994,7 @@ levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-lib0@^0.2.31, lib0@^0.2.52, lib0@^0.2.74, lib0@^0.2.85:
+lib0@^0.2.31, lib0@^0.2.42, lib0@^0.2.52, lib0@^0.2.74, lib0@^0.2.85:
   version "0.2.87"
   resolved "https://registry.yarnpkg.com/lib0/-/lib0-0.2.87.tgz#7075d3a8083c756314e31f83eb662d2ad4426a46"
   integrity sha512-TbB63XJixvNToW2IHWAFsCJj9tVnajmwjE14p69i51Rx8byOQd2IP4ourE8v4d7vhyO++nVm1sQk3ePslfbucg==
@@ -6373,6 +6373,13 @@ xtend@^4.0.2, xtend@~4.0.0:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
+
+y-codemirror.next@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/y-codemirror.next/-/y-codemirror.next-0.3.2.tgz#15f7afec14a56fba4f25811d5f90b986e1cc644c"
+  integrity sha512-3ksMXoietzNkrgluG9ut+5q4PNHCS6sQ+mHd44hNX1s7TBe4iDgOOIswfY3oLsdamZLAUPr+TnRdYgYuNDs7Qg==
+  dependencies:
+    lib0 "^0.2.42"
 
 y-leveldb@^0.1.1:
   version "0.1.2"
