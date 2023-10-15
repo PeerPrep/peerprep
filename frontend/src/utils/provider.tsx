@@ -13,7 +13,6 @@ import React from "react";
 function Providers({ children }: React.PropsWithChildren) {
   const [client] = React.useState(new QueryClient());
   const isLoading = useLoading();
-  useRedirectLogin();
 
   if (isLoading) {
     <LoadingPage />;

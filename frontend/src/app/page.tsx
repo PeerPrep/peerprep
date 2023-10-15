@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import useRedirectLogin from "./hooks/useRedirectLogin";
 
 export default function Home() {
+  useRedirectLogin();
   const router = useRouter();
   return (
     <main className="h-full">
