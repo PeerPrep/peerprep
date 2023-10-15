@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
 import Button from "./components/button/Button";
-import useLogin from "./hooks/useLogin";
 import { useRouter } from "next/navigation";
+import useRedirectLogin from "./hooks/useRedirectLogin";
 
 export default function Home() {
+  useRedirectLogin();
   const router = useRouter();
-  useLogin();
   return (
     <main className="h-full">
       <Image

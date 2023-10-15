@@ -21,6 +21,7 @@ import AddQuestionModal from "@/app/components/modal/AddQuestionModal";
 import dynamic from "next/dynamic";
 import { Input, message } from "antd";
 import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
+import useLogin from "@/app/hooks/useLogin";
 
 export interface QuestionType {
   _id?: string;
@@ -49,6 +50,7 @@ const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
 });
 
 const QuestionPage = () => {
+  const user = useLogin();
   const [api, contextHolder] = message.useMessage();
   const [currQn, setCurrQn] = useState<QuestionType | null>(null);
   const [initialEditQnValues, setInitialEditQnValues] = useState<
