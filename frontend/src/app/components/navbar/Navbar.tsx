@@ -12,6 +12,7 @@ import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";
 import { FiLogOut } from "react-icons/fi";
 import NavbarPane from "./NavbarPane";
 import NavbarPaneDropdown from "./NavbarPaneDropdown";
+import { FetchAuth } from "@/app/api";
 
 const Navbar = () => {
   const router = useRouter();
@@ -30,8 +31,13 @@ const Navbar = () => {
     console.log(user);
   };
   onAuthStateChanged(auth, (user) => {
+    getAuth()
+      .currentUser?.getIdToken(true)
+      .then(function (idToken) {
+        FetchAuth.addFirebaseToken(idToken);
+      });
+
     if (user) {
-      console.log({ user });
       setUser(user);
     } else {
       setUser(null);
@@ -69,7 +75,7 @@ const Navbar = () => {
           )}
         </nav>
         {user ? (
-          <div className="dropdown dropdown-hover">
+          <div className="dropdown-hover dropdown">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />

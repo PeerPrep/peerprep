@@ -1,18 +1,46 @@
 import { QuestionType } from "../admin/question/page";
 
+export const FetchAuth = {
+  firebaseToken: "",
+
+  addFirebaseToken: function (firebaseToken: string) {
+    this.firebaseToken = firebaseToken;
+  },
+  fetch: async function (
+    url: RequestInfo | URL,
+    options = { headers: {} } as RequestInit,
+  ) {
+    // Create a new Headers object with your custom headers
+    const headers = new Headers({
+      "firebase-token": this.firebaseToken,
+      ...options.headers, // Optionally, include any headers from the options argument
+    });
+
+    // Add the headers to the options object
+    options.headers = headers;
+
+    // Perform the fetch request with the modified options
+    return fetch(url, options);
+  },
+};
+
 // TODO: change to env variable
 export const API_URL = "https://peerprep.sivarn.com/api/v1";
 
 export const fetchQuestionDescriptionUrl = async (qnId: string) => {
-  return await fetch(`${API_URL}/questions/${qnId}`).then((res) => res.json());
+  return await FetchAuth.fetch(`${API_URL}/questions/${qnId}`).then((res) =>
+    res.json(),
+  );
 };
 
 export const fetchAllQuestionsUrl = async () => {
-  return await fetch(`${API_URL}/questions/`).then((res) => res.json());
+  return await FetchAuth.fetch(`${API_URL}/questions/`).then((res) =>
+    res.json(),
+  );
 };
 
 export const createQuestionUrl = async (newQuestion: QuestionType) => {
-  return fetch(`${API_URL}/questions/`, {
+  return FetchAuth.fetch(`${API_URL}/questions/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -22,7 +50,7 @@ export const createQuestionUrl = async (newQuestion: QuestionType) => {
 };
 
 export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
-  return fetch(`${API_URL}/questions/${updatedQuestion._id}`, {
+  return FetchAuth.fetch(`${API_URL}/questions/${updatedQuestion._id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -32,7 +60,7 @@ export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
 };
 
 export const deleteQuestionUrl = async (questionId: string) => {
-  return fetch(`${API_URL}/questions/${questionId}`, {
+  return FetchAuth.fetch(`${API_URL}/questions/${questionId}`, {
     method: "DELETE",
   }).then((res) => res.json());
 };
