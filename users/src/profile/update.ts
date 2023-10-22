@@ -57,35 +57,21 @@ export async function updateProfileHandler(req: Request, res: Response) {
             });
         }
 
-        const loadedProfile = await em.findOne(Profile, {
+        const profile = await em.findOneOrFail(Profile, {
             uid: uid
         });
 
-        let result: Profile;
-
-        if (!loadedProfile) {
-            const profile = await em.insert(Profile, {
-                uid: uid,
-                name: body.name,
-                preferredLang: body.preferredLang,
-                imageUrl: imageStatus.imageUrl
-            });
-            await em.persistAndFlush(profile);
-            result = profile;
-        } else {
-            loadedProfile.name = body.name ?? loadedProfile.name;
-            loadedProfile.preferredLang = body.preferredLang ?? loadedProfile.preferredLang;
-            loadedProfile.imageUrl = imageStatus.imageUrl ?? loadedProfile.imageUrl;
-            await em.flush()
-            result = loadedProfile;
-        }
+        profile.name = body.name ?? profile.name;
+        profile.preferredLang = body.preferredLang ?? profile.preferredLang;
+        profile.imageUrl = imageStatus.imageUrl ?? profile.imageUrl;
+        await em.flush()
 
         const response: ApiResponse = {
             statusMessage: {
             message: "Profile updated successfully",
                 type: StatusMessageType.SUCCESS,
             },
-            payload: result,
+            payload: profile,
         };
         res.status(200).send(response);
     } catch (err: any) {

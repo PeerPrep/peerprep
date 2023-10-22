@@ -2,17 +2,29 @@
 import { ChangeEvent, useState } from "react";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 
+export interface Profile {
+  uid: string;
+  name: string | null;
+  imageUrl: string | null;
+  preferredLang: string | null;
+  role: string;
+};
+
 const SettingPage = () => {
+  const [name, setName] = useState("");
+
   //TODO: fetch preferred language
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
 
   //TODO: Fetch image
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setSelectedImage(file);
+      setProfileImageUrl(URL.createObjectURL(file));
     }
   };
 
@@ -27,16 +39,16 @@ const SettingPage = () => {
       <form className="flex flex-col justify-center gap-8 bg-secondary p-12">
         <section className="flex justify-between gap-16">
           <div className="flex flex-col items-center gap-2 rounded-md bg-white px-4 py-2 shadow-md">
-            {selectedImage && (
+            {profileImageUrl && (
               <div>
                 <img
-                  src={URL.createObjectURL(selectedImage)}
+                  src={profileImageUrl}
                   className="aspect-square w-24 rounded-full border border-black"
                   alt="uploaded-image"
                 />
               </div>
             )}
-            {!selectedImage && (
+            {!profileImageUrl && (
               <BiUserCircle className="text-8xl text-primary" />
             )}
             <input
