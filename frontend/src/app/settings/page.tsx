@@ -3,9 +3,8 @@ import { ChangeEvent, useState } from "react";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 
 const SettingPage = () => {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
-    "Easy",
-  );
+  //TODO: fetch preferred language
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
 
   //TODO: Fetch image
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -56,41 +55,24 @@ const SettingPage = () => {
             </label>
             <input
               required
+              //TODO: fetch name
               defaultValue="hello"
               className="rounded-md p-2 text-black"
             />
+
             <label>
-              <span>Difficulty Setting:</span>
+              <span>Preferred Language:</span>
             </label>
-            <div className="join">
-              <button
-                type="button"
-                className={`btn btn-primary join-item text-white ${
-                  difficulty == "Easy" && "btn-success"
-                }`}
-                onClick={() => setDifficulty("Easy")}
-              >
-                Easy
-              </button>
-              <button
-                type="button"
-                className={`btn btn-primary join-item text-white ${
-                  difficulty == "Medium" && "btn-warning"
-                }`}
-                onClick={() => setDifficulty("Medium")}
-              >
-                Medium
-              </button>
-              <button
-                type="button"
-                className={`btn btn-primary join-item text-white ${
-                  difficulty == "Hard" && "btn-error"
-                }`}
-                onClick={() => setDifficulty("Hard")}
-              >
-                Hard
-              </button>
-            </div>
+            <select
+              className="h-8 w-fit rounded-md bg-white px-2 text-black"
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+            >
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+            </select>
           </div>
         </section>
         <button type="submit" className="btn btn-accent">
