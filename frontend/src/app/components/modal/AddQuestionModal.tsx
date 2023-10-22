@@ -9,7 +9,7 @@ import { QuestionType } from "@/app/admin/question/page";
 import PreviewModalButton from "./PreviewModalButton";
 import QuestionModal from "./QuestionModal";
 
-interface SelectOptionType {
+export interface SelectOptionType {
   label: string;
   value: string;
 }
