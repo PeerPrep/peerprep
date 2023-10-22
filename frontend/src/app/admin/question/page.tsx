@@ -2,6 +2,7 @@
 
 import Button from "@/app/components/button/Button";
 import { useMemo, useState } from "react";
+import { auth } from "@/libs/firebase-config";
 import Select, { MultiValue } from "react-select";
 import Skeleton from "react-loading-skeleton";
 
@@ -25,6 +26,7 @@ import dynamic from "next/dynamic";
 import { Input, message } from "antd";
 import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
 import topicsOptions from "../questionTypeData";
+import { onAuthStateChanged } from "firebase/auth";
 
 export interface QuestionType {
   _id?: string;
@@ -184,9 +186,13 @@ const QuestionPage = () => {
   >([]);
   const [searchValue, setSearchValue] = useState("");
 
-  const allQuestionsFiltered = useMemo(
-    () =>
-      allQuestions?.payload.filter((question) => {
+  onAuthStateChanged(auth, (_) => {
+    refetchAllQuestions();
+  });
+
+  const allQuestionsFiltered = useMemo(() => {
+    if (Array.isArray(allQuestions?.payload)) {
+      return allQuestions?.payload.filter((question) => {
         return (question.title
           .toLowerCase()
           .includes(searchValue.toLowerCase()) ||
@@ -199,9 +205,9 @@ const QuestionPage = () => {
           filterQnType?.length
           ? filterQnType?.some((filter) => question.tags.includes(filter.value))
           : true;
-      }),
-    [allQuestions?.payload, searchValue, filterQnType],
-  );
+      });
+    }
+  }, [allQuestions?.payload, searchValue, filterQnType]);
 
   const deleteQuestionMutation = useMutation(
     async (questionId: string) => deleteQuestionUrl(questionId),
