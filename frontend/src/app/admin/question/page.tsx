@@ -1,7 +1,9 @@
 "use client";
 
 import Button from "@/app/components/button/Button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { auth } from "@/libs/firebase-config";
+import Select, { MultiValue } from "react-select";
 import Skeleton from "react-loading-skeleton";
 
 import {
@@ -17,10 +19,14 @@ import {
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
-import AddQuestionModal from "@/app/components/modal/AddQuestionModal";
+import AddQuestionModal, {
+  SelectOptionType,
+} from "@/app/components/modal/AddQuestionModal";
 import dynamic from "next/dynamic";
 import { Input, message } from "antd";
 import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
+import topicsOptions from "../questionTypeData";
+import { onAuthStateChanged } from "firebase/auth";
 import useLogin from "@/app/hooks/useLogin";
 
 export interface QuestionType {
@@ -177,6 +183,34 @@ const QuestionPage = () => {
     return fetchAllQuestionsUrl();
   });
 
+  const [filterQnType, setFilterQnType] = useState<
+    MultiValue<SelectOptionType>
+  >([]);
+  const [searchValue, setSearchValue] = useState("");
+
+  onAuthStateChanged(auth, (_) => {
+    refetchAllQuestions();
+  });
+
+  const allQuestionsFiltered = useMemo(() => {
+    if (Array.isArray(allQuestions?.payload)) {
+      return allQuestions?.payload.filter((question) => {
+        return (question.title
+          .toLowerCase()
+          .includes(searchValue.toLowerCase()) ||
+          question.tags.some((tag) =>
+            tag.toLowerCase().includes(searchValue.toLowerCase()),
+          ) ||
+          question.difficulty
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())) &&
+          filterQnType?.length
+          ? filterQnType?.some((filter) => question.tags.includes(filter.value))
+          : true;
+      });
+    }
+  }, [allQuestions?.payload, searchValue, filterQnType]);
+
   const deleteQuestionMutation = useMutation(
     async (questionId: string) => deleteQuestionUrl(questionId),
     {
@@ -190,6 +224,39 @@ const QuestionPage = () => {
       },
     },
   );
+
+  const handleSelectChange = (
+    selectedOptions: MultiValue<SelectOptionType>,
+  ) => {
+    setFilterQnType(selectedOptions);
+  };
+
+  const FilterPage = () => {
+    return (
+      <>
+        <label
+          htmlFor="questionType"
+          className="mb-2 block font-medium text-white"
+        >
+          Question Type
+        </label>
+        {/* TODO: fix bug that closes the dropdown when you click outside the dropdown */}
+        <div>
+          <Select
+            instanceId="question-type-selector"
+            isMulti
+            required
+            value={filterQnType}
+            onChange={handleSelectChange}
+            name="question type"
+            options={topicsOptions}
+            className="basic-multi-select text-black"
+            classNamePrefix="select"
+          />
+        </div>
+      </>
+    );
+  };
 
   return (
     <>
@@ -207,13 +274,25 @@ const QuestionPage = () => {
             <div>
               <div className="flex flex-row items-center gap-4">
                 <AddQuestionModal successCallback={refetchAllQuestions} />
-                <Button className="btn-primary btn-sm h-5 w-24 rounded-3xl">
-                  Filter
-                </Button>
+                <div className="dropdown">
+                  <Button
+                    tabIndex={0}
+                    className="btn-primary btn-sm h-5 w-24 rounded-3xl"
+                  >
+                    Filter
+                  </Button>
+                  <div
+                    className="menu dropdown-content rounded-box z-[1] h-52 w-52 bg-base-100 p-2 shadow"
+                    tabIndex={0}
+                  >
+                    <FilterPage />
+                  </div>
+                </div>
                 <Input
                   className="ml-3 h-10 w-64 rounded-3xl"
                   prefix={<SearchOutlined className="bg-white" />}
                   placeholder="Search"
+                  onChange={(e) => setSearchValue(e.target.value)}
                 />
               </div>
             </div>
@@ -266,7 +345,7 @@ const QuestionPage = () => {
             <Table
               bordered
               columns={columns}
-              dataSource={allQuestions?.payload}
+              dataSource={allQuestionsFiltered}
               pagination={{ position: ["bottomCenter"] }}
             />
             {allQuestionsLoading && (

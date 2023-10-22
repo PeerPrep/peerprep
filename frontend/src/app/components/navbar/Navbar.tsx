@@ -16,7 +16,7 @@ import useLogin from "@/app/hooks/useLogin";
 
 const Navbar = () => {
   const router = useRouter();
-  const [ token, profile ] = useLogin(() => {});
+  const [ profile ] = useLogin(() => {});
   // useEffect(() => {
   //   getRedirectResult(auth).then(async (userCred) => {
   //     console.log({ userCred });
@@ -28,7 +28,7 @@ const Navbar = () => {
     const auth = await getAuth();
     router.push("/");
     await signOut(auth);
-    console.log(token);
+    console.log(profile);
   };
 
   const handleBlur = () => {
@@ -48,7 +48,7 @@ const Navbar = () => {
             </Link>
             PeerPrep
           </div>
-          {token && (
+          {profile && (
             <>
               <NavbarPane link="/matching" label="Matching" />
               <NavbarPaneDropdown
@@ -61,7 +61,7 @@ const Navbar = () => {
             </>
           )}
         </nav>
-        {token ? (
+        {profile ? (
           <div className="dropdown dropdown-hover">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">

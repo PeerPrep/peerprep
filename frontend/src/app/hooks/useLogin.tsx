@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../libs/firebase-config";
 import { useRouter } from "next/navigation";
-import { fetchProfileUrl } from "../api";
+import { FetchAuth, fetchProfileUrl } from "../api";
 
 export interface Profile {
   uid: string;
@@ -13,18 +13,15 @@ export interface Profile {
   role: string;
 };
 
-const dummyProfile = { uid: "", name: null, imageUrl: null, preferredLang: null, role: "" };
-
-function useLogin(init: (profile: Profile) => any): [string, Profile, Dispatch<SetStateAction<Profile>>] {
+function useLogin(init: (profile: Profile) => any): [Profile | null, Dispatch<SetStateAction<Profile | null>>] {
   const router = useRouter();
 
-  const [token, setToken] = useState("");
-  const [profile, setProfile] = useState<Profile>(dummyProfile);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   const getProfile = async (user: User) => {
     const token = await user.getIdToken();
-    const res = await fetchProfileUrl(token);
-    setToken(token);
+    FetchAuth.addFirebaseToken(token);
+    const res = await fetchProfileUrl();
     setProfile(res.payload);
     init(res.payload);
   };
@@ -40,7 +37,7 @@ function useLogin(init: (profile: Profile) => any): [string, Profile, Dispatch<S
     return () => unsubscribe();
   }, []);
 
-  return [ token, profile, setProfile ];
+  return [ profile, setProfile ];
 };
 
 export default useLogin;

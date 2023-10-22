@@ -10,11 +10,12 @@ const SettingPage = () => {
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
-  const [token, , setProfile] = useLogin((profile) => {
+  const [profile, setProfile] = useLogin((profile) => {});
+  if (profile) {
     setName(profile.name);
     setPreferredLang(profile.preferredLang);
     setProfileImageUrl(profile.imageUrl);
-  });
+  }
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -27,7 +28,7 @@ const SettingPage = () => {
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     //TODO: submit logic
-    updateProfileUrl(token, name, preferredLang, selectedImage).then((res) => {
+    updateProfileUrl(name, preferredLang, selectedImage).then((res) => {
       setProfile(res.payload);
     });
   };
