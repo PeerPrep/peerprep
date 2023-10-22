@@ -12,10 +12,11 @@ import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";
 import { FiLogOut } from "react-icons/fi";
 import NavbarPane from "./NavbarPane";
 import NavbarPaneDropdown from "./NavbarPaneDropdown";
+import useLogin from "@/app/hooks/useLogin";
 
 const Navbar = () => {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [ token, profile ] = useLogin(() => {});
   // useEffect(() => {
   //   getRedirectResult(auth).then(async (userCred) => {
   //     console.log({ userCred });
@@ -27,16 +28,8 @@ const Navbar = () => {
     const auth = await getAuth();
     router.push("/");
     await signOut(auth);
-    console.log(user);
+    console.log(token);
   };
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log({ user });
-      setUser(user);
-    } else {
-      setUser(null);
-    }
-  });
 
   const handleBlur = () => {
     const elem: any = document.activeElement;
@@ -55,7 +48,7 @@ const Navbar = () => {
             </Link>
             PeerPrep
           </div>
-          {user && (
+          {token && (
             <>
               <NavbarPane link="/matching" label="Matching" />
               <NavbarPaneDropdown
@@ -68,13 +61,13 @@ const Navbar = () => {
             </>
           )}
         </nav>
-        {user ? (
+        {token ? (
           <div className="dropdown dropdown-hover">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />
                 <span className="mr-4 text-lg font-bold">
-                  {user?.displayName}
+                  {profile.name}
                 </span>
               </div>
             </label>

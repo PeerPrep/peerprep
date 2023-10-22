@@ -1,9 +1,9 @@
 import { User } from "firebase/auth";
 import { QuestionType } from "../admin/question/page";
-import { Profile } from "../settings/page";
+import { Profile } from "../hooks/useLogin";
 
 // TODO: change to env variable
-export const API_URL = "https://peerprep.sivarn.com/api/v1";
+export const API_URL =  "http://localhost:6969/api/v1" //"https://peerprep.sivarn.com/api/v1";
 
 export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   return await fetch(`${API_URL}/questions/${qnId}`).then((res) => res.json());
@@ -39,33 +39,33 @@ export const deleteQuestionUrl = async (questionId: string) => {
   }).then((res) => res.json());
 };
 
-export async function getProfileUrl(user: User): Promise<Profile> {
-  const token = await user.getIdToken();
+interface ProfileResponse {
+  payload: Profile;
+  statusMessage: string;
+};
+
+export async function fetchProfileUrl(token: string): Promise<ProfileResponse> {
+  console.log(`Token when fetchingProfileUrl: ${token}`);
   const headers = {
     'firebase-token': token
   };
   const req = new Request(`${API_URL}/users/profile`, { headers, method: "GET" });
   return fetch(req)
-    .then((res) => res.json())
-    .then((val) => val.payload);
+    .then((res) => res.json());
 }
 
-export async function updateProfileUrl(user: User,
-                                       name: string,
-                                       preferredLang: string,
-                                       profileImage: File | null): Promise<Profile> {
-  const token = await user.getIdToken();
+export async function updateProfileUrl(token: string,
+                                       name: string | null,
+                                       preferredLang: string | null,
+                                       profileImage: File | null): Promise<ProfileResponse> {
   const headers = {
     'firebase-token': token
   };
   const body = new FormData();
-  body.set("name", name);
-  body.set("preferredLang", preferredLang);
-  if (profileImage) {
-    body.set("image", profileImage);
-  }
+  if (name) body.set("name", name);
+  if (preferredLang) body.set("preferredLang", preferredLang);
+  if (profileImage) body.set("image", profileImage);
   const req = new Request(`${API_URL}/users/profile`, { headers, method: "POST", body });
   return fetch(req)
-    .then((res) => res.json())
-    .then((val) => val.payload);
+    .then((res) => res.json());
 }

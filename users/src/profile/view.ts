@@ -19,12 +19,11 @@ export async function viewProfileHandler(req: Request, res: Response) {
         } else {
             const auth = getAuth(req.firebaseApp);
             const user = await auth.getUser(uid);
-            const profile = await em.insert(Profile, {
-                uid: uid,
-                name: user.displayName,
-                imageUrl: user.photoURL
-            });
-            await em.persistAndFlush(profile);
+            const profile = new Profile();
+            profile.uid = uid;
+            profile.name = user.displayName;
+            profile.imageUrl = user.photoURL;
+            await em.persistAndFlush(profile); 
             result = profile;
         }
 
