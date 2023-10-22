@@ -10,12 +10,11 @@ const SettingPage = () => {
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
-  const [profile, setProfile] = useLogin((profile) => {});
-  if (profile) {
+  const [, setProfile] = useLogin((profile) => {
     setName(profile.name);
     setPreferredLang(profile.preferredLang);
     setProfileImageUrl(profile.imageUrl);
-  }
+  });
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
