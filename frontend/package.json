@@ -26,7 +26,7 @@
     "@types/react": "18.2.23",
     "@types/react-dom": "18.2.7",
     "@uiw/react-codemirror": "^4.21.13",
-    "antd": "^5.9.4",
+    "antd": "^5.10.2",
     "autoprefixer": "10.4.15",
     "bufferutil": "^4.0.7",
     "codemirror": "5.58.2",
