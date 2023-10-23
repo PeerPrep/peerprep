@@ -22,7 +22,6 @@ export async function viewProfileHandler(req: Request, res: Response) {
             const profile = new Profile();
             profile.uid = uid;
             profile.name = user.displayName;
-            profile.imageUrl = user.photoURL;
             await em.persistAndFlush(profile); 
             result = profile;
         }

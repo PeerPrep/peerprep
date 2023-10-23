@@ -26,7 +26,7 @@ export const FetchAuth = {
 };
 
 // TODO: change to env variable
-export const API_URL =  "http://localhost:6969/api/v1" //"https://peerprep.sivarn.com/api/v1";
+export const API_URL =  "https://peerprep.sivarn.com/api/v1";
 
 export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   return await FetchAuth.fetch(`${API_URL}/questions/${qnId}`).then((res) =>
