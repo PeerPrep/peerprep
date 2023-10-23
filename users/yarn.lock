@@ -180,17 +180,17 @@
   dependencies:
     lodash "^4.17.21"
 
-"@mikro-orm/core@^5.8.4":
-  version "5.8.8"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.8.8.tgz#fa3e3ff4d9701d496471e83e531204d065561503"
-  integrity sha512-lPAqq3RqsoQtCAMmJognwEyvEn1WqvSCiCzfZrUZBt2oPTXvIpo2mbH82kYxruqYO2QcfAQg2JhlNn9W2pwWdQ==
+"@mikro-orm/core@^5.8.10":
+  version "5.8.10"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.8.10.tgz#395829269dd533df080304cd552fe0bb8298efd6"
+  integrity sha512-wKOrUIGi3N7s8bZNfIY8R2aQCjoddU5XDPjpAnTCTsMc+kHaKuNigvcRLoMuRtadkk7VSpJbGawMC/P0uNnFLA==
   dependencies:
     acorn-loose "8.3.0"
     acorn-walk "8.2.0"
     dotenv "16.3.1"
     fs-extra "11.1.1"
     globby "11.1.0"
-    mikro-orm "5.8.8"
+    mikro-orm "5.8.10"
     reflect-metadata "0.1.13"
 
 "@mikro-orm/knex@5.8.8":
@@ -1716,10 +1716,10 @@ micromatch@^4.0.4:
     braces "^3.0.2"
     picomatch "^2.3.1"
 
-mikro-orm@5.8.8:
-  version "5.8.8"
-  resolved "https://registry.yarnpkg.com/mikro-orm/-/mikro-orm-5.8.8.tgz#44cea33f9ea3e6b0fc2ac0afe99842a4110eb227"
-  integrity sha512-DE+EquF+2CEu/7sMQK0lrmfN3NpMTh5jqBWrdEKPvrWTYFGl7rzC08/9nYoPKEFXd+9JUykmZdVqXtkyRnqU9g==
+mikro-orm@5.8.10:
+  version "5.8.10"
+  resolved "https://registry.yarnpkg.com/mikro-orm/-/mikro-orm-5.8.10.tgz#7073c19fa95572efbc3eb17c55bd9eb7150ed9c5"
+  integrity sha512-XkrXxH220OO2d5AQy/UuXl+4b6/K8CcpT45ehqtLjeJTXPsGkTgFJoYw9b4aSRMq5bMqGNcLb9HAY80nPCrtjw==
 
 mime-db@1.52.0, "mime-db@>= 1.43.0 < 2":
   version "1.52.0"
