@@ -3,6 +3,9 @@ import { ReactCodeMirrorProps } from "@uiw/react-codemirror";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
+import { yCollab } from "y-codemirror.next";
+import { SocketIOProvider } from "y-socket.io";
+import * as Y from "yjs";
 import ResultsTab from "../tab/ResultsTab";
 
 let desiredWidth = "50vw";
@@ -31,6 +34,21 @@ const CodeMirrorEditor = ({
   extensions?: ReactCodeMirrorProps["extensions"];
   onChange: ReactCodeMirrorProps["onChange"];
 }) => {
+  const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
+  if (!innkeeperUrl) {
+    console.error("NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env");
+    return;
+  }
+
+  const yDoc = new Y.Doc();
+  const provider = new SocketIOProvider(innkeeperUrl, "my-room-name", yDoc, {});
+  const yText = yDoc.getText("codemirror");
+  const undoManager = new Y.UndoManager(yText);
+
+  provider.awareness.setLocalStateField("user", {
+    name: "Anonymous " + Math.floor(Math.random() * 100),
+  });
+
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [languageExtension, setLanguageExtension] = useState<any>(null);
   const [dragging, setDragging] = useState<boolean>(false);
@@ -121,7 +139,11 @@ const CodeMirrorEditor = ({
         theme="dark"
         basicSetup={false}
         id="codeEditor"
-        extensions={[languageExtension, ...(extensions ?? [])]}
+        extensions={[
+          languageExtension,
+          yCollab(yText, provider.awareness, { undoManager }),
+          ...(extensions ?? []),
+        ]}
         value={value}
         onChange={onChange}
       />
