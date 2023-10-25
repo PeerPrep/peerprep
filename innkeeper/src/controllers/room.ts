@@ -39,7 +39,7 @@ export const joinAssignedRoom = (io: InnkeeperIoServer, inn: InnState, socket: I
     return;
   }
 
-  const { roomId, questionId, textEditor, userStates } = roomState;
+  const { roomId, questionId, userStates } = roomState;
   const { userId } = socket.data;
 
   // If user is already in room, don't join again.
@@ -60,7 +60,6 @@ export const joinAssignedRoom = (io: InnkeeperIoServer, inn: InnState, socket: I
   const newRoomState: RoomState = {
     roomId,
     questionId,
-    textEditor,
     userStates: [userState, otherUserState],
   };
 
@@ -97,7 +96,7 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
     return;
   }
 
-  const { roomId, questionId, textEditor } = roomState;
+  const { roomId, questionId } = roomState;
   const [userState, otherUserState] = getSelfAndOtherUserResult;
 
   userState.lastSeen = getUnixTimestamp();
@@ -105,7 +104,6 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
   const newRoomState: RoomState = {
     roomId,
     questionId: update.questionId ?? questionId,
-    textEditor: { code: update.textEditor?.code ?? textEditor.code },
     userStates: [userState, otherUserState], // userState cannot be edited by user.
   };
 
@@ -145,14 +143,13 @@ export const handleLeaveRoom = (io: InnkeeperIoServer, inn: InnState, socket: In
   }
 
   const [userState, otherUserState] = getSelfAndOtherUserResult;
-  const { questionId, textEditor, roomId } = roomState;
+  const { questionId, roomId } = roomState;
 
   userState.status = 'EXITED';
   userState.lastSeen = getUnixTimestamp();
   const newRoomState: RoomState = {
     roomId,
     questionId,
-    textEditor,
     userStates: [userState, otherUserState],
   };
 
@@ -174,14 +171,13 @@ export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: I
   }
 
   const [userState, otherUserState] = getSelfAndOtherUserResult;
-  const { questionId, textEditor, roomId } = roomState;
+  const { questionId, roomId } = roomState;
 
   userState.status = 'INACTIVE';
   userState.lastSeen = getUnixTimestamp();
   const newRoomState: RoomState = {
     roomId,
     questionId,
-    textEditor,
     userStates: [userState, otherUserState],
   };
 
