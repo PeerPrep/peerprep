@@ -30,7 +30,7 @@
     "autoprefixer": "10.4.16",
     "bufferutil": "^4.0.7",
     "codemirror": "5.58.2",
-    "daisyui": "^3.8.2",
+    "daisyui": "^3.9.3",
     "encoding": "^0.1.13",
     "eslint": "8.51.0",
     "eslint-config-next": "^13.5.4",
