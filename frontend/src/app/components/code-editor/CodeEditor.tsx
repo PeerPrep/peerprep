@@ -1,8 +1,9 @@
 "use client";
-import { ReactCodeMirrorProps } from "@uiw/react-codemirror";
-import dynamic from "next/dynamic";
+import CodeMirror from "@uiw/react-codemirror";
 import { useEffect, useState } from "react";
-import Skeleton from "react-loading-skeleton";
+import { yCollab } from "y-codemirror.next";
+import { SocketIOProvider } from "y-socket.io";
+import * as Y from "yjs";
 import ResultsTab from "../tab/ResultsTab";
 
 let desiredWidth = "50vw";
@@ -10,27 +11,47 @@ if (typeof window !== "undefined") {
   desiredWidth = window.innerWidth >= 1024 ? "50vw" : "90vw";
 }
 
-const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
-  ssr: false,
-  loading: () => (
-    <Skeleton
-      width={desiredWidth}
-      count={30}
-      baseColor="#383D4B"
-      highlightColor="#22242D"
-    />
-  ),
-});
-
 const CodeMirrorEditor = ({
-  onChange,
-  value,
-  extensions,
+  userId,
+  authToken,
+  roomId,
 }: {
-  value: ReactCodeMirrorProps["value"];
-  extensions?: ReactCodeMirrorProps["extensions"];
-  onChange: ReactCodeMirrorProps["onChange"];
+  userId: string;
+  authToken: string;
+  roomId: string;
 }) => {
+  const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
+  if (!innkeeperUrl) {
+    console.error("NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env");
+    return;
+  }
+
+  const yDoc = new Y.Doc();
+  const provider = new SocketIOProvider(
+    innkeeperUrl,
+    roomId,
+    yDoc,
+    {},
+    {
+      path: "/api/v1/innkeeper/",
+      auth: {
+        // This is the correct way to authenticate, but InnKeeper currently ignores this value
+        token: authToken,
+      },
+      extraHeaders: {
+        // This is the janky way InnKeeper authenticates rn.
+        trustmefr: authToken,
+      },
+      autoConnect: false,
+    },
+  );
+  const yText = yDoc.getText("codemirror");
+  const undoManager = new Y.UndoManager(yText);
+
+  provider.awareness.setLocalStateField("user", {
+    name: userId,
+  });
+
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [languageExtension, setLanguageExtension] = useState<any>(null);
   const [dragging, setDragging] = useState<boolean>(false);
@@ -97,6 +118,11 @@ const CodeMirrorEditor = ({
     loadLanguageExtension();
   }, [selectedLanguage]);
 
+  console.dir({ authToken, roomId, at: "rendering editor" });
+
+  const extensions = [yCollab(yText, provider.awareness, { undoManager })];
+  if (languageExtension) extensions.push(languageExtension);
+
   return (
     <section className="flex flex-col items-center">
       <div className="flex w-[90svw] items-center justify-between rounded-t-md bg-primary p-2 px-6 lg:w-[50svw]">
@@ -121,9 +147,8 @@ const CodeMirrorEditor = ({
         theme="dark"
         basicSetup={false}
         id="codeEditor"
-        extensions={[languageExtension, ...(extensions ?? [])]}
-        value={value}
-        onChange={onChange}
+        extensions={extensions}
+        value=""
       />
       <div
         className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"

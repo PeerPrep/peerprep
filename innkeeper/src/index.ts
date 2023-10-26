@@ -10,6 +10,7 @@ import {
 import { InnState } from './models';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
 import { requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
+const YS = require('y-socket.io/dist/server');
 
 const io: InnkeeperIoServer = new Server(4100, {
   cors: {
@@ -44,3 +45,21 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
     socket.data.roomId ? handleRoomDisconnect(io, inn, socket) : handleLobbyDisconnect(io, inn, socket),
   );
 });
+
+// Register yjs namespace
+const ysocketio = new YS.YSocketIO(io, {
+  // authenticate: (auth) => auth.token === 'valid-token',
+  // levelPersistenceDir: './storage-location',
+  gcEnabled: false,
+});
+
+ysocketio.on('document-loaded', (doc: any) => console.log(`The document ${doc.name} was loaded`));
+ysocketio.on('document-update', (doc: any, update: Uint8Array) => console.log(`The document ${doc.name} is updated`));
+ysocketio.on('awareness-update', (doc: any, update: Uint8Array) => {
+  // console.log(`The awareness of the document ${doc.name} is updated`),
+});
+ysocketio.on('document-destroy', async (doc: any) => console.log(`The document ${doc.name} is being destroyed`));
+ysocketio.on('all-document-connections-closed', async (doc: any) => console.log(`All clients of document ${doc.name} are disconnected`));
+
+// Execute initialize method
+ysocketio.initialize();
