@@ -4,7 +4,7 @@ import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 
 const SettingPage = () => {
   //TODO: fetch preferred language
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useState("python");
 
   //TODO: Fetch image
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -68,7 +68,6 @@ const SettingPage = () => {
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
             >
-              <option value="javascript">JavaScript</option>
               <option value="python">Python</option>
               <option value="java">Java</option>
               <option value="cpp">C++</option>

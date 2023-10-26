@@ -5,7 +5,9 @@ import {
   UserState,
 } from "./innkeeper-api-types";
 import { InnkeeperSocket, InnkeeperSocketEvents } from "./innkeeper-types";
-
+export const codeMirrorValueAtom = atom("");
+export const resultAtom = atom("");
+export const codeLangAtom = atom("python");
 export const socketAtom = atom<InnkeeperSocket | null>(null);
 export const isConnectedAtom = atom(false);
 

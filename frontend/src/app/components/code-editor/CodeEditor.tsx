@@ -5,6 +5,8 @@ import { yCollab } from "y-codemirror.next";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
 import ResultsTab from "../tab/ResultsTab";
+import { useAtom, useSetAtom } from "jotai";
+import { codeLangAtom, codeMirrorValueAtom } from "@/libs/room-jotai";
 
 let desiredWidth = "50vw";
 if (typeof window !== "undefined") {
@@ -51,8 +53,9 @@ const CodeMirrorEditor = ({
   provider.awareness.setLocalStateField("user", {
     name: userId,
   });
+  const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
 
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
   const [languageExtension, setLanguageExtension] = useState<any>(null);
   const [dragging, setDragging] = useState<boolean>(false);
   const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
@@ -149,6 +152,9 @@ const CodeMirrorEditor = ({
         id="codeEditor"
         extensions={extensions}
         value=""
+        onChange={(editor, changeObj) => {
+          setCodeMirrorValue(editor);
+        }}
       />
       <div
         className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"
