@@ -50,7 +50,7 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
 const ysocketio = new YSocketIO(io, {
   // authenticate: (auth) => auth.token === 'valid-token',
   // levelPersistenceDir: './storage-location',
-  // gcEnabled: true,
+  gcEnabled: false,
 });
 
 ysocketio.on('document-loaded', (doc: Document) => console.log(`The document ${doc.name} was loaded`));
