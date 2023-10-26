@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import { handleConnect as handleLobbyConnect, handleDisconnect as handleLobbyDisconnect, handleMatchingRequest } from './controllers/lobby';
 import {
@@ -11,6 +12,8 @@ import { InnState } from './models';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
 import { SHOULD_LOG, requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
 const YS = require('y-socket.io/dist/server');
+
+dotenv.config();
 
 const io: InnkeeperIoServer = new Server(4100, {
   cors: {
