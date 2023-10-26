@@ -71,7 +71,7 @@ export const executeCode = async (code: string, lang: string) => {
     method: "POST",
     body: code,
   });
-  const data = res.json();
+  const data = res.text();
   console.log(data);
   return data;
 };
