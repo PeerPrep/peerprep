@@ -12,9 +12,11 @@ if (typeof window !== "undefined") {
 }
 
 const CodeMirrorEditor = ({
+  userId,
   authToken,
   roomId,
 }: {
+  userId: string;
   authToken: string;
   roomId: string;
 }) => {
@@ -47,7 +49,7 @@ const CodeMirrorEditor = ({
   const undoManager = new Y.UndoManager(yText);
 
   provider.awareness.setLocalStateField("user", {
-    name: "Anonymous " + Math.floor(Math.random() * 100),
+    name: userId,
   });
 
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");

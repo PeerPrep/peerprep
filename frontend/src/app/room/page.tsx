@@ -50,7 +50,7 @@ const Lobby = ({ user, setUser }: any) => {
   );
 };
 
-const userAtom = atom("user_a");
+const userAtom = atom("user_");
 
 const roomPage = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -90,7 +90,7 @@ const roomPage = () => {
     <div className="flex h-full flex-col justify-between">
       <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
         <MarkdownQuestionPane />
-        <CodeMirrorEditor authToken={user} roomId={roomId} />
+        <CodeMirrorEditor userId={user} authToken={user} roomId={roomId} />
       </section>
       <StatusBar
         exitMethod={executeFunction}
