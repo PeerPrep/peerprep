@@ -62,7 +62,6 @@ const roomPage = () => {
   console.dir({ isConnected, isMatched, roomId, at: "rendering room page" });
 
   if (!isConnected) {
-    console.log({ isConnected, at: "rendering room page" });
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Connecting to InnKeeper...</h1>
