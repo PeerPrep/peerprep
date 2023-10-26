@@ -8,7 +8,7 @@ import {
   innkeeperWriteAtom,
   isConnectedAtom,
   isMatchedAtom,
-  roomStateAtom,
+  roomIdAtom,
 } from "@/libs/room-jotai";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
@@ -58,7 +58,8 @@ const roomPage = () => {
 
   const isConnected = useAtomValue(isConnectedAtom);
   const isMatched = useAtomValue(isMatchedAtom);
-  const roomState = useAtomValue(roomStateAtom);
+  const roomId = useAtomValue(roomIdAtom);
+  console.dir({ isConnected, isMatched, roomId, at: "rendering room page" });
 
   if (!isConnected) {
     console.log({ isConnected, at: "rendering room page" });
@@ -78,7 +79,7 @@ const roomPage = () => {
   const executeFunction = () => undefined;
 
   // Connected, matched but hasn't received room state yet.
-  if (!roomState) {
+  if (!roomId) {
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Loading...</h1>
@@ -86,19 +87,15 @@ const roomPage = () => {
     );
   }
 
-  const [user1, user2] = roomState.userStates;
-
   return (
     <div className="flex h-full flex-col justify-between">
       <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
         <MarkdownQuestionPane />
-        <CodeMirrorEditor />
+        <CodeMirrorEditor authToken={user} roomId={roomId} />
       </section>
       <StatusBar
         exitMethod={executeFunction}
         executeFunction={executeFunction}
-        user1State={user1}
-        user2State={user2}
       />
     </div>
   );

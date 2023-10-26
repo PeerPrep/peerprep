@@ -19,6 +19,7 @@ export const isMatchedAtom = atom<"UNMATCHED" | "MATCHED" | "CLOSED">(
 );
 
 export const roomStateAtom = atom<RoomState | null>(null);
+export const roomIdAtom = atom((get) => get(roomStateAtom)?.roomId);
 export const userStatesAtom = atom(
   (get) => get(roomStateAtom)?.userStates,
   (get, set, update: [UserState, UserState]) => {

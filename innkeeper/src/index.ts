@@ -55,9 +55,9 @@ const ysocketio = new YSocketIO(io, {
 
 ysocketio.on('document-loaded', (doc: Document) => console.log(`The document ${doc.name} was loaded`));
 ysocketio.on('document-update', (doc: Document, update: Uint8Array) => console.log(`The document ${doc.name} is updated`));
-ysocketio.on('awareness-update', (doc: Document, update: Uint8Array) =>
-  console.log(`The awareness of the document ${doc.name} is updated`),
-);
+ysocketio.on('awareness-update', (doc: Document, update: Uint8Array) => {
+  // console.log(`The awareness of the document ${doc.name} is updated`),
+});
 ysocketio.on('document-destroy', async (doc: Document) => console.log(`The document ${doc.name} is being destroyed`));
 ysocketio.on('all-document-connections-closed', async (doc: Document) =>
   console.log(`All clients of document ${doc.name} are disconnected`),
