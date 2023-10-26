@@ -9,23 +9,10 @@ import {
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
-  textEditorAtom,
 } from "@/libs/room-jotai";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
-
-const codeAtom = atom(
-  (get) => get(textEditorAtom)?.code,
-  (get, set, update: string) => {
-    if (get(textEditorAtom)?.code === update) return;
-
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{ textEditor: { code: update } }],
-    });
-  },
-);
 
 const sendMatchRequestAtom = atom(
   null,
@@ -72,7 +59,6 @@ const roomPage = () => {
   const isConnected = useAtomValue(isConnectedAtom);
   const isMatched = useAtomValue(isMatchedAtom);
   const roomState = useAtomValue(roomStateAtom);
-  const [code, setCode] = useAtom(codeAtom);
 
   if (!isConnected) {
     console.log({ isConnected, at: "rendering room page" });
@@ -106,7 +92,7 @@ const roomPage = () => {
     <div className="flex h-full flex-col justify-between">
       <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
         <MarkdownQuestionPane />
-        <CodeMirrorEditor value={code} onChange={setCode} />
+        <CodeMirrorEditor />
       </section>
       <StatusBar
         exitMethod={executeFunction}

@@ -26,13 +26,9 @@ const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
 });
 
 const CodeMirrorEditor = ({
-  onChange,
-  value,
   extensions,
 }: {
-  value: ReactCodeMirrorProps["value"];
   extensions?: ReactCodeMirrorProps["extensions"];
-  onChange: ReactCodeMirrorProps["onChange"];
 }) => {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
   if (!innkeeperUrl) {
@@ -144,8 +140,6 @@ const CodeMirrorEditor = ({
           yCollab(yText, provider.awareness, { undoManager }),
           ...(extensions ?? []),
         ]}
-        value={value}
-        onChange={onChange}
       />
       <div
         className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"

@@ -4,7 +4,6 @@ import {
   isMatchedAtom,
   roomStateAtom,
   socketAtom,
-  textEditorAtom,
   userStatesAtom,
 } from "@/libs/room-jotai";
 import { useAtom, useSetAtom } from "jotai";
@@ -18,7 +17,6 @@ function _useInnkeeperSocket(authToken: string) {
   const setIsConnected = useSetAtom(isConnectedAtom);
   const setIsMatched = useSetAtom(isMatchedAtom);
   const setRoomState = useSetAtom(roomStateAtom);
-  const setTextEditor = useSetAtom(textEditorAtom);
   const setUserStates = useSetAtom(userStatesAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
@@ -65,7 +63,6 @@ function _useInnkeeperSocket(authToken: string) {
     sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
 
-      if (partialUpdate.textEditor) setTextEditor(partialUpdate.textEditor);
       if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
     },
 
