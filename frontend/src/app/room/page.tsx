@@ -56,6 +56,7 @@ const Lobby = ({ user, setUser }: any) => {
 const userAtom = atom("user_");
 
 const roomPage = () => {
+  const codeLang = useAtomValue(codeLangAtom);
   const [user, setUser] = useAtom(userAtom);
   useInnkeeperSocket(user);
   const isConnected = useAtomValue(isConnectedAtom);
@@ -79,7 +80,6 @@ const roomPage = () => {
   //For status bar
 
   const executeFunction = async () => {
-    const codeLang = useAtomValue(codeLangAtom);
     const res = await executeCode(code, codeLang);
     //
   };
