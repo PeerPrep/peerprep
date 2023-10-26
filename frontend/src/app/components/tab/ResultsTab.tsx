@@ -1,11 +1,13 @@
+import { resultAtom } from "@/libs/room-jotai";
+import { useAtomValue } from "jotai";
 import { useState } from "react";
 
 interface ResultsTabProps {
-  result?: string;
   isLoading?: boolean;
   height: number;
 }
-const ResultsTab = ({ result, isLoading = false, height }: ResultsTabProps) => {
+const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
+  const result = useAtomValue(resultAtom);
   const [currentTab, setCurrentTab] = useState(1);
   return (
     <div className="mb-2">

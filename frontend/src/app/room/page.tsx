@@ -5,6 +5,8 @@ import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDo
 import StatusBar from "@/app/components/status-bar/StatusBar";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
 import {
+  codeLangAtom,
+  codeMirrorValueAtom,
   innkeeperWriteAtom,
   isConnectedAtom,
   isMatchedAtom,
@@ -13,6 +15,7 @@ import {
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
+import { executeCode } from "../api";
 
 const sendMatchRequestAtom = atom(
   null,
@@ -55,10 +58,10 @@ const userAtom = atom("user_");
 const roomPage = () => {
   const [user, setUser] = useAtom(userAtom);
   useInnkeeperSocket(user);
-
   const isConnected = useAtomValue(isConnectedAtom);
   const isMatched = useAtomValue(isMatchedAtom);
   const roomId = useAtomValue(roomIdAtom);
+  const code = useAtomValue(codeMirrorValueAtom);
   console.dir({ isConnected, isMatched, roomId, at: "rendering room page" });
 
   if (!isConnected) {
@@ -75,7 +78,11 @@ const roomPage = () => {
 
   //For status bar
 
-  const executeFunction = () => undefined;
+  const executeFunction = async () => {
+    const codeLang = useAtomValue(codeLangAtom);
+    const res = await executeCode(code, codeLang);
+    //
+  };
 
   // Connected, matched but hasn't received room state yet.
   if (!roomId) {
