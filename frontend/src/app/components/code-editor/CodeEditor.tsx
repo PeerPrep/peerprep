@@ -37,7 +37,24 @@ const CodeMirrorEditor = ({
   }
 
   const yDoc = new Y.Doc();
-  const provider = new SocketIOProvider(innkeeperUrl, "my-room-name", yDoc, {});
+  const provider = new SocketIOProvider(
+    innkeeperUrl,
+    "my-room-name",
+    yDoc,
+    {},
+    {
+      path: "/api/v1/innkeeper/",
+      auth: {
+        // This is the correct way to authenticate, but InnKeeper currently ignores this value
+        token: "ded",
+      },
+      extraHeaders: {
+        // This is the janky way InnKeeper authenticates rn.
+        trustmefr: "ded",
+      },
+      autoConnect: false,
+    },
+  );
   const yText = yDoc.getText("codemirror");
   const undoManager = new Y.UndoManager(yText);
 
@@ -140,6 +157,7 @@ const CodeMirrorEditor = ({
           yCollab(yText, provider.awareness, { undoManager }),
           ...(extensions ?? []),
         ]}
+        value=""
       />
       <div
         className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"
