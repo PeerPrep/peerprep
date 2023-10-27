@@ -1,4 +1,6 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
+import { applicationDefault, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 import { Server } from 'socket.io';
 import { handleConnect as handleLobbyConnect, handleDisconnect as handleLobbyDisconnect, handleMatchingRequest } from './controllers/lobby';
 import {
@@ -11,9 +13,15 @@ import {
 import { InnState } from './models';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
 import { SHOULD_LOG, requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
+
 const YS = require('y-socket.io/dist/server');
 
-dotenv.config();
+const firebaseApp = initializeApp({
+  credential: applicationDefault(),
+  storageBucket: process.env.BUCKET_NAME,
+});
+
+const firebaseAuth = getAuth(firebaseApp);
 
 const io: InnkeeperIoServer = new Server(4100, {
   cors: {
@@ -24,12 +32,11 @@ const io: InnkeeperIoServer = new Server(4100, {
 const inn: InnState = new InnState();
 
 // Register lobby.
-io.on('connection', (socket: InnkeeperIoSocket) => {
-  if (!requireUser(io, inn, socket)) {
-    // Sending error already handled in requireUser.
-    return;
-  }
+io.use((socket: InnkeeperIoSocket, next) => {
+  requireUser(firebaseAuth, inn, socket, next);
+});
 
+io.on('connection', (socket: InnkeeperIoSocket) => {
   if (!socket.data.roomId) {
     handleLobbyConnect(io, inn, socket);
   } else {
@@ -37,7 +44,7 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
     joinAssignedRoom(io, inn, socket);
   }
 
-  socket.on('makeMatchingRequest', params => requireUnmatchedUser(io, inn, socket) && handleMatchingRequest(io, inn, socket, params));
+  socket.on('makeMatchingRequest', params => requireUnmatchedUser(socket) && handleMatchingRequest(io, inn, socket, params));
 
   socket.on('sendUpdate', update => requireMatchedUser(io, inn, socket) && handleSendUpdate(io, inn, socket, update));
   socket.on('requestCompleteRoomState', () => requireMatchedUser(io, inn, socket) && handleRequestCompleteState(io, inn, socket));

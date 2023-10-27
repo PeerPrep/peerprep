@@ -1,18 +1,18 @@
 "use client";
 
+import { FetchAuth } from "@/app/api";
 import { auth } from "@/libs/firebase-config";
-import { User, onAuthStateChanged, signOut, getAuth } from "@firebase/auth";
+import { User, getAuth, onAuthStateChanged, signOut } from "@firebase/auth";
+import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";
+import { IoPeopleCircleSharp } from "@react-icons/all-files/io5/IoPeopleCircleSharp";
+import { RiArrowDropDownLine } from "@react-icons/all-files/ri/RiArrowDropDownLine";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { IoPeopleCircleSharp } from "@react-icons/all-files/io5/IoPeopleCircleSharp";
-import Button from "../button/Button";
-import { RiArrowDropDownLine } from "@react-icons/all-files/ri/RiArrowDropDownLine";
-import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";
 import { FiLogOut } from "react-icons/fi";
+import Button from "../button/Button";
 import NavbarPane from "./NavbarPane";
 import NavbarPaneDropdown from "./NavbarPaneDropdown";
-import { FetchAuth } from "@/app/api";
 
 const Navbar = () => {
   const router = useRouter();

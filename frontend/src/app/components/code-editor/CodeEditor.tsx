@@ -1,17 +1,49 @@
 "use client";
-import CodeMirror from "@uiw/react-codemirror";
+import {
+  codeLangAtom,
+  codeMirrorValueAtom,
+  isMatchedAtom,
+} from "@/libs/room-jotai";
+import { ExclamationCircleFilled } from "@ant-design/icons";
+import { Button } from "antd";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { yCollab } from "y-codemirror.next";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
 import ResultsTab from "../tab/ResultsTab";
-import { useAtom, useSetAtom } from "jotai";
-import { codeLangAtom, codeMirrorValueAtom } from "@/libs/room-jotai";
+
+const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton
+      width={desiredWidth}
+      count={30}
+      baseColor="#383D4B"
+      highlightColor="#22242D"
+    />
+  ),
+});
 
 let desiredWidth = "50vw";
 if (typeof window !== "undefined") {
   desiredWidth = window.innerWidth >= 1024 ? "50vw" : "90vw";
 }
+
+// TODO: idk what FE plan is for this, so i just slapped a random text box thing here.
+const UiElementOnClose = () => {
+  return (
+    <div className="flex items-center gap-4 bg-slate-800 p-2">
+      <ExclamationCircleFilled />
+      Your room has been closed.
+      <Button className="btn-accent" onClick={() => window.location.reload()}>
+        Restart
+      </Button>
+    </div>
+  );
+};
 
 const CodeMirrorEditor = ({
   userId,
@@ -23,8 +55,23 @@ const CodeMirrorEditor = ({
   roomId: string;
 }) => {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
+  const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
+  const isMatched = useAtomValue(isMatchedAtom);
+
+  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
+  const [languageExtension, setLanguageExtension] = useState<any>(null);
+  const [dragging, setDragging] = useState<boolean>(false);
+  const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
+  const [editorHeight, setEditorHeight] = useState<number>(600);
+  const [initialHeight, setInitialHeight] = useState<number>(0); // Store the initial height when starting to drag
+
   if (!innkeeperUrl) {
     console.error("NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env");
+    return;
+  }
+
+  if (!authToken) {
+    console.error("authToken not set");
     return;
   }
 
@@ -37,7 +84,6 @@ const CodeMirrorEditor = ({
     {
       path: "/api/v1/innkeeper/",
       auth: {
-        // This is the correct way to authenticate, but InnKeeper currently ignores this value
         token: authToken,
       },
       extraHeaders: {
@@ -53,14 +99,6 @@ const CodeMirrorEditor = ({
   provider.awareness.setLocalStateField("user", {
     name: userId,
   });
-  const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
-
-  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
-  const [languageExtension, setLanguageExtension] = useState<any>(null);
-  const [dragging, setDragging] = useState<boolean>(false);
-  const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
-  const [editorHeight, setEditorHeight] = useState<number>(600);
-  const [initialHeight, setInitialHeight] = useState<number>(0); // Store the initial height when starting to drag
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     setDragging(true);
@@ -121,9 +159,11 @@ const CodeMirrorEditor = ({
     loadLanguageExtension();
   }, [selectedLanguage]);
 
-  console.dir({ authToken, roomId, at: "rendering editor" });
+  console.dir({ authToken, roomId, isMatched, at: "rendering editor" });
 
-  const extensions = [yCollab(yText, provider.awareness, { undoManager })];
+  const extensions = [];
+  if (isMatched === "MATCHED")
+    extensions.push(yCollab(yText, provider.awareness, { undoManager }));
   if (languageExtension) extensions.push(languageExtension);
 
   return (
@@ -144,6 +184,7 @@ const CodeMirrorEditor = ({
           </select>
         </div>
       </div>
+      {isMatched !== "MATCHED" && <UiElementOnClose />}
       <CodeMirror
         className="max-h-[70svw] w-[90svw] lg:w-[50svw]"
         height={`${editorHeight}px`}
