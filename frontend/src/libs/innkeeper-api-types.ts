@@ -11,8 +11,14 @@ export type WaitingUsersCount = {
   totalWaitingUsers: number;
 };
 
+export type UserId = {
+  userId: string;
+  displayName: string;
+};
+
 export type UserState = {
   userId: string;
+  displayName: string;
   status: "INACTIVE" | "ACTIVE" | "EXITED";
   lastSeen: number; // Unix time (seconds since epoch)
 };
@@ -83,6 +89,7 @@ export interface InterServerEvents {}
 
 export interface InnkeeperSocketData {
   userId: string; // Primary key for Users table.
+  displayName: string; // Display name for user.
   roomId: string | null; // convenience field populated manually by server.
   lastMessage: number; // Last active timestamp in Unix time (seconds since epoch). 0 indicates user has never joined.
 }

@@ -32,6 +32,7 @@ export const requireUser = async (
   }
 
   socket.data.userId = userId;
+  socket.data.displayName = (await firebaseAuth.getUser(userId)).displayName ?? 'Anonymous';
   socket.data.roomId = inn.getRoomId(userId);
   socket.data.lastMessage = getUnixTimestamp();
 

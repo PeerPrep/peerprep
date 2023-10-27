@@ -5,7 +5,7 @@ interface UserStateBadgeProps {
 }
 
 const UserStateBadge: React.FC<UserStateBadgeProps> = ({ userState }) => {
-  const { userId, status, lastSeen } = userState;
+  const { displayName, status, lastSeen } = userState;
   return status !== "EXITED" ? (
     <div className="flex items-center gap-2">
       <div className="tooltip" data-tip={`Last Seen: ${lastSeen} seconds ago`}>
@@ -19,7 +19,7 @@ const UserStateBadge: React.FC<UserStateBadgeProps> = ({ userState }) => {
           }`}
         />
       </div>
-      <h3>{userId}</h3>
+      <h3>{displayName}</h3>
     </div>
   ) : (
     <div className="flex items-center gap-2">
@@ -29,7 +29,7 @@ const UserStateBadge: React.FC<UserStateBadgeProps> = ({ userState }) => {
       >
         <div className={`aspect-square w-4 rounded-full bg-red-700`} />
       </div>
-      <h3>{userId}</h3>
+      <h3>{displayName}</h3>
     </div>
   );
 };

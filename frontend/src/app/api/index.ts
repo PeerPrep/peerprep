@@ -1,4 +1,8 @@
+"use client";
+import { atom } from "jotai";
 import { QuestionType } from "../admin/question/page";
+
+export const firebaseTokenAtom = atom<string | null>(null);
 
 export const FetchAuth = {
   firebaseToken: "",
@@ -6,16 +10,29 @@ export const FetchAuth = {
   addFirebaseToken: function (firebaseToken: string) {
     this.firebaseToken = firebaseToken;
   },
+  getFirebaseToken: async function (timeoutInMilliseconds: number = 10 * 1000) {
+    console.log(
+      `Looking for firebase token... (max ${timeoutInMilliseconds} ms left)`,
+    );
+    const intervalInMs = 100;
+    while (!this.firebaseToken && timeoutInMilliseconds > 0) {
+      timeoutInMilliseconds -= intervalInMs;
+      console.log(
+        `Waiting for firebase token... (max ${timeoutInMilliseconds} ms left)`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, intervalInMs));
+    }
+    console.log(`Found firebase token. ${this.firebaseToken}`);
+    return this.firebaseToken;
+  },
   fetch: async function (
     url: RequestInfo | URL,
     options = { headers: {} } as RequestInit,
   ) {
     // Create a new Headers object with your custom headers
-    while (!this.firebaseToken) {
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100 milliseconds
-    }
+    const nonEmptyFirebaseToken = await this.getFirebaseToken();
     const headers = new Headers({
-      "firebase-token": this.firebaseToken,
+      "firebase-token": nonEmptyFirebaseToken,
       ...options.headers, // Optionally, include any headers from the options argument
     });
 

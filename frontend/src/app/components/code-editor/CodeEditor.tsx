@@ -55,8 +55,23 @@ const CodeMirrorEditor = ({
   roomId: string;
 }) => {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
+  const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
+  const isMatched = useAtomValue(isMatchedAtom);
+
+  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
+  const [languageExtension, setLanguageExtension] = useState<any>(null);
+  const [dragging, setDragging] = useState<boolean>(false);
+  const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
+  const [editorHeight, setEditorHeight] = useState<number>(600);
+  const [initialHeight, setInitialHeight] = useState<number>(0); // Store the initial height when starting to drag
+
   if (!innkeeperUrl) {
     console.error("NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env");
+    return;
+  }
+
+  if (!authToken) {
+    console.error("authToken not set");
     return;
   }
 
@@ -69,7 +84,6 @@ const CodeMirrorEditor = ({
     {
       path: "/api/v1/innkeeper/",
       auth: {
-        // This is the correct way to authenticate, but InnKeeper currently ignores this value
         token: authToken,
       },
       extraHeaders: {
@@ -85,15 +99,6 @@ const CodeMirrorEditor = ({
   provider.awareness.setLocalStateField("user", {
     name: userId,
   });
-  const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
-  const isMatched = useAtomValue(isMatchedAtom);
-
-  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
-  const [languageExtension, setLanguageExtension] = useState<any>(null);
-  const [dragging, setDragging] = useState<boolean>(false);
-  const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
-  const [editorHeight, setEditorHeight] = useState<number>(600);
-  const [initialHeight, setInitialHeight] = useState<number>(0); // Store the initial height when starting to drag
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     setDragging(true);

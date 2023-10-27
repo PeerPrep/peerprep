@@ -36,14 +36,14 @@ export const handleMatchingRequest = (
   params: MatchingParameters,
 ): void => {
   socket.data.lastMessage = getUnixTimestamp();
-  const { userId } = socket.data;
+  const { userId, displayName } = socket.data;
 
-  SHOULD_LOG && console.log(`User ${userId} requested a match with parameters ${JSON.stringify(params)}.`);
+  SHOULD_LOG && console.log(`User ${displayName} (${userId}) requested a match with parameters ${JSON.stringify(params)}.`);
 
   // Remove user from queue in case this is a re-request.
-  inn.removeUserFromQueue(userId);
+  inn.removeUserFromQueue({ userId, displayName });
 
-  const maybeMatch = inn.queueUserOrReturnMatchResult(userId, params);
+  const maybeMatch = inn.queueUserOrReturnMatchResult({ userId, displayName }, params);
   if (!maybeMatch) {
     notifyOnQueue(io, inn, socket);
     SHOULD_LOG && console.log(`User ${userId} added to queue.`);
@@ -57,7 +57,7 @@ export const handleMatchingRequest = (
     .fetchSockets()
     .then(otherSockets => {
       for (const otherSocket of otherSockets) {
-        if (otherSocket.data.userId !== otherUserId) {
+        if (otherSocket.data.userId !== otherUserId.userId) {
           continue;
         }
 
@@ -76,14 +76,14 @@ export const handleMatchingRequest = (
       console.error(`Could not find socket for userId ${otherUserId} (returned from queue).`);
       inn.removeUserFromQueue(otherUserId);
 
-      inn.addUserToQueue(userId, params);
+      inn.addUserToQueue({ userId, displayName }, params);
       notifyOnQueue(io, inn, socket);
     });
 };
 
 export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
-  const { userId } = socket.data;
-  inn.removeUserFromQueue(userId);
+  const { userId, displayName } = socket.data;
+  inn.removeUserFromQueue({ userId, displayName });
 
   SHOULD_LOG && console.log(`User ${userId} disconnected from lobby.`);
 };

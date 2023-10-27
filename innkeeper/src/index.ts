@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { applicationDefault, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { Server } from 'socket.io';
@@ -15,8 +15,6 @@ import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
 import { SHOULD_LOG, requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
 
 const YS = require('y-socket.io/dist/server');
-
-dotenv.config();
 
 const firebaseApp = initializeApp({
   credential: applicationDefault(),

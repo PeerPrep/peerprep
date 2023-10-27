@@ -11,7 +11,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import io from "socket.io-client";
 
-function _useInnkeeperSocket(authToken: string) {
+function _useInnkeeperSocket(authToken: string | null) {
   const innkeeperUrl = process.env.NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL;
   const [socket, setSocket] = useAtom(socketAtom);
 
@@ -85,11 +85,15 @@ function _useInnkeeperSocket(authToken: string) {
       return;
     }
 
+    if (!authToken) {
+      console.error("authToken not set");
+      return;
+    }
+
     console.log("connecting to innkeeper socket...");
     const socket = io(innkeeperUrl, {
       path: "/api/v1/innkeeper/",
       auth: {
-        // This is the correct way to authenticate, but InnKeeper currently ignores this value
         token: authToken,
       },
       extraHeaders: {
