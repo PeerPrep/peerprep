@@ -1,11 +1,12 @@
+import { FetchAuth } from "@/app/api";
 import {
   chatHistoryAtom,
   innkeeperWriteAtom,
   resultAtom,
-  roomStateAtom,
 } from "@/libs/room-jotai";
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useState } from "react";
+import { getAuth } from "firebase/auth";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useState } from "react";
 import Button from "../button/Button";
 
 interface ResultsTabProps {
@@ -28,12 +29,21 @@ const triggerChatMessageRequestAtom = atom(
   },
 );
 
+const userDetailsAtom = atom<string | null>(null);
+
 const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
   const result = useAtomValue(resultAtom);
   const [currentTab, setCurrentTab] = useState(1);
   const sendMessage = useSetAtom(triggerChatMessageRequestAtom);
   const chatHistory = useAtomValue(chatHistoryAtom);
   const [message, setMessage] = useState("");
+  const [uid, setUid] = useAtom(userDetailsAtom);
+  useEffect(() => {
+    FetchAuth.getFirebaseToken().then(() => {
+      const uid = getAuth().currentUser?.uid ?? null;
+      setUid(uid);
+    });
+  }, []);
 
   const onSendMessage = () => {
     sendMessage(message);
@@ -87,12 +97,12 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
                 <div
                   key={index}
                   className={`${
-                    message.user === "user_a" ? "self-end" : "self-start"
+                    message.user === uid ? "self-end" : "self-start"
                   } max-w-md`}
                 >
                   <div
                     className={`${
-                      message.user === "user_a" ? "bg-accent" : "bg-primary"
+                      message.user === uid ? "bg-accent" : "bg-primary"
                     } rounded-lg p-2 text-white`}
                   >
                     {message.message}
