@@ -12,7 +12,11 @@ const PreviewModalButton = ({
   className,
   isDisabled,
 }: PreviewModalProps) => {
-  const onClickModal = (modalId: string) => {
+  const onClickModal = (
+    modalId: string,
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    e.preventDefault;
     if (document) {
       (document.getElementById(modalId) as HTMLFormElement).showModal();
     }
@@ -31,7 +35,7 @@ const PreviewModalButton = ({
       <Button
         disabled={isDisabled}
         className={`btn btn-accent btn-sm w-24 rounded-full text-white ${className} disabled:bg-slate-600 disabled:text-slate-700`}
-        onClick={() => onClickModal("preview-modal")}
+        onClick={(e) => onClickModal("preview-modal", e)}
       >
         Preview
       </Button>

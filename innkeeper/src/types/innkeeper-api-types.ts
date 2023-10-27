@@ -28,11 +28,16 @@ export type TextEditorState = {
   code: string;
 };
 
-// Only used for reconnecting users / when users have lost history.
+export type ChatMessage = {
+  user: string;
+  message: string;
+};
+
 export type RoomState = {
   roomId: string;
   questionId: string;
   userStates: [UserState, UserState];
+  chatHistory: ChatMessage[];
 };
 
 /**
@@ -42,6 +47,7 @@ export type RoomState = {
 export type PartialRoomState = {
   questionId?: string;
   userStates?: [UserState, UserState];
+  chatHistory?: ChatMessage[];
 };
 
 export interface ServerToClientEvents {
@@ -83,6 +89,7 @@ export interface ClientToServerEvents {
 
   /** Indicates one user wishes to leave. This will trigger server to send closeRoom() to notify the other participant. */
   leaveRoom: () => void;
+  sendChatMessage: (update: string) => void;
 }
 
 export interface InterServerEvents {}

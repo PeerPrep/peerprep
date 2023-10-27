@@ -4,6 +4,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { Server } from 'socket.io';
 import { handleConnect as handleLobbyConnect, handleDisconnect as handleLobbyDisconnect, handleMatchingRequest } from './controllers/lobby';
 import {
+  handleChatMessage,
   handleLeaveRoom,
   handleRequestCompleteState,
   handleDisconnect as handleRoomDisconnect,
@@ -13,7 +14,6 @@ import {
 import { InnState } from './models';
 import { InnkeeperIoServer, InnkeeperIoSocket } from './types';
 import { SHOULD_LOG, requireMatchedUser, requireUnmatchedUser, requireUser } from './utils';
-
 const YS = require('y-socket.io/dist/server');
 
 const firebaseApp = initializeApp({
@@ -49,6 +49,7 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
   socket.on('sendUpdate', update => requireMatchedUser(io, inn, socket) && handleSendUpdate(io, inn, socket, update));
   socket.on('requestCompleteRoomState', () => requireMatchedUser(io, inn, socket) && handleRequestCompleteState(io, inn, socket));
   socket.on('leaveRoom', () => requireMatchedUser(io, inn, socket) && handleLeaveRoom(io, inn, socket));
+  socket.on('sendChatMessage', (message: string) => requireMatchedUser(io, inn, socket) && handleChatMessage(io, inn, socket, message));
 
   socket.on('disconnect', () =>
     // At the point of disconnect, check if roomId is set.
