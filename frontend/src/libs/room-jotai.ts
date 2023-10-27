@@ -34,6 +34,18 @@ export const userStatesAtom = atom(
     set(roomStateAtom, { ...roomState, userStates: update });
   },
 );
+export const questionIdAtom = atom(
+  (get) => get(roomStateAtom)?.questionId,
+  (get, set, update: string) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("Room state not initialized but question id updated");
+      return;
+    }
+
+    set(roomStateAtom, { ...roomState, questionId: update });
+  },
+);
 
 export type JotaiInnkeeperListenAdapter = {
   [K in keyof InnkeeperSocketEvents]: (
@@ -57,8 +69,8 @@ export const innkeeperWriteAtom = atom(
       return;
     }
 
+    console.dir({ ...args, at: "innkeeperWriteAtom" });
     const { eventName, eventArgs } = args;
-    console.log(`Emitting ${eventName} with args: ${eventArgs}`);
     socket.emit(eventName, ...eventArgs);
   },
 );

@@ -111,11 +111,9 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
   io.in(roomState.roomId)
     .fetchSockets()
     .then(sockets =>
-      sockets
-        .filter(s => s.id !== socket.id)
-        .forEach((s: InnkeeperOtherSockets) => {
-          s.emit('sendPartialRoomState', update);
-        }),
+      sockets.forEach((s: InnkeeperOtherSockets) => {
+        s.emit('sendPartialRoomState', update);
+      }),
     );
 };
 
