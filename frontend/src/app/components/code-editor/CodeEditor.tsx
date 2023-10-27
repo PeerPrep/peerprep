@@ -68,7 +68,9 @@ const CodeMirrorEditor = ({
 
   useEffect(() => {
     if (!innkeeperUrl) {
-      console.error("NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env");
+      console.error(
+        "NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env",
+      );
       return;
     }
 
@@ -194,7 +196,7 @@ const CodeMirrorEditor = ({
         theme="dark"
         basicSetup={false}
         id="codeEditor"
-        extensions={languageExtension}
+        extensions={curExtensions}
         value=""
         onChange={(editor, changeObj) => {
           setCodeMirrorValue(editor);
