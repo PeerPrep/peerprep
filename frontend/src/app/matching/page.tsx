@@ -2,6 +2,7 @@
 import { useState } from "react";
 import QueueButton from "../components/button/QueueButton";
 import Loading from "../loading";
+import { QuestionType } from "../admin/question/page";
 
 const MatchingPage = () => {
   const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
