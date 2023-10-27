@@ -68,8 +68,9 @@ function _useInnkeeperSocket(authToken: string) {
 
     closeRoom(finalUpdate) {
       setIsMatched("CLOSED");
+      setRoomState(finalUpdate);
 
-      console.log("received partial room state:", finalUpdate);
+      console.log("received close room state:", finalUpdate);
     },
   };
 

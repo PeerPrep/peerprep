@@ -1,17 +1,38 @@
 "use client";
+import {
+  codeLangAtom,
+  codeMirrorValueAtom,
+  isMatchedAtom,
+} from "@/libs/room-jotai";
+import { ExclamationCircleFilled } from "@ant-design/icons";
 import CodeMirror from "@uiw/react-codemirror";
+import { Button } from "antd";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { yCollab } from "y-codemirror.next";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
 import ResultsTab from "../tab/ResultsTab";
-import { useAtom, useSetAtom } from "jotai";
-import { codeLangAtom, codeMirrorValueAtom } from "@/libs/room-jotai";
+
+// TODO: Redo the dynamic import of CodeMirror. This will also correct the "Yjs was already imported error".
 
 let desiredWidth = "50vw";
 if (typeof window !== "undefined") {
   desiredWidth = window.innerWidth >= 1024 ? "50vw" : "90vw";
 }
+
+// TODO: idk what FE plan is for this, so i just slapped a random text box thing here.
+const UiElementOnClose = () => {
+  return (
+    <div className="flex items-center gap-4 bg-slate-800 p-2">
+      <ExclamationCircleFilled />
+      Your room has been closed.
+      <Button className="btn-accent" onClick={() => window.location.reload()}>
+        Restart
+      </Button>
+    </div>
+  );
+};
 
 const CodeMirrorEditor = ({
   userId,
@@ -54,6 +75,7 @@ const CodeMirrorEditor = ({
     name: userId,
   });
   const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
+  const isMatched = useAtomValue(isMatchedAtom);
 
   const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
   const [languageExtension, setLanguageExtension] = useState<any>(null);
@@ -121,9 +143,11 @@ const CodeMirrorEditor = ({
     loadLanguageExtension();
   }, [selectedLanguage]);
 
-  console.dir({ authToken, roomId, at: "rendering editor" });
+  console.dir({ authToken, roomId, isMatched, at: "rendering editor" });
 
-  const extensions = [yCollab(yText, provider.awareness, { undoManager })];
+  const extensions = [];
+  if (isMatched === "MATCHED")
+    extensions.push(yCollab(yText, provider.awareness, { undoManager }));
   if (languageExtension) extensions.push(languageExtension);
 
   return (
@@ -144,6 +168,7 @@ const CodeMirrorEditor = ({
           </select>
         </div>
       </div>
+      {isMatched !== "MATCHED" && <UiElementOnClose />}
       <CodeMirror
         className="max-h-[70svw] w-[90svw] lg:w-[50svw]"
         height={`${editorHeight}px`}
