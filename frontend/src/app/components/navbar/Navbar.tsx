@@ -28,6 +28,7 @@ const Navbar = () => {
     const auth = await getAuth();
     router.push("/");
     await signOut(auth);
+    localStorage.removeItem("user");
     console.log(user);
   };
   onAuthStateChanged(auth, (user) => {
@@ -35,6 +36,7 @@ const Navbar = () => {
       .currentUser?.getIdToken(true)
       .then(function (idToken) {
         FetchAuth.addFirebaseToken(idToken);
+        localStorage.setItem("user", JSON.stringify(idToken));
       });
 
     if (user) {
@@ -75,7 +77,7 @@ const Navbar = () => {
           )}
         </nav>
         {user ? (
-          <div className="dropdown-hover dropdown">
+          <div className="dropdown dropdown-hover">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />
