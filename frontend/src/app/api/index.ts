@@ -11,6 +11,9 @@ export const FetchAuth = {
     options = { headers: {} } as RequestInit,
   ) {
     // Create a new Headers object with your custom headers
+    while (!this.firebaseToken) {
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100 milliseconds
+    }
     const headers = new Headers({
       "firebase-token": this.firebaseToken,
       ...options.headers, // Optionally, include any headers from the options argument

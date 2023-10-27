@@ -193,23 +193,21 @@ const QuestionPage = () => {
   });
 
   const allQuestionsFiltered = useMemo(() => {
+    console.log(allQuestions?.payload);
     if (Array.isArray(allQuestions?.payload)) {
       return allQuestions?.payload.filter((question) => {
-        return (question.title
-          .toLowerCase()
-          .includes(searchValue.toLowerCase()) ||
+        return (
+          question.title.toLowerCase().includes(searchValue.toLowerCase()) ||
           question.tags.some((tag) =>
             tag.toLowerCase().includes(searchValue.toLowerCase()),
           ) ||
-          question.difficulty
-            .toLowerCase()
-            .includes(searchValue.toLowerCase())) &&
-          filterQnType?.length
-          ? filterQnType?.some((filter) => question.tags.includes(filter.value))
-          : true;
+          question.difficulty.toLowerCase().includes(searchValue.toLowerCase())
+        );
       });
     }
   }, [allQuestions?.payload, searchValue, filterQnType]);
+
+  console.log({ allQuestionsFiltered });
 
   const deleteQuestionMutation = useMutation(
     async (questionId: string) => deleteQuestionUrl(questionId),
@@ -275,12 +273,6 @@ const QuestionPage = () => {
               <div className="flex flex-row items-center gap-4">
                 <AddQuestionModal successCallback={refetchAllQuestions} />
                 <div className="dropdown">
-                  <Button
-                    tabIndex={0}
-                    className="btn-primary btn-sm h-5 w-24 rounded-3xl"
-                  >
-                    Filter
-                  </Button>
                   <div
                     className="menu dropdown-content rounded-box z-[1] h-52 w-52 bg-base-100 p-2 shadow"
                     tabIndex={0}
