@@ -67,3 +67,14 @@ export const deleteQuestionUrl = async (questionId: string) => {
     method: "DELETE",
   }).then((res) => res.json());
 };
+
+const executorURL = "https://peerprep.sivarn.com/api/v1/execute";
+export const executeCode = async (code: string, lang: string) => {
+  const res = await fetch(`${executorURL}/${lang}`, {
+    method: "POST",
+    body: code,
+  });
+  const data = res.text();
+  console.log(data);
+  return data;
+};

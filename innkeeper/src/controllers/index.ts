@@ -1,8 +1,8 @@
-import { InnkeeperIoServer, InnkeeperIoSocket, InnkeeperOtherSockets, NotificationMessage } from '../types';
-import { joinAssignedRoom } from './room';
+import { InnkeeperIoSocket, InnkeeperOtherSockets, NotificationMessage } from '../types';
+import { SHOULD_LOG } from '../utils';
 
 export const sendNotification = (socket: InnkeeperIoSocket | InnkeeperOtherSockets, { type, message }: NotificationMessage) => {
   const socketData = `${socket.id} (userId: ${socket.data.userId})`;
-  console.log(`Sending ${type} notification to ${socketData}: ${message}`);
+  SHOULD_LOG && console.log(`Sending ${type} notification to ${socketData}: ${message}`);
   socket.emit('sendNotification', { type, message });
 };

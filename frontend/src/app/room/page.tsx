@@ -5,27 +5,15 @@ import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDo
 import StatusBar from "@/app/components/status-bar/StatusBar";
 import { useInnkeeperSocket } from "@/app/hooks/useInnKeeper";
 import {
+  codeLangAtom,
   innkeeperWriteAtom,
   isConnectedAtom,
   isMatchedAtom,
-  roomStateAtom,
-  textEditorAtom,
+  roomIdAtom,
 } from "@/libs/room-jotai";
 import { Space } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { atom, useAtom, useAtomValue } from "jotai";
-
-const codeAtom = atom(
-  (get) => get(textEditorAtom)?.code,
-  (get, set, update: string) => {
-    if (get(textEditorAtom)?.code === update) return;
-
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{ textEditor: { code: update } }],
-    });
-  },
-);
 
 const sendMatchRequestAtom = atom(
   null,
@@ -63,19 +51,17 @@ const Lobby = ({ user, setUser }: any) => {
   );
 };
 
-const userAtom = atom("user_a");
+const userAtom = atom("user_");
 
 const roomPage = () => {
   const [user, setUser] = useAtom(userAtom);
   useInnkeeperSocket(user);
-
   const isConnected = useAtomValue(isConnectedAtom);
   const isMatched = useAtomValue(isMatchedAtom);
-  const roomState = useAtomValue(roomStateAtom);
-  const [code, setCode] = useAtom(codeAtom);
+  const roomId = useAtomValue(roomIdAtom);
+  console.dir({ isConnected, isMatched, roomId, at: "rendering room page" });
 
   if (!isConnected) {
-    console.log({ isConnected, at: "rendering room page" });
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Connecting to InnKeeper...</h1>
@@ -89,10 +75,10 @@ const roomPage = () => {
 
   //For status bar
 
-  const executeFunction = () => undefined;
+  const executeFunction = async () => {};
 
   // Connected, matched but hasn't received room state yet.
-  if (!roomState) {
+  if (!roomId) {
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Loading...</h1>
@@ -100,20 +86,13 @@ const roomPage = () => {
     );
   }
 
-  const [user1, user2] = roomState.userStates;
-
   return (
     <div className="flex h-full flex-col justify-between">
       <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
         <MarkdownQuestionPane />
-        <CodeMirrorEditor value={code} onChange={setCode} />
+        <CodeMirrorEditor userId={user} authToken={user} roomId={roomId} />
       </section>
-      <StatusBar
-        exitMethod={executeFunction}
-        executeFunction={executeFunction}
-        user1State={user1}
-        user2State={user2}
-      />
+      <StatusBar exitMethod={executeFunction} />
     </div>
   );
 };

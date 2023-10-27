@@ -3,6 +3,8 @@ import { joinAssignedRoom } from '../controllers/room';
 import { InnState } from '../models';
 import { InnkeeperIoServer, InnkeeperIoSocket, NotificationMessage } from '../types';
 
+export const SHOULD_LOG = process.env.LOGGING === 'VERBOSE';
+
 export const getUnixTimestamp = (): number => {
   return Math.floor(Date.now() / 1000);
 };
@@ -24,7 +26,7 @@ export const requireUser = (io: InnkeeperIoServer, inn: InnState, socket: Innkee
   socket.data.roomId = inn.getRoomId(userId);
   socket.data.lastMessage = getUnixTimestamp();
 
-  console.log(`User ${userId} connected, with room ${socket.data.roomId}.`);
+  SHOULD_LOG && console.log(`User ${userId} connected, with room ${socket.data.roomId}.`);
   return true;
 };
 
