@@ -1,5 +1,6 @@
 import {
   JotaiInnkeeperListenAdapter,
+  chatHistoryAtom,
   isConnectedAtom,
   isMatchedAtom,
   questionIdAtom,
@@ -20,6 +21,7 @@ function _useInnkeeperSocket(authToken: string | null) {
   const setRoomState = useSetAtom(roomStateAtom);
   const setUserStates = useSetAtom(userStatesAtom);
   const setQuestionId = useSetAtom(questionIdAtom);
+  const setChatHistory = useSetAtom(chatHistoryAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
     connect() {
@@ -64,7 +66,7 @@ function _useInnkeeperSocket(authToken: string | null) {
 
     sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
-
+      if (partialUpdate.chatHistory) setChatHistory(partialUpdate.chatHistory);
       if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
       if (partialUpdate.questionId) setQuestionId(partialUpdate.questionId);
     },
@@ -73,7 +75,7 @@ function _useInnkeeperSocket(authToken: string | null) {
       setIsMatched("CLOSED");
       setRoomState(finalUpdate);
 
-      console.log("received close room state:", finalUpdate);
+      console.log("received  room state:", finalUpdate);
     },
   };
 

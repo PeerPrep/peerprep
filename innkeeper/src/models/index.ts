@@ -36,6 +36,7 @@ export class InnState {
         { ...users[0], status: 'INACTIVE', lastSeen: 0 },
         { ...users[1], status: 'INACTIVE', lastSeen: 0 },
       ],
+      chatHistory: [],
     };
     this.roomStatesMap.set(roomId, newRoomState);
 
