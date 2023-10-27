@@ -5,6 +5,7 @@ export const FetchAuth = {
 
   addFirebaseToken: function (firebaseToken: string) {
     this.firebaseToken = firebaseToken;
+    console.log(firebaseToken);
   },
   fetch: async function (
     url: RequestInfo | URL,

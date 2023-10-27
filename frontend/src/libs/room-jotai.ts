@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import {
+  ChatMessage,
   ClientToServerEvents,
   RoomState,
   UserState,
@@ -32,6 +33,17 @@ export const userStatesAtom = atom(
     }
 
     set(roomStateAtom, { ...roomState, userStates: update });
+  },
+);
+export const chatHistoryAtom = atom(
+  (get) => get(roomStateAtom)?.chatHistory,
+  (get, set, update: ChatMessage[]) => {
+    const roomState = get(roomStateAtom);
+    if (!roomState) {
+      console.error("Chat Message is updated, room state not initialized.");
+      return;
+    }
+    set(roomStateAtom, { ...roomState, chatHistory: update });
   },
 );
 

@@ -28,35 +28,41 @@ const CodeMirrorEditor = ({
     return;
   }
 
-  const yDoc = new Y.Doc();
-  const provider = new SocketIOProvider(
-    innkeeperUrl,
-    roomId,
-    yDoc,
-    {},
-    {
-      path: "/api/v1/innkeeper/",
-      auth: {
-        // This is the correct way to authenticate, but InnKeeper currently ignores this value
-        token: authToken,
-      },
-      extraHeaders: {
-        // This is the janky way InnKeeper authenticates rn.
-        trustmefr: authToken,
-      },
-      autoConnect: false,
-    },
-  );
-  const yText = yDoc.getText("codemirror");
-  const undoManager = new Y.UndoManager(yText);
+  const [extensions, setExtensions] = useState<any>([]);
 
-  provider.awareness.setLocalStateField("user", {
-    name: userId,
-  });
+  useEffect(() => {
+    const yDoc = new Y.Doc();
+    const provider = new SocketIOProvider(
+      innkeeperUrl,
+      roomId,
+      yDoc,
+      {},
+      {
+        path: "/api/v1/innkeeper/",
+        auth: {
+          // This is the correct way to authenticate, but InnKeeper currently ignores this value
+          token: authToken,
+        },
+        extraHeaders: {
+          // This is the janky way InnKeeper authenticates rn.
+          trustmefr: authToken,
+        },
+        autoConnect: false,
+      },
+    );
+    const yText = yDoc.getText("codemirror");
+    const undoManager = new Y.UndoManager(yText);
+    provider.awareness.setLocalStateField("user", {
+      name: userId,
+    });
+    const extensions = [yCollab(yText, provider.awareness, { undoManager })];
+    setExtensions(extensions);
+  }, []);
+
   const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
 
   const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
-  const [languageExtension, setLanguageExtension] = useState<any>(null);
+  const [languageExtension, setLanguageExtension] = useState<any>();
   const [dragging, setDragging] = useState<boolean>(false);
   const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
   const [editorHeight, setEditorHeight] = useState<number>(600);
@@ -84,6 +90,11 @@ const CodeMirrorEditor = ({
     setDragging(false);
   };
 
+  const curExtensions = [extensions];
+  if (languageExtension) {
+    curExtensions.push(languageExtension);
+  }
+
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
@@ -97,10 +108,6 @@ const CodeMirrorEditor = ({
   useEffect(() => {
     async function loadLanguageExtension() {
       switch (selectedLanguage) {
-        case "javascript":
-          const { javascript } = await import("@codemirror/lang-javascript");
-          setLanguageExtension(javascript());
-          break;
         case "python":
           const { python } = await import("@codemirror/lang-python");
           setLanguageExtension(python());
@@ -123,9 +130,6 @@ const CodeMirrorEditor = ({
 
   console.dir({ authToken, roomId, at: "rendering editor" });
 
-  const extensions = [yCollab(yText, provider.awareness, { undoManager })];
-  if (languageExtension) extensions.push(languageExtension);
-
   return (
     <section className="flex flex-col items-center">
       <div className="flex w-[90svw] items-center justify-between rounded-t-md bg-primary p-2 px-6 lg:w-[50svw]">
@@ -137,7 +141,6 @@ const CodeMirrorEditor = ({
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
           >
-            <option value="javascript">JavaScript</option>
             <option value="python">Python</option>
             <option value="java">Java</option>
             <option value="cpp">C++</option>
@@ -150,7 +153,7 @@ const CodeMirrorEditor = ({
         theme="dark"
         basicSetup={false}
         id="codeEditor"
-        extensions={extensions}
+        extensions={languageExtension}
         value=""
         onChange={(editor, changeObj) => {
           setCodeMirrorValue(editor);

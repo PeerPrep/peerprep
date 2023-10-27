@@ -1,5 +1,6 @@
 import {
   JotaiInnkeeperListenAdapter,
+  chatHistoryAtom,
   isConnectedAtom,
   isMatchedAtom,
   roomStateAtom,
@@ -18,6 +19,7 @@ function _useInnkeeperSocket(authToken: string) {
   const setIsMatched = useSetAtom(isMatchedAtom);
   const setRoomState = useSetAtom(roomStateAtom);
   const setUserStates = useSetAtom(userStatesAtom);
+  const setChatHistory = useSetAtom(chatHistoryAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
     connect() {
@@ -62,7 +64,7 @@ function _useInnkeeperSocket(authToken: string) {
 
     sendPartialRoomState(partialUpdate) {
       console.log("received partial room state:", partialUpdate);
-
+      if (partialUpdate.chatHistory) setChatHistory(partialUpdate.chatHistory);
       if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
     },
 
@@ -70,6 +72,13 @@ function _useInnkeeperSocket(authToken: string) {
       setIsMatched("CLOSED");
 
       console.log("received partial room state:", finalUpdate);
+    },
+
+    sendChatMessage(message) {
+      console.log("hi");
+      console.log("received chat message:", message);
+      // Update your chat state here, e.g., store it in a chat array
+      // You can use jotai or React state management for this
     },
   };
 
@@ -100,6 +109,10 @@ function _useInnkeeperSocket(authToken: string) {
     socket.on("connect", () => jotaiAdapter.connect());
     socket.on("connect_error", (err) => jotaiAdapter.connect_error(err));
     socket.on("disconnect", (reason) => jotaiAdapter.disconnect(reason));
+    socket.on("sendChatMessage", (message) => {
+      console.log("hi");
+      jotaiAdapter.sendChatMessage(message);
+    });
 
     // Custom socket.io event handlers.
     socket.onAny((event, ...args) => {
