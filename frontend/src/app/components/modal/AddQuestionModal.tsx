@@ -97,7 +97,6 @@ const AddQuestionModal = ({
   return (
     <>
       {contextHolder}
-      <QuestionModal />
       <section>
         <Button
           className="btn btn-success btn-sm w-44 rounded-full text-white"
