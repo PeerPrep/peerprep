@@ -8,24 +8,13 @@ import {
   innkeeperWriteAtom,
   isConnectedAtom,
   isMatchedAtom,
-  roomStateAtom,
-  textEditorAtom,
+  roomIdAtom,
 } from "@/libs/room-jotai";
 import { Space } from "antd";
-import TextArea from "antd/lib/input/TextArea";
+import { getAuth } from "firebase/auth";
 import { atom, useAtom, useAtomValue } from "jotai";
-
-const codeAtom = atom(
-  (get) => get(textEditorAtom)?.code,
-  (get, set, update: string) => {
-    if (get(textEditorAtom)?.code === update) return;
-
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{ textEditor: { code: update } }],
-    });
-  },
-);
+import { useEffect } from "react";
+import { FetchAuth } from "../api";
 
 const sendMatchRequestAtom = atom(
   null,
@@ -37,45 +26,50 @@ const sendMatchRequestAtom = atom(
   },
 );
 
-const Lobby = ({ user, setUser }: any) => {
+const Lobby = () => {
   const sendMatchRequest: (
     questionDifficulty: "EASY" | "MEDIUM" | "HARD",
   ) => void = useAtom(sendMatchRequestAtom)[1];
 
   return (
     <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
-      <h1 className="text-4xl font-bold">
-        Choose a question difficulty, '{user}':
-      </h1>
+      <h1 className="text-4xl font-bold">Choose a question difficulty:</h1>
       <Space>
         <Button onClick={() => sendMatchRequest("EASY")}>Easy</Button>
         <Button onClick={() => sendMatchRequest("MEDIUM")}>Medium</Button>
         <Button onClick={() => sendMatchRequest("HARD")}>Hard</Button>
       </Space>
-
-      <TextArea
-        title="Change your username"
-        value={user}
-        onChange={(e) => (e ? setUser(e.target.value) : undefined)}
-        size={"large"}
-      />
     </section>
   );
 };
 
-const userAtom = atom("user_a");
+type UserDetails = { displayName: string; authToken: string };
+const userDetailsAtom = atom<UserDetails | null>(null);
 
 const roomPage = () => {
-  const [user, setUser] = useAtom(userAtom);
-  useInnkeeperSocket(user);
-
+  const [userDetails, setUserDetails] = useAtom(userDetailsAtom);
+  useInnkeeperSocket(userDetails?.authToken ?? null);
   const isConnected = useAtomValue(isConnectedAtom);
   const isMatched = useAtomValue(isMatchedAtom);
-  const roomState = useAtomValue(roomStateAtom);
-  const [code, setCode] = useAtom(codeAtom);
+  const roomId = useAtomValue(roomIdAtom);
+  useEffect(() => {
+    FetchAuth.getFirebaseToken().then((authToken) => {
+      const displayName = getAuth().currentUser?.displayName ?? "Anonymous";
+      setUserDetails({ displayName, authToken });
+    });
+  }, []);
+
+  console.dir({ isConnected, isMatched, roomId, at: "rendering room page" });
+
+  if (!userDetails) {
+    return (
+      <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
+        <h1 className="text-4xl font-bold">Checking your login status...</h1>
+      </section>
+    );
+  }
 
   if (!isConnected) {
-    console.log({ isConnected, at: "rendering room page" });
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Connecting to InnKeeper...</h1>
@@ -84,15 +78,15 @@ const roomPage = () => {
   }
 
   if (isMatched !== "MATCHED" && isMatched !== "CLOSED") {
-    return <Lobby user={user} setUser={setUser} />;
+    return <Lobby />;
   }
 
   //For status bar
 
-  const executeFunction = () => undefined;
+  const executeFunction = async () => {};
 
   // Connected, matched but hasn't received room state yet.
-  if (!roomState) {
+  if (!roomId) {
     return (
       <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
         <h1 className="text-4xl font-bold">Loading...</h1>
@@ -100,20 +94,17 @@ const roomPage = () => {
     );
   }
 
-  const [user1, user2] = roomState.userStates;
-
   return (
     <div className="flex h-full flex-col justify-between">
       <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
         <MarkdownQuestionPane />
-        <CodeMirrorEditor value={code} onChange={setCode} />
+        <CodeMirrorEditor
+          userId={userDetails.displayName}
+          authToken={userDetails.authToken}
+          roomId={roomId}
+        />
       </section>
-      <StatusBar
-        exitMethod={executeFunction}
-        executeFunction={executeFunction}
-        user1State={user1}
-        user2State={user2}
-      />
+      <StatusBar exitMethod={executeFunction} />
     </div>
   );
 };

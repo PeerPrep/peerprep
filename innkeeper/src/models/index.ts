@@ -1,11 +1,12 @@
 import crypto from 'crypto';
+import { UserId } from 'types/innkeeper-api-types';
 import { MatchingParameters, RoomState, WaitingUsersCount } from '../types';
 
 // Avoid issues regarding hashing objects.
 type MatchingParametersHash = string;
 
 export class InnState {
-  private matchingParameterToUserMap = new Map<MatchingParametersHash, string>();
+  private matchingParameterToUserMap = new Map<MatchingParametersHash, UserId>();
   private roomStatesMap = new Map<string, RoomState>();
 
   getRoomId(userId: string): string | null {
@@ -26,23 +27,23 @@ export class InnState {
     this.roomStatesMap.delete(roomId);
   }
 
-  createRoomId(userIds: [string, string]): RoomState {
+  createRoomId(users: [UserId, UserId]): RoomState {
     const roomId = `ROOM_${crypto.randomUUID()}`;
     const newRoomState: RoomState = {
       roomId,
       questionId: '',
-      textEditor: { code: `console.log('Hello world!');` },
       userStates: [
-        { userId: userIds[0], status: 'INACTIVE', lastSeen: 0 },
-        { userId: userIds[1], status: 'INACTIVE', lastSeen: 0 },
+        { ...users[0], status: 'INACTIVE', lastSeen: 0 },
+        { ...users[1], status: 'INACTIVE', lastSeen: 0 },
       ],
+      chatHistory: [],
     };
     this.roomStatesMap.set(roomId, newRoomState);
 
     return newRoomState;
   }
 
-  queueUserOrReturnMatchResult(userId: string, parameters: MatchingParameters): [string, RoomState] | null {
+  queueUserOrReturnMatchResult(userId: UserId, parameters: MatchingParameters): [UserId, RoomState] | null {
     const otherUserId = this.findWaitingUser(parameters);
     if (!otherUserId) {
       this.addUserToQueue(userId, parameters);
@@ -53,13 +54,13 @@ export class InnState {
     return [otherUserId, this.createRoomId([userId, otherUserId])];
   }
 
-  findWaitingUser(parameters: MatchingParameters): string | null {
+  findWaitingUser(parameters: MatchingParameters): UserId | null {
     const consistentMatchingParameterObject = this.makeConsistentMatchingParameterObject(parameters);
     const otherUserId = this.matchingParameterToUserMap.get(consistentMatchingParameterObject);
     return otherUserId ?? null; // Converting string | undefined to string | null.
   }
 
-  removeUserFromQueue(userId: string): void {
+  removeUserFromQueue(userId: UserId): void {
     this.matchingParameterToUserMap.forEach((otherUserId, parameters) => {
       if (otherUserId === userId) {
         this.matchingParameterToUserMap.delete(parameters);
@@ -67,7 +68,7 @@ export class InnState {
     });
   }
 
-  addUserToQueue(userId: string, parameters: MatchingParameters): void {
+  addUserToQueue(userId: UserId, parameters: MatchingParameters): void {
     this.matchingParameterToUserMap.set(this.makeConsistentMatchingParameterObject(parameters), userId);
   }
 
