@@ -32,10 +32,17 @@ const QueueButton = ({ enterQueue }: QueueButtonProps) => {
     setIsStarted((isStarted) => !isStarted);
   };
 
-  //Handle when 15mins is reached!
   useAccurateInterval(
-    () => setTime((time) => time + 1),
-    isStarted ? 1500 : null,
+    () => {
+      //Set time out to 30s
+      if (time !== 30) {
+        setTime((time) => time + 1);
+      } else {
+        handleLeaveQueue();
+        setIsStarted(false);
+      }
+    },
+    isStarted ? 1000 : null,
   );
 
   function secondsToMinutesAndSeconds(seconds: number) {
