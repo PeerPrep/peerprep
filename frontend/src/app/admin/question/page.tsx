@@ -56,7 +56,7 @@ const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
 });
 
 const QuestionPage = () => {
-  // const user = useLogin();
+  const user = useLogin();
   const [api, contextHolder] = message.useMessage();
   const [currQn, setCurrQn] = useState<QuestionType | null>(null);
   const [initialEditQnValues, setInitialEditQnValues] = useState<
