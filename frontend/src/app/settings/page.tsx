@@ -66,7 +66,7 @@ const SettingPage = () => {
             </label>
             <input
               required
-              defaultValue={name ?? "unknown"}
+              value={name ?? ""}
               onChange={(e) => setName(e.target.value)}
               className="rounded-md p-2 text-black"
             />
