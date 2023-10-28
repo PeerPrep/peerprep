@@ -10,28 +10,28 @@ export async function viewProfileHandler(req: Request, res: Response) {
 
   try {
     const loadedProfile = await em.findOne(Profile, {
-      uid: uid,
+        uid: uid
     });
 
     let result: Profile;
     if (loadedProfile) {
-      result = loadedProfile;
+        result = loadedProfile;
     } else {
-      const auth = getAuth(req.firebaseApp);
-      const user = await auth.getUser(uid);
-      const profile = new Profile();
-      profile.uid = uid;
-      profile.name = user.displayName;
-      await em.persistAndFlush(profile);
-      result = profile;
+        const auth = getAuth(req.firebaseApp);
+        const user = await auth.getUser(uid);
+        const profile = new Profile();
+        profile.uid = uid;
+        profile.name = user.displayName;
+        await em.persistAndFlush(profile); 
+        result = profile;
     }
 
     const response: ApiResponse = {
-      statusMessage: {
+        statusMessage: {
         message: "Profile updated successfully",
-        type: StatusMessageType.SUCCESS,
-      },
-      payload: result,
+            type: StatusMessageType.SUCCESS,
+        },
+        payload: result,
     };
     res.status(200).send(response);
   } catch (err: any) {
