@@ -11,6 +11,7 @@ import {
   questionDifficultyAtom,
   questionIdAtom,
 } from "@/libs/room-jotai";
+import { AiFillCloseCircle } from "react-icons/ai";
 
 interface SelectedOptionType {
   label: string;
@@ -103,7 +104,13 @@ const QuestionModal = () => {
       <dialog id="question-modal" className="modal">
         <div className="modal-box flex h-96 min-w-[40svw] flex-col gap-6 bg-secondary p-0">
           <h1 className="bg-primary p-4 text-4xl font-bold text-white">
-            Select a Question
+            <div className="flex items-center justify-between">
+              Select a Question
+              <AiFillCloseCircle
+                className="text-3xl text-error hover:cursor-pointer hover:text-red-500"
+                onClick={() => setIsOpen(false)}
+              />
+            </div>
           </h1>
           <h2 className="text-semibold flex items-center justify-center text-2xl text-white">
             Interview Difficulty:

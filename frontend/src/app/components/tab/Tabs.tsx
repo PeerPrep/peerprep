@@ -14,11 +14,6 @@ interface ResultsTabProps {
   height: number;
 }
 
-type ChatMessage = {
-  user: string;
-  message: string;
-};
-
 const triggerChatMessageRequestAtom = atom(
   null,
   (get, set, message: string) => {
@@ -31,7 +26,7 @@ const triggerChatMessageRequestAtom = atom(
 
 const userDetailsAtom = atom<string | null>(null);
 
-const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
+const Tabs = ({ isLoading = false, height }: ResultsTabProps) => {
   const result = useAtomValue(resultAtom);
   const [currentTab, setCurrentTab] = useState(1);
   const sendMessage = useSetAtom(triggerChatMessageRequestAtom);
@@ -48,6 +43,16 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
   const onSendMessage = () => {
     sendMessage(message);
     setMessage("");
+  };
+
+  const isMessageEmpty = message == "" || message.trim() == "";
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      if (!isMessageEmpty) {
+        onSendMessage();
+      }
+    }
   };
 
   return (
@@ -99,7 +104,7 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
                   <div
                     className={`${
                       message.user === uid ? "bg-accent" : "bg-primary"
-                    } rounded-lg p-2 text-white`}
+                    } mx-2 rounded-lg p-2 text-white`}
                   >
                     {message.message}
                   </div>
@@ -111,9 +116,10 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
                 className="my-2 grow border-2 p-1 text-black"
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
+                onKeyDown={(e) => handleKeyPress(e)}
               ></input>
               <Button
-                isDisabled={message == ""}
+                isDisabled={isMessageEmpty}
                 onClick={onSendMessage}
                 className="btn-accent btn-sm"
               >
@@ -127,4 +133,4 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
   );
 };
 
-export default ResultsTab;
+export default Tabs;

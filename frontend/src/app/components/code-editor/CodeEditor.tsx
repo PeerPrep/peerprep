@@ -13,7 +13,7 @@ import Skeleton from "react-loading-skeleton";
 import { yCollab } from "y-codemirror.next";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
-import ResultsTab from "../tab/ResultsTab";
+import Tabs from "../tab/Tabs";
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
@@ -209,7 +209,7 @@ const CodeMirrorEditor = ({
         className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"
         onMouseDown={handleMouseDown}
       />
-      <ResultsTab
+      <Tabs
         height={Math.min(window.innerHeight * 0.7 - editorHeight, maxHeight)}
       />
     </section>
