@@ -51,6 +51,7 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
   socket.on('leaveRoom', () => requireMatchedUser(io, inn, socket) && handleLeaveRoom(io, inn, socket));
   socket.on('sendChatMessage', (message: string) => requireMatchedUser(io, inn, socket) && handleChatMessage(io, inn, socket, message));
 
+  socket.on('leaveQueue', () => handleLobbyDisconnect(io, inn, socket));
   socket.on('disconnect', () =>
     // At the point of disconnect, check if roomId is set.
     socket.data.roomId ? handleRoomDisconnect(io, inn, socket) : handleLobbyDisconnect(io, inn, socket),

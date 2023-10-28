@@ -38,6 +38,7 @@ export type RoomState = {
   questionId: string;
   userStates: [UserState, UserState];
   chatHistory: ChatMessage[];
+  questionDifficulty: 'EASY' | 'MEDIUM' | 'HARD';
 };
 
 /**
@@ -48,6 +49,7 @@ export type PartialRoomState = {
   questionId?: string;
   userStates?: [UserState, UserState];
   chatHistory?: ChatMessage[];
+  questionDifficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 };
 
 export interface ServerToClientEvents {
@@ -90,6 +92,7 @@ export interface ClientToServerEvents {
   /** Indicates one user wishes to leave. This will trigger server to send closeRoom() to notify the other participant. */
   leaveRoom: () => void;
   sendChatMessage: (update: string) => void;
+  leaveQueue: () => void;
 }
 
 export interface InterServerEvents {}

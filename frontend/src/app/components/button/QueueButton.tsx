@@ -3,13 +3,32 @@ import { useState } from "react";
 import useAccurateInterval from "../../hooks/useAccurateInterval";
 import Button from "./Button";
 import { RxCross1 } from "react-icons/rx";
+import { innkeeperWriteAtom } from "@/libs/room-jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 
-const QueueButton = () => {
+interface QueueButtonProps {
+  enterQueue: () => void;
+}
+
+const triggerLeaveQueueAtom = atom(null, (get, set) => {
+  set(innkeeperWriteAtom, {
+    eventName: "leaveQueue",
+    eventArgs: [],
+  });
+});
+
+const QueueButton = ({ enterQueue }: QueueButtonProps) => {
   const [time, setTime] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
+  const [_, handleLeaveQueue] = useAtom(triggerLeaveQueueAtom);
 
   const handleClick = () => {
     setTime(0);
+    if (isStarted) {
+      handleLeaveQueue();
+    } else {
+      enterQueue();
+    }
     setIsStarted((isStarted) => !isStarted);
   };
 

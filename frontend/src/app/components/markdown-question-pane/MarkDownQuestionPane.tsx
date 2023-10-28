@@ -1,52 +1,24 @@
-import {
-  innkeeperWriteAtom,
-  isMatchedAtom,
-  questionIdAtom,
-} from "@/libs/room-jotai";
-import TextArea from "antd/lib/input/TextArea";
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useState } from "react";
+import { isMatchedAtom, questionIdAtom } from "@/libs/room-jotai";
+import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { markdownExample } from "./markdownExample";
-
-const triggerQuestionIdUpdateRequestAtom = atom(
-  null,
-  (get, set, questionId: string) => {
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{ questionId }],
-    });
-  },
-);
-
-// TODO: not sure what FE wants for this so I slapped together something random for now.
-const QuestionPicker = () => {
-  const [questionId, setQuestionId] = useState<string>("");
-  const updateQuestionId = useSetAtom(triggerQuestionIdUpdateRequestAtom);
-  const setAndUpdate = (q: string) => {
-    setQuestionId(q);
-    updateQuestionId(q);
-  };
-
-  return (
-    <TextArea
-      title="QN:"
-      value={questionId}
-      onChange={(e) => (e ? setAndUpdate(e.target.value) : undefined)}
-      size={"small"}
-    />
-  );
-};
+import { fetchQuestionDescriptionUrl } from "@/app/api";
 
 const ContentPane = () => {
   const questionId = useAtomValue(questionIdAtom);
-  const question = questionId
-    ? `# Question ${questionId}\n` + markdownExample
-    : `# Choose your question.\n A question has not been selected.`;
+  const [description, setDescription] = useState<string>("");
+  useEffect(() => {
+    if (questionId) {
+      fetchQuestionDescriptionUrl(questionId).then((res) => {
+        setDescription(res.payload.description);
+      });
+    }
+  }, [questionId]);
 
   return (
     <ReactMarkdown className="prose h-[40svh] min-w-[90svw] overflow-auto rounded-b-md bg-secondary p-6 lg:h-[80svh] lg:min-w-[45svw] lg:max-w-[45svw]">
-      {question}
+      {description ||
+        "# Choose your question.\n A question has not been selected."}
     </ReactMarkdown>
   );
 };
@@ -58,7 +30,6 @@ const MarkdownQuestionPane = () => {
       <h2 className="w-[90svw] rounded-t-md bg-primary p-2 text-2xl font-bold lg:w-[45svw] lg:px-6">
         Description
       </h2>
-      {isMatched === "MATCHED" && <QuestionPicker />}
       <ContentPane />
     </article>
   );

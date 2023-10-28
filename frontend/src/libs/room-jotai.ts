@@ -11,6 +11,7 @@ export const resultAtom = atom("");
 export const codeLangAtom = atom("python");
 export const socketAtom = atom<InnkeeperSocket | null>(null);
 export const isConnectedAtom = atom(false);
+export const isQuestionModalOpenAtom = atom(false);
 
 /**
  * Note that the server only supports unmatched or matched, closed is a frontend
@@ -57,6 +58,10 @@ export const chatHistoryAtom = atom(
     }
     set(roomStateAtom, { ...roomState, chatHistory: update });
   },
+);
+
+export const questionDifficultyAtom = atom(
+  (get) => get(roomStateAtom)?.questionDifficulty,
 );
 
 export type JotaiInnkeeperListenAdapter = {

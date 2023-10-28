@@ -80,11 +80,7 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
             } justify-center overflow-y-auto bg-secondary lg:w-[50svw]`}
           >
             {!result && <div>You must run the code first</div>}
-            {result && (
-              <article className="w-full  p-4 text-sm">
-                Output: {result}
-              </article>
-            )}
+            {result && <pre className="w-full  p-4 text-sm">{result}</pre>}
           </section>
         )}
         {currentTab == 2 && height > 40 && (
@@ -116,7 +112,11 @@ const ResultsTab = ({ isLoading = false, height }: ResultsTabProps) => {
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
               ></input>
-              <Button onClick={onSendMessage} className="btn-accent btn-sm">
+              <Button
+                isDisabled={message == ""}
+                onClick={onSendMessage}
+                className="btn-accent btn-sm"
+              >
                 Send
               </Button>
             </div>
