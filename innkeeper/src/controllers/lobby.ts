@@ -67,8 +67,7 @@ export const handleMatchingRequest = (
         otherSocket.data.roomId = roomState.roomId;
         otherSocket.emit('sendToRoom', roomState.roomId);
         joinAssignedRoom(io, inn, otherSocket);
-
-        SHOULD_LOG && console.log(`Sent users ${userId} and ${otherUserId} to room ${roomState.roomId}.`);
+        SHOULD_LOG && console.log(`Sent users ${userId} and ${otherUserId.userId} to room ${roomState.roomId}.`);
         return;
       }
 
@@ -85,5 +84,5 @@ export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: I
   const { userId, displayName } = socket.data;
   inn.removeUserFromQueue({ userId, displayName });
 
-  SHOULD_LOG && console.log(`User ${userId} disconnected from lobby.`);
+  SHOULD_LOG && console.log(`User ${userId} disconnected from queue.`);
 };

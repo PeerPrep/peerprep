@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 type Callback = () => void;
 
@@ -20,7 +20,7 @@ const useAccurateInterval = (callback: Callback, delay: number | null) => {
     }
 
     if (!workerRef.current) {
-      workerRef.current = new Worker('/utils/webworker.js');
+      workerRef.current = new Worker("/utils/webworker.js");
       workerRef.current.onmessage = () => {
         if (savedCallback.current) {
           savedCallback.current();
@@ -29,7 +29,6 @@ const useAccurateInterval = (callback: Callback, delay: number | null) => {
     }
 
     workerRef.current.postMessage({ delay, id: 1 });
-    console.log(workerRef);
 
     return () => {
       if (workerRef.current) {

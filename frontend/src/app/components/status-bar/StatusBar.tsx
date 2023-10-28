@@ -4,6 +4,7 @@ import {
   codeLangAtom,
   codeMirrorValueAtom,
   innkeeperWriteAtom,
+  isQuestionModalOpenAtom,
   resultAtom,
   userStatesAtom,
 } from "@/libs/room-jotai";
@@ -31,6 +32,7 @@ const StatusBar = ({ exitMethod }: StatusBarProps) => {
   const userStates = useAtomValue(userStatesAtom);
   const callExecution = useSetAtom(triggerExecutionRequestAtom);
   const callExitRoom = useSetAtom(triggerExitRoomRequestAtom);
+  const setQuestionModalOpen = useSetAtom(isQuestionModalOpenAtom);
 
   return (
     <footer className="fixed bottom-0 left-0 flex w-[100svw] items-center justify-between border-black bg-primary px-4 py-2 shadow-sm lg:static lg:w-full lg:px-12">
@@ -41,6 +43,11 @@ const StatusBar = ({ exitMethod }: StatusBarProps) => {
           ))}
       </div>
       <div className="flex items-center gap-4">
+        <Button
+          className="btn-success btn-sm"
+          onClick={() => setQuestionModalOpen(true)}
+          children={<span>Select Question</span>}
+        />
         <Button
           className="btn-sm"
           onClick={callExecution}

@@ -27,7 +27,7 @@ export class InnState {
     this.roomStatesMap.delete(roomId);
   }
 
-  createRoomId(users: [UserId, UserId]): RoomState {
+  createRoomId(users: [UserId, UserId], parameters: MatchingParameters): RoomState {
     const roomId = `ROOM_${crypto.randomUUID()}`;
     const newRoomState: RoomState = {
       roomId,
@@ -37,6 +37,7 @@ export class InnState {
         { ...users[1], status: 'INACTIVE', lastSeen: 0 },
       ],
       chatHistory: [],
+      questionDifficulty: parameters.questionDifficulty,
     };
     this.roomStatesMap.set(roomId, newRoomState);
 
@@ -51,7 +52,7 @@ export class InnState {
     }
 
     this.removeUserFromQueue(otherUserId);
-    return [otherUserId, this.createRoomId([userId, otherUserId])];
+    return [otherUserId, this.createRoomId([userId, otherUserId], parameters)];
   }
 
   findWaitingUser(parameters: MatchingParameters): UserId | null {
@@ -62,13 +63,15 @@ export class InnState {
 
   removeUserFromQueue(userId: UserId): void {
     this.matchingParameterToUserMap.forEach((otherUserId, parameters) => {
-      if (otherUserId === userId) {
+      if (otherUserId.userId === userId.userId) {
         this.matchingParameterToUserMap.delete(parameters);
       }
     });
   }
 
   addUserToQueue(userId: UserId, parameters: MatchingParameters): void {
+    this.removeUserFromQueue(userId);
+    console.log(Array.from(this.matchingParameterToUserMap.values()));
     this.matchingParameterToUserMap.set(this.makeConsistentMatchingParameterObject(parameters), userId);
   }
 
