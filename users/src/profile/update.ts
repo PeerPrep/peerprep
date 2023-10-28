@@ -57,24 +57,25 @@ export async function updateProfileHandler(req: Request, res: Response) {
     const imageStatus = await uploadImage(uid, req);
 
     if (imageStatus.unsupportedImage) {
-        return handleCustomError(res, { 
-            type: StatusMessageType.ERROR, message: "Image format not supported"
-        });
+      return handleCustomError(res, {
+        type: StatusMessageType.ERROR,
+        message: "Image format not supported",
+      });
     }
 
     const profile = await em.findOneOrFail(Profile, {
-        uid: uid
+      uid: uid,
     });
 
     profile.name = body.name ?? profile.name;
     profile.preferredLang = body.preferredLang ?? profile.preferredLang;
     profile.imageUrl = imageStatus.imageUrl ?? profile.imageUrl;
-    await em.flush()
+    await em.flush();
 
     const response: ApiResponse = {
       statusMessage: {
-      message: "Profile updated successfully",
-          type: StatusMessageType.SUCCESS,
+        message: "Profile updated successfully",
+        type: StatusMessageType.SUCCESS,
       },
       payload: profile,
     };

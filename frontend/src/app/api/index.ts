@@ -1,7 +1,6 @@
 "use client";
 import { atom } from "jotai";
 import { QuestionType } from "../admin/question/page";
-import { Profile } from "../hooks/useLogin";
 
 export const firebaseTokenAtom = atom<string | null>(null);
 
@@ -46,7 +45,7 @@ export const FetchAuth = {
 };
 
 // TODO: change to env variable
-export const API_URL =  "https://peerprep.sivarn.com/api/v1";
+export const API_URL = "https://peerprep.sivarn.com/api/v1";
 
 export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   return await FetchAuth.fetch(`${API_URL}/questions/${qnId}`).then((res) =>
@@ -86,28 +85,6 @@ export const deleteQuestionUrl = async (questionId: string) => {
   }).then((res) => res.json());
 };
 
-interface ProfileResponse {
-  payload: Profile;
-  statusMessage: string;
-};
-
-export async function fetchProfileUrl(): Promise<ProfileResponse> {
-  return FetchAuth
-    .fetch(`${API_URL}/users/profile`,  { method: "GET" })
-    .then((res) => res.json());
-}
-
-export async function updateProfileUrl(name: string | null,
-                                       preferredLang: string | null,
-                                       profileImage: File | null): Promise<ProfileResponse> {
-  const body = new FormData();
-  if (name) body.set("name", name);
-  if (preferredLang) body.set("preferredLang", preferredLang);
-  if (profileImage) body.set("image", profileImage);
-  return FetchAuth
-    .fetch(`${API_URL}/users/profile`,  { method: "POST", body })
-    .then((res) => res.json());
-}
 const executorURL = "https://peerprep.sivarn.com/api/v1/execute";
 export const executeCode = async (code: string, lang: string) => {
   const res = await fetch(`${executorURL}/${lang}`, {

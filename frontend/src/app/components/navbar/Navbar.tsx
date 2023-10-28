@@ -13,11 +13,10 @@ import { FiLogOut } from "react-icons/fi";
 import Button from "../button/Button";
 import NavbarPane from "./NavbarPane";
 import NavbarPaneDropdown from "./NavbarPaneDropdown";
-import useLogin from "@/app/hooks/useLogin";
 
 const Navbar = () => {
   const router = useRouter();
-  const [ profile ] = useLogin(() => {});
+  const [user, setUser] = useState<User | null>(null);
   // useEffect(() => {
   //   getRedirectResult(auth).then(async (userCred) => {
   //     console.log({ userCred });
@@ -29,8 +28,23 @@ const Navbar = () => {
     const auth = await getAuth();
     router.push("/");
     await signOut(auth);
-    console.log(profile);
+    localStorage.removeItem("user");
+    console.log(user);
   };
+  onAuthStateChanged(auth, (user) => {
+    getAuth()
+      .currentUser?.getIdToken(true)
+      .then(function (idToken) {
+        FetchAuth.addFirebaseToken(idToken);
+        localStorage.setItem("user", JSON.stringify(idToken));
+      });
+
+    if (user) {
+      setUser(user);
+    } else {
+      setUser(null);
+    }
+  });
 
   const handleBlur = () => {
     const elem: any = document.activeElement;
@@ -49,7 +63,7 @@ const Navbar = () => {
             </Link>
             PeerPrep
           </div>
-          {profile && (
+          {user && (
             <>
               <NavbarPane link="/matching" label="Matching" />
               <NavbarPaneDropdown
@@ -62,13 +76,13 @@ const Navbar = () => {
             </>
           )}
         </nav>
-        {profile ? (
+        {user ? (
           <div className="dropdown dropdown-hover">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />
                 <span className="mr-4 text-lg font-bold">
-                  {profile.name}
+                  {user?.displayName}
                 </span>
               </div>
             </label>
