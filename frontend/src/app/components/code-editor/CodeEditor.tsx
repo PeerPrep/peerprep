@@ -167,7 +167,10 @@ const CodeMirrorEditor = ({
     setDragging(false);
   };
 
-  const curExtensions = [extensions];
+  const curExtensions = [];
+  if (isMatched === "MATCHED") {
+    curExtensions.push(extensions);
+  }
   if (languageExtension) {
     curExtensions.push(languageExtension);
   }
