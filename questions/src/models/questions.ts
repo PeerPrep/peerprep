@@ -4,6 +4,7 @@ const QuestionSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    unique: true,
     validate: {
       validator: (title: string) => title.length > 0,
       message: "Title is required",
