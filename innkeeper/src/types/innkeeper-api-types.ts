@@ -11,8 +11,14 @@ export type WaitingUsersCount = {
   totalWaitingUsers: number;
 };
 
+export type UserId = {
+  userId: string;
+  displayName: string;
+};
+
 export type UserState = {
   userId: string;
+  displayName: string;
   status: 'INACTIVE' | 'ACTIVE' | 'EXITED';
   lastSeen: number; // Unix time (seconds since epoch)
 };
@@ -22,12 +28,17 @@ export type TextEditorState = {
   code: string;
 };
 
-// Only used for reconnecting users / when users have lost history.
+export type ChatMessage = {
+  user: string;
+  message: string;
+};
+
 export type RoomState = {
   roomId: string;
   questionId: string;
-  textEditor: TextEditorState;
   userStates: [UserState, UserState];
+  chatHistory: ChatMessage[];
+  questionDifficulty: 'EASY' | 'MEDIUM' | 'HARD';
 };
 
 /**
@@ -36,8 +47,9 @@ export type RoomState = {
  */
 export type PartialRoomState = {
   questionId?: string;
-  textEditor?: TextEditorState;
   userStates?: [UserState, UserState];
+  chatHistory?: ChatMessage[];
+  questionDifficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 };
 
 export interface ServerToClientEvents {
@@ -79,12 +91,15 @@ export interface ClientToServerEvents {
 
   /** Indicates one user wishes to leave. This will trigger server to send closeRoom() to notify the other participant. */
   leaveRoom: () => void;
+  sendChatMessage: (update: string) => void;
+  leaveQueue: () => void;
 }
 
 export interface InterServerEvents {}
 
 export interface InnkeeperSocketData {
   userId: string; // Primary key for Users table.
+  displayName: string; // Display name for user.
   roomId: string | null; // convenience field populated manually by server.
   lastMessage: number; // Last active timestamp in Unix time (seconds since epoch). 0 indicates user has never joined.
 }

@@ -1,7 +1,7 @@
 import { sendNotification } from '../controllers';
 import { InnState } from '../models';
 import { InnkeeperIoServer, InnkeeperIoSocket, MatchingParameters } from '../types';
-import { getUnixTimestamp } from '../utils';
+import { SHOULD_LOG, getUnixTimestamp } from '../utils';
 import { joinAssignedRoom } from './room';
 
 const notifyOnQueue = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
@@ -23,7 +23,7 @@ const notifyOnQueue = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIo
 };
 
 export const handleConnect = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
-  console.log(`User ${socket.data?.userId} connected to lobby.`);
+  SHOULD_LOG && console.log(`User ${socket.data?.userId} connected to lobby.`);
   const waitingUsers = inn.getWaitingUsers();
   socket.join('lobby');
   socket.emit('availableMatches', waitingUsers);
@@ -36,28 +36,28 @@ export const handleMatchingRequest = (
   params: MatchingParameters,
 ): void => {
   socket.data.lastMessage = getUnixTimestamp();
-  const { userId } = socket.data;
+  const { userId, displayName } = socket.data;
 
-  console.log(`User ${userId} requested a match with parameters ${JSON.stringify(params)}.`);
+  SHOULD_LOG && console.log(`User ${displayName} (${userId}) requested a match with parameters ${JSON.stringify(params)}.`);
 
   // Remove user from queue in case this is a re-request.
-  inn.removeUserFromQueue(userId);
+  inn.removeUserFromQueue({ userId, displayName });
 
-  const maybeMatch = inn.queueUserOrReturnMatchResult(userId, params);
+  const maybeMatch = inn.queueUserOrReturnMatchResult({ userId, displayName }, params);
   if (!maybeMatch) {
     notifyOnQueue(io, inn, socket);
-    console.log(`User ${userId} added to queue.`);
+    SHOULD_LOG && console.log(`User ${userId} added to queue.`);
     return;
   }
 
   const [otherUserId, roomState] = maybeMatch;
-  console.log(`Matched users ${userId} and ${otherUserId} in room ${roomState.roomId}.`);
+  SHOULD_LOG && console.log(`Matched users ${userId} and ${otherUserId} in room ${roomState.roomId}.`);
 
   io.in('lobby')
     .fetchSockets()
     .then(otherSockets => {
       for (const otherSocket of otherSockets) {
-        if (otherSocket.data.userId !== otherUserId) {
+        if (otherSocket.data.userId !== otherUserId.userId) {
           continue;
         }
 
@@ -67,8 +67,7 @@ export const handleMatchingRequest = (
         otherSocket.data.roomId = roomState.roomId;
         otherSocket.emit('sendToRoom', roomState.roomId);
         joinAssignedRoom(io, inn, otherSocket);
-
-        console.log(`Sent users ${userId} and ${otherUserId} to room ${roomState.roomId}.`);
+        SHOULD_LOG && console.log(`Sent users ${userId} and ${otherUserId.userId} to room ${roomState.roomId}.`);
         return;
       }
 
@@ -76,14 +75,14 @@ export const handleMatchingRequest = (
       console.error(`Could not find socket for userId ${otherUserId} (returned from queue).`);
       inn.removeUserFromQueue(otherUserId);
 
-      inn.addUserToQueue(userId, params);
+      inn.addUserToQueue({ userId, displayName }, params);
       notifyOnQueue(io, inn, socket);
     });
 };
 
 export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket): void => {
-  const { userId } = socket.data;
-  inn.removeUserFromQueue(userId);
+  const { userId, displayName } = socket.data;
+  inn.removeUserFromQueue({ userId, displayName });
 
-  console.log(`User ${userId} disconnected from lobby.`);
+  SHOULD_LOG && console.log(`User ${userId} disconnected from queue.`);
 };

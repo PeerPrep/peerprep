@@ -3,20 +3,46 @@ import { useState } from "react";
 import useAccurateInterval from "../../hooks/useAccurateInterval";
 import Button from "./Button";
 import { RxCross1 } from "react-icons/rx";
+import { innkeeperWriteAtom } from "@/libs/room-jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 
-const QueueButton = () => {
+interface QueueButtonProps {
+  enterQueue: () => void;
+}
+
+const triggerLeaveQueueAtom = atom(null, (get, set) => {
+  set(innkeeperWriteAtom, {
+    eventName: "leaveQueue",
+    eventArgs: [],
+  });
+});
+
+const QueueButton = ({ enterQueue }: QueueButtonProps) => {
   const [time, setTime] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
+  const [_, handleLeaveQueue] = useAtom(triggerLeaveQueueAtom);
 
   const handleClick = () => {
     setTime(0);
+    if (isStarted) {
+      handleLeaveQueue();
+    } else {
+      enterQueue();
+    }
     setIsStarted((isStarted) => !isStarted);
   };
 
-  //Handle when 15mins is reached!
   useAccurateInterval(
-    () => setTime((time) => time + 1),
-    isStarted ? 1500 : null,
+    () => {
+      //Set time out to 30s
+      if (time !== 30) {
+        setTime((time) => time + 1);
+      } else {
+        handleLeaveQueue();
+        setIsStarted(false);
+      }
+    },
+    isStarted ? 1000 : null,
   );
 
   function secondsToMinutesAndSeconds(seconds: number) {

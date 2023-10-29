@@ -1,5 +1,9 @@
+"use client";
+import { atom } from "jotai";
 import { QuestionType } from "../admin/question/page";
 import { Profile } from "../hooks/useLogin";
+
+export const firebaseTokenAtom = atom<string | null>(null);
 
 export const FetchAuth = {
   firebaseToken: "",
@@ -7,16 +11,29 @@ export const FetchAuth = {
   addFirebaseToken: function (firebaseToken: string) {
     this.firebaseToken = firebaseToken;
   },
+  getFirebaseToken: async function (timeoutInMilliseconds: number = 10 * 1000) {
+    console.log(
+      `Looking for firebase token... (max ${timeoutInMilliseconds} ms left)`,
+    );
+    const intervalInMs = 100;
+    while (!this.firebaseToken && timeoutInMilliseconds > 0) {
+      timeoutInMilliseconds -= intervalInMs;
+      console.log(
+        `Waiting for firebase token... (max ${timeoutInMilliseconds} ms left)`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, intervalInMs));
+    }
+    console.log(`Found firebase token. ${this.firebaseToken}`);
+    return this.firebaseToken;
+  },
   fetch: async function (
     url: RequestInfo | URL,
     options = { headers: {} } as RequestInit,
   ) {
-    while (!this.firebaseToken) {
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100 milliseconds
-    }
     // Create a new Headers object with your custom headers
+    const nonEmptyFirebaseToken = await this.getFirebaseToken();
     const headers = new Headers({
-      "firebase-token": this.firebaseToken,
+      "firebase-token": nonEmptyFirebaseToken,
       ...options.headers, // Optionally, include any headers from the options argument
     });
 
@@ -94,3 +111,12 @@ export async function updateProfileUrl(
     body,
   }).then((res) => res.json());
 }
+const executorURL = "https://peerprep.sivarn.com/api/v1/execute";
+export const executeCode = async (code: string, lang: string) => {
+  const res = await fetch(`${executorURL}/${lang}`, {
+    method: "POST",
+    body: code,
+  });
+  const data = res.text();
+  return data;
+};

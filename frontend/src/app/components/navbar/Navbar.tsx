@@ -1,11 +1,11 @@
 "use client";
 
 import { auth } from "@/libs/firebase-config";
-import { User, onAuthStateChanged, signOut, getAuth } from "@firebase/auth";
+import { User, getAuth, onAuthStateChanged, signOut } from "@firebase/auth";
+import { IoPeopleCircleSharp } from "@react-icons/all-files/io5/IoPeopleCircleSharp";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { IoPeopleCircleSharp } from "@react-icons/all-files/io5/IoPeopleCircleSharp";
 import Button from "../button/Button";
 import { RiArrowDropDownLine } from "@react-icons/all-files/ri/RiArrowDropDownLine";
 import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";

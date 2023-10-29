@@ -51,6 +51,10 @@ services:
       driver: journald
     expose:
       - "4100"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
 
   questions:
     image: ghcr.io/peerprep/peerprep-questions-service:latest

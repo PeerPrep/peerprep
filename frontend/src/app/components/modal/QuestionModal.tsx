@@ -1,42 +1,71 @@
 "use client";
 import Select, { SingleValue } from "react-select";
 import PreviewModalButton from "./PreviewModalButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchAllQuestionsUrl } from "@/app/api";
+import { QuestionType } from "@/app/admin/question/page";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  innkeeperWriteAtom,
+  isQuestionModalOpenAtom,
+  questionDifficultyAtom,
+  questionIdAtom,
+} from "@/libs/room-jotai";
+import { AiFillCloseCircle } from "react-icons/ai";
 
-interface QuestionModalProps {
-  hasSessionInit?: boolean;
-  onClick?: () => void;
-  interviewDifficulty?: "Easy" | "Medium" | "Hard";
-}
-//TODO: change to question Type
 interface SelectedOptionType {
   label: string;
-  value: string;
+  value: number;
 }
 
-const QuestionModal = ({
-  hasSessionInit = false,
-  onClick,
-  interviewDifficulty = "Easy",
-}: QuestionModalProps) => {
-  //TODO: fetch all questions
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
-  ];
+const triggerQuestionIdUpdateRequestAtom = atom(
+  null,
+  (get, set, questionId: string) => {
+    set(innkeeperWriteAtom, {
+      eventName: "sendUpdate",
+      eventArgs: [{ questionId }],
+    });
+  },
+);
+
+const QuestionModal = () => {
+  const questionId = useAtomValue(questionIdAtom);
+  const [isOpen, setIsOpen] = useAtom(isQuestionModalOpenAtom);
+
+  const [questions, setQuestions] = useState<QuestionType[]>([]);
+  const setCollabQuestion = useSetAtom(triggerQuestionIdUpdateRequestAtom);
+  useEffect(() => {
+    fetchAllQuestionsUrl().then((res) => {
+      setQuestions(res.payload);
+    });
+  }, []);
+
+  const questionDifficulty = useAtomValue(
+    questionDifficultyAtom,
+  )?.toLowerCase();
+
+  const options: SelectedOptionType[] = questions
+    .filter((question) => {
+      const curQnDifficulty = question.difficulty.toLowerCase();
+      return curQnDifficulty === questionDifficulty;
+    })
+    .map((question, i) => {
+      return {
+        label: question.title as string,
+        value: i,
+      };
+    });
+
   let color;
 
-  const [isOpen, setIsOpen] = useState(!hasSessionInit);
-
-  switch (interviewDifficulty) {
-    case "Easy":
+  switch (questionDifficulty) {
+    case "easy":
       color = "bg-success text-white";
       break;
-    case "Medium":
+    case "medium":
       color = "bg-warning text-white";
       break;
-    case "Hard":
+    case "hard":
       color = "bg-error text-white";
       break;
   }
@@ -51,26 +80,45 @@ const QuestionModal = ({
   };
 
   const onClickStart = () => {
-    // onClick();
     setIsOpen(false);
-    console.log("hi");
+    if (selectedQn) {
+      setCollabQuestion(questions[selectedQn.value]._id as string);
+    }
+  };
+
+  const getContent = () => {
+    if (selectedQn) {
+      return questions[selectedQn.value].description;
+    }
+    return "";
   };
 
   return (
     <>
-      <input type="checkbox" checked={isOpen} className="modal-toggle" />
+      <input
+        type="checkbox"
+        onChange={() => undefined}
+        checked={isOpen || questionId === ""}
+        className="modal-toggle"
+      />
       <dialog id="question-modal" className="modal">
         <div className="modal-box flex h-96 min-w-[40svw] flex-col gap-6 bg-secondary p-0">
           <h1 className="bg-primary p-4 text-4xl font-bold text-white">
-            You are the Interviewer
+            <div className="flex items-center justify-between">
+              Select a Question
+              <AiFillCloseCircle
+                className="text-3xl text-error hover:cursor-pointer hover:text-red-500"
+                onClick={() => setIsOpen(false)}
+              />
+            </div>
           </h1>
           <h2 className="text-semibold flex items-center justify-center text-2xl text-white">
             Interview Difficulty:
             {
               <span
-                className={`ml-4 rounded-md uppercase ${color} p-2 px-4 text-white shadow-md`}
+                className={`ml-4 rounded-md text-xl uppercase ${color} p-2 text-white shadow-md`}
               >
-                {interviewDifficulty}
+                {questionDifficulty}
               </span>
             }
           </h2>
@@ -85,7 +133,7 @@ const QuestionModal = ({
           </div>
           <div className="flex items-center justify-end">
             <PreviewModalButton
-              content="Hello World"
+              content={getContent()}
               isDisabled={selectedQn === undefined}
               className="inline"
             />

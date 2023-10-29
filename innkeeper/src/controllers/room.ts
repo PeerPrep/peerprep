@@ -39,7 +39,7 @@ export const joinAssignedRoom = (io: InnkeeperIoServer, inn: InnState, socket: I
     return;
   }
 
-  const { roomId, questionId, textEditor, userStates } = roomState;
+  const { roomId, questionId, userStates } = roomState;
   const { userId } = socket.data;
 
   // If user is already in room, don't join again.
@@ -57,12 +57,7 @@ export const joinAssignedRoom = (io: InnkeeperIoServer, inn: InnState, socket: I
   userState.status = 'ACTIVE';
   userState.lastSeen = getUnixTimestamp();
 
-  const newRoomState: RoomState = {
-    roomId,
-    questionId,
-    textEditor,
-    userStates: [userState, otherUserState],
-  };
+  const newRoomState: RoomState = { ...roomState, roomId, questionId, userStates: [userState, otherUserState] };
 
   inn.setRoomState(roomId, newRoomState);
 
@@ -97,15 +92,15 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
     return;
   }
 
-  const { roomId, questionId, textEditor } = roomState;
+  const { roomId, questionId } = roomState;
   const [userState, otherUserState] = getSelfAndOtherUserResult;
 
   userState.lastSeen = getUnixTimestamp();
 
   const newRoomState: RoomState = {
+    ...roomState,
     roomId,
     questionId: update.questionId ?? questionId,
-    textEditor: { code: update.textEditor?.code ?? textEditor.code },
     userStates: [userState, otherUserState], // userState cannot be edited by user.
   };
 
@@ -113,11 +108,9 @@ export const handleSendUpdate = (io: InnkeeperIoServer, inn: InnState, socket: I
   io.in(roomState.roomId)
     .fetchSockets()
     .then(sockets =>
-      sockets
-        .filter(s => s.id !== socket.id)
-        .forEach((s: InnkeeperOtherSockets) => {
-          s.emit('sendPartialRoomState', update);
-        }),
+      sockets.forEach((s: InnkeeperOtherSockets) => {
+        s.emit('sendPartialRoomState', update);
+      }),
     );
 };
 
@@ -145,16 +138,11 @@ export const handleLeaveRoom = (io: InnkeeperIoServer, inn: InnState, socket: In
   }
 
   const [userState, otherUserState] = getSelfAndOtherUserResult;
-  const { questionId, textEditor, roomId } = roomState;
+  const { questionId, roomId } = roomState;
 
   userState.status = 'EXITED';
   userState.lastSeen = getUnixTimestamp();
-  const newRoomState: RoomState = {
-    roomId,
-    questionId,
-    textEditor,
-    userStates: [userState, otherUserState],
-  };
+  const newRoomState: RoomState = { ...roomState, roomId, questionId, userStates: [userState, otherUserState] };
 
   inn.removeRoom(roomId);
   io.in(roomId).emit('closeRoom', newRoomState);
@@ -174,17 +162,41 @@ export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: I
   }
 
   const [userState, otherUserState] = getSelfAndOtherUserResult;
-  const { questionId, textEditor, roomId } = roomState;
+  const { questionId, roomId } = roomState;
 
   userState.status = 'INACTIVE';
   userState.lastSeen = getUnixTimestamp();
-  const newRoomState: RoomState = {
-    roomId,
-    questionId,
-    textEditor,
-    userStates: [userState, otherUserState],
-  };
+  const newRoomState: RoomState = { ...roomState, roomId, questionId, userStates: [userState, otherUserState] };
 
   inn.setRoomState(roomId, newRoomState);
   io.in(roomId).emit('sendPartialRoomState', { userStates: [userState, otherUserState] }); // Notify that one user is inactive.
+};
+
+export const handleChatMessage = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket, message: string) => {
+  const roomState = getRoomState(inn, socket);
+
+  // Ensure the room state exists
+  if (!roomState) {
+    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
+    return;
+  }
+
+  // Get the user ID from the socket data
+  const userId = socket.data.userId;
+
+  // Create a new chat message object
+  const chatMessage = {
+    user: userId,
+    message: message,
+  };
+
+  // Store the chat message in the room's chat history
+  if (!roomState.chatHistory) {
+    roomState.chatHistory = [];
+  }
+  roomState.chatHistory.push(chatMessage);
+  console.log(roomState.chatHistory);
+
+  // Emit the chat message to all users in the room
+  io.to(roomState.roomId).emit('sendPartialRoomState', { chatHistory: roomState.chatHistory });
 };

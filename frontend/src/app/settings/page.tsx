@@ -6,6 +6,8 @@ import useLogin from "../hooks/useLogin";
 
 const SettingPage = () => {
   const user = useLogin();
+  //TODO: fetch preferred language
+  const [selectedLanguage, setSelectedLanguage] = useState("python");
 
   useEffect(() => {
     fetchProfileUrl().then((res) => {
