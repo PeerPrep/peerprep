@@ -1,10 +1,15 @@
 "use client";
 
 import Button from "@/app/components/button/Button";
-import { useState } from "react";
+import useAdmin from "@/app/hooks/useAdmin";
+import { useRouter } from "next/navigation";
+import { use, useState } from "react";
 import Select, { MultiValue } from "react-select";
 
 const AdminPortalPage = () => {
+  const isAdmin = useAdmin();
+  const router = useRouter();
+
   interface SelectOptionType {
     label: string;
     value: string;
@@ -23,6 +28,10 @@ const AdminPortalPage = () => {
   const [selectedQnType, setSelectedQnType] = useState<
     MultiValue<SelectOptionType>
   >([]);
+
+  if (!isAdmin) {
+    router.push("/");
+  }
 
   return (
     <main className="mt-12 flex flex-col items-center justify-center">

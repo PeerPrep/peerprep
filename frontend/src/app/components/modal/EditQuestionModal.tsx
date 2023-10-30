@@ -68,6 +68,13 @@ const EditQuestionModal = ({
         });
         successCallback();
       },
+      onError: (e) => {
+        console.log({ e });
+        api.open({
+          type: "error",
+          content: "Failed to add question due to having same question name!",
+        });
+      },
     },
   );
 

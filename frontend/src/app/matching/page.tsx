@@ -17,7 +17,6 @@ import { atom, useAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { FetchAuth } from "../api";
 import QuestionModal from "../components/modal/QuestionModal";
-import MatchingPage from "../components/matching/MatchingPage";
 type UserDetails = { displayName: string; authToken: string };
 const userDetailsAtom = atom<UserDetails | null>(null);
 
@@ -26,48 +25,7 @@ import QueueButton from "../components/button/QueueButton";
 import Loading from "../loading";
 import { useQuery } from "@tanstack/react-query";
 import { QuestionType } from "../admin/question/page";
-
-const MatchingPage = () => {
-  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
-    "Easy",
-  );
-
-  // const { data: questionObj, isLoading: questionDescriptionLoading } = useQuery<
-  //   { payload: QuestionType } | undefined
-  // >(["question", currQn], () => {
-  //   if (currQn) {
-  //     return fetchActivity(currQn?._id ?? "");
-  //   }
-  // });
-
-  const activityTableColumns: any = [
-    {
-      title: "Question",
-      dataIndex: "title",
-      width: 200,
-    },
-    {
-      title: "Difficulty",
-      dataIndex: "difficulty",
-      width: 20,
-      sorter: (a: QuestionType, b: QuestionType) => a.difficulty < b.difficulty,
-      align: "center",
-      render: (difficulty: string) => {
-        if (!difficulty) {
-          return null;
-        }
-        let color = difficulty.length > 5 ? "geekblue" : "green";
-        switch (difficulty.toLowerCase()) {
-          case "easy":
-            color = "bg-success text-white";
-            break;
-          case "medium":
-            color = "bg-warning text-white";
-            break;
-          case "hard":
-            color = "bg-error text-white";
-            break;
-        }
+import MatchingPage from "../components/matching/MatchingPage";
 
 const roomPage = () => {
   const [userDetails, setUserDetails] = useAtom(userDetailsAtom);

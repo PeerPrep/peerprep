@@ -11,19 +11,13 @@ export const FetchAuth = {
   addFirebaseToken: function (firebaseToken: string) {
     this.firebaseToken = firebaseToken;
   },
-  getFirebaseToken: async function (timeoutInMilliseconds: number = 10 * 1000) {
-    console.log(
-      `Looking for firebase token... (max ${timeoutInMilliseconds} ms left)`,
-    );
-    const intervalInMs = 100;
-    while (!this.firebaseToken && timeoutInMilliseconds > 0) {
-      timeoutInMilliseconds -= intervalInMs;
-      console.log(
-        `Waiting for firebase token... (max ${timeoutInMilliseconds} ms left)`,
+  getFirebaseToken: async function (timeoutInMilliseconds: number = 100) {
+    while (!this.firebaseToken) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, timeoutInMilliseconds),
       );
-      await new Promise((resolve) => setTimeout(resolve, intervalInMs));
     }
-    console.log(`Found firebase token. ${this.firebaseToken}`);
+
     return this.firebaseToken;
   },
   fetch: async function (
@@ -41,7 +35,12 @@ export const FetchAuth = {
     options.headers = headers;
 
     // Perform the fetch request with the modified options
-    return fetch(url, options);
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      console.log(res);
+      // throw Error();
+    }
+    return res;
   },
 };
 
@@ -58,6 +57,14 @@ export const fetchAllQuestionsUrl = async () => {
   return await FetchAuth.fetch(`${API_URL}/questions/`).then((res) =>
     res.json(),
   );
+};
+
+export const fetchIsAdmin = async () => {
+  return await FetchAuth.fetch(`${API_URL}/users/admin`)
+    .then((res) => res.json())
+    .then((res) => {
+      return res.statusMessage.type.toLowerCase() === "success";
+    });
 };
 
 export const createQuestionUrl = async (newQuestion: QuestionType) => {

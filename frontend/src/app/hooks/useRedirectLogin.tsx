@@ -10,14 +10,13 @@ const useRedirectLogin = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push("/admin/question");
+      if (!user && pathName !== "/") {
+        router.push("/login");
+      }
+      if (user && pathName === "/login") {
+        router.push("/matching");
       }
     });
-    console.log(pathName);
-    if (pathName !== "/") {
-      router.push("/login");
-    }
 
     // Clean up the listener when the component unmounts
     return () => unsubscribe();

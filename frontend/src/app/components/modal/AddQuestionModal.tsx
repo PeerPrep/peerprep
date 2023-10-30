@@ -68,6 +68,12 @@ const AddQuestionModal = ({
         });
         successCallback();
       },
+      onError: (e) => {
+        api.open({
+          type: "error",
+          content: "Failed to add question!",
+        });
+      },
     },
   );
 

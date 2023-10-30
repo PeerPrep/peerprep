@@ -3,15 +3,13 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 import { fetchProfileUrl, updateProfileUrl } from "../api";
 import useLogin from "../hooks/useLogin";
+import useAdmin from "../hooks/useAdmin";
 
 const SettingPage = () => {
   const user = useLogin();
-  //TODO: fetch preferred language
-  const [selectedLanguage, setSelectedLanguage] = useState("python");
 
   useEffect(() => {
     fetchProfileUrl().then((res) => {
-      console.log({ res });
       setProfileImageUrl(res.payload.imageUrl);
       setPreferredLang(res.payload.preferredLang);
       setName(res.payload.name || "");
