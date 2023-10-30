@@ -33,7 +33,7 @@
     "encoding": "^0.1.13",
     "eslint": "8.51.0",
     "eslint-config-next": "^13.5.4",
-    "firebase": "^10.4.0",
+    "firebase": "^10.5.2",
     "firebase-admin": "^11.11.0",
     "jotai": "^2.4.3",
     "jotai-optics": "^0.3.1",
