@@ -5,6 +5,7 @@ import { InnState } from '../models';
 import { InnkeeperIoServer, InnkeeperIoSocket, NotificationMessage } from '../types';
 
 export const SHOULD_LOG = process.env.LOGGING === 'VERBOSE';
+export const URL = process.env.URL ?? 'https://peerprep.sivarn.com';
 
 export const getUnixTimestamp = (): number => {
   return Math.floor(Date.now() / 1000);
@@ -31,8 +32,13 @@ export const requireUser = async (
     return next(new Error('Authorization failed.'));
   }
 
+  const data = await fetch(`${URL}/api/v1/users/profile`, {
+    headers: { 'firebase-token': socket.handshake.auth.token },
+  }).then(res => res.json());
+
   socket.data.userId = userId;
-  socket.data.displayName = (await firebaseAuth.getUser(userId)).displayName ?? 'Anonymous';
+  socket.data.displayName = data.payload.name ?? 'Anonymous';
+  socket.data.imageUrl = data.payload.imageUrl;
   socket.data.roomId = inn.getRoomId(userId);
   socket.data.lastMessage = getUnixTimestamp();
 

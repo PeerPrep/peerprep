@@ -1,4 +1,5 @@
 import { UserState } from "@/libs/innkeeper-api-types";
+import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 
 interface UserStateBadgeProps {
   userState: UserState; // Update the prop name to 'userState'
@@ -17,13 +18,13 @@ const fromEpochToRelative = (epochTime: number) => {
 };
 
 const UserStateBadge: React.FC<UserStateBadgeProps> = ({ userState }) => {
-  const { displayName, status, lastSeen } = userState;
+  const { displayName, status, lastSeen, imageUrl } = userState;
   const lastSeenRelative = fromEpochToRelative(lastSeen);
   return status !== "EXITED" ? (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       <div className="tooltip" data-tip={`Last Seen: ${lastSeenRelative}`}>
         <div
-          className={`aspect-square w-4 rounded-full ${
+          className={`mr-3 aspect-square w-4 rounded-full ${
             status === "INACTIVE"
               ? "bg-gray-200"
               : status === "ACTIVE"
@@ -32,6 +33,15 @@ const UserStateBadge: React.FC<UserStateBadgeProps> = ({ userState }) => {
           }`}
         />
       </div>
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          className="mr-2 aspect-square w-8 rounded-full"
+        ></img>
+      ) : (
+        <BiUserCircle className="mr-2 aspect-square w-8 text-4xl" />
+      )}
+
       <h3>{displayName}</h3>
     </div>
   ) : (
