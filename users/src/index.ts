@@ -1,6 +1,6 @@
 import Express, { Request, Response, NextFunction } from "express";
 import { MikroORM, type PostgreSqlDriver } from "@mikro-orm/postgresql";
-import "dotenv/config"
+import "dotenv/config";
 
 import { App, applicationDefault, initializeApp } from "firebase-admin/app";
 import { DecodedIdToken, getAuth } from "firebase-admin/auth";
@@ -44,7 +44,7 @@ initDatabase().then((orm) => {
 
   const firebaseApp = initializeApp({
     credential: applicationDefault(),
-    storageBucket: process.env.BUCKET_NAME
+    storageBucket: process.env.BUCKET_NAME,
   });
 
   const firebaseAuth = getAuth(firebaseApp);
@@ -66,7 +66,11 @@ initDatabase().then((orm) => {
     }
   };
 
-  const injectDependencies = (req: Request, res: Response, next: NextFunction) => {
+  const injectDependencies = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     req.orm = orm;
     req.firebaseApp = firebaseApp;
     next();

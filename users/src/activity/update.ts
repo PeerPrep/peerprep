@@ -13,7 +13,7 @@ export async function updateActivityHandler(req: Request, res: Response) {
     const activity = await em.upsert(Activity, {
       uid: uid,
       questionId: body.questionId,
-      submitted: new Date()
+      submitted: new Date(),
     });
 
     await em.persistAndFlush(activity);
