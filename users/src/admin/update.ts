@@ -15,11 +15,10 @@ export async function updateRoleHandler(req: Request, res: Response) {
       });
     }
 
-    const loadedProfile = await em.findOneOrFail(Profile, {
-      uid: body.uid,
-    });
-
-    loadedProfile.role = body.role;
+    const loadedProfiles = await em.find(Profile, { uid: { $in: body.uids } });
+    for (const profile of loadedProfiles) {
+      profile.role = body.role;
+    }
 
     await em.flush();
 
@@ -28,7 +27,7 @@ export async function updateRoleHandler(req: Request, res: Response) {
         message: "Role updated successfully",
         type: StatusMessageType.SUCCESS,
       },
-      payload: loadedProfile,
+      payload: loadedProfiles,
     };
     res.status(200).send(response);
   } catch (err: any) {
