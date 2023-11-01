@@ -34,7 +34,7 @@ app.use(cors(corsOptions));
 app.use(compression());
 app.use(bodyParser.json());
 app.use("/api/v1/", getFirebaseMiddleware(firebaseAuth), normalRouter());
-app.use("/api/serverless", decryptRequestBody(), normalRouter());
+app.use("/api/serverless/", decryptRequestBody(), normalRouter());
 
 const server = http.createServer(app);
 
