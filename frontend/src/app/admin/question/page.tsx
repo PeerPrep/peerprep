@@ -311,7 +311,7 @@ const QuestionPage = () => {
             </div>
           </dialog>
           <dialog id="delete_modal" className="modal">
-            <div className="modal-box max-w-screen-xl p-6">
+            <div className="max-w-screen modal-box p-6">
               <form method="dialog" className="pb">
                 <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
                   ✕

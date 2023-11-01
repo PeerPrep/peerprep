@@ -1,13 +1,34 @@
 "use client";
 import { ChangeEvent, useEffect, useState } from "react";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
-import { fetchProfileUrl, updateProfileUrl } from "../api";
+import {
+  deleteProfileUrl,
+  deleteQuestionUrl,
+  fetchProfileUrl,
+  updateProfileUrl,
+} from "../api";
 import useLogin from "../hooks/useLogin";
-import useAdmin from "../hooks/useAdmin";
 import { message } from "antd";
+import { useMutation } from "@tanstack/react-query";
 
 const SettingPage = () => {
   const user = useLogin();
+
+  const deleteProfileMutation = useMutation(async () => deleteProfileUrl(), {
+    onSuccess: () => {
+      closeModal("delete_modal");
+      api.open({
+        type: "success",
+        content: "Successfully deleted profile!",
+      });
+    },
+    onError: (e) => {
+      api.open({
+        type: "error",
+        content: "Failed to delete profile!",
+      });
+    },
+  });
 
   useEffect(() => {
     fetchProfileUrl().then((res) => {
@@ -15,11 +36,7 @@ const SettingPage = () => {
       setPreferredLang(res.payload.preferredLang);
       setName(res.payload.name || "");
     });
-  }, []);
-
-  // useEffect(() => {
-  //   setName(user?.reloadUserInfo?.displayName ?? null);
-  // }, [user]);
+  }, [deleteProfileMutation.status]);
 
   const [api, contextHolder] = message.useMessage();
 
@@ -53,9 +70,56 @@ const SettingPage = () => {
     });
   };
 
+  const onEscKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
+    if (e.key == "Escape" || e.key === "Esc") {
+      e.preventDefault();
+    }
+  };
+
+  const onClickModal = (modalId: string) => {
+    if (document) {
+      (document.getElementById(modalId) as HTMLFormElement).showModal();
+    }
+  };
+
+  const closeModal = (modalId: string) => {
+    (document.getElementById(modalId) as HTMLFormElement).close();
+  };
+
   return (
     <main className="flex flex-col items-center gap-4 p-12">
       {contextHolder}
+      <dialog id="delete_modal" className="modal">
+        <div className="modal-box p-6">
+          <form method="dialog" className="pb">
+            <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h1 className="m-4">Are you sure you want to delete your profile?</h1>
+          <div className="flex justify-end gap-2">
+            <button
+              type="reset"
+              onClick={() => {
+                closeModal("delete_modal");
+              }}
+              className="btn btn-error btn-sm text-white hover:bg-red-500"
+            >
+              No
+            </button>
+            <button
+              type="submit"
+              className="btn btn-accent btn-sm text-white"
+              onClick={() => {
+                deleteProfileMutation.mutate();
+                closeModal("delete_modal");
+              }}
+            >
+              Yes
+            </button>
+          </div>
+        </div>
+      </dialog>
       <h1 className="text-5xl font-bold text-white underline">User Profile</h1>
       <form
         className="flex flex-col justify-center gap-8 bg-secondary p-12"
@@ -110,9 +174,18 @@ const SettingPage = () => {
             </select>
           </div>
         </section>
-        <button type="submit" className="btn btn-accent">
-          Save Changes
-        </button>
+        <div className="flex flex-row justify-between gap-10">
+          <button
+            type="button"
+            className="btn btn-error"
+            onClick={() => onClickModal("delete_modal")}
+          >
+            Delete Profile
+          </button>
+          <button type="submit" className="btn btn-accent flex-grow">
+            Save Changes
+          </button>
+        </div>
       </form>
     </main>
   );

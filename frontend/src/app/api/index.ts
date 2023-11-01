@@ -38,7 +38,7 @@ export const FetchAuth = {
     const res = await fetch(url, options);
     if (!res.ok) {
       console.log(res);
-      // throw Error();
+      throw Error();
     }
     return res;
   },
@@ -135,6 +135,12 @@ export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
 
 export const deleteQuestionUrl = async (questionId: string) => {
   return FetchAuth.fetch(`${API_URL}/questions/${questionId}`, {
+    method: "DELETE",
+  }).then((res) => res.json());
+};
+
+export const deleteProfileUrl = async () => {
+  return FetchAuth.fetch(`${API_URL}/users/profile`, {
     method: "DELETE",
   }).then((res) => res.json());
 };
