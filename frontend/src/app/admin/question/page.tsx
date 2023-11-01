@@ -28,6 +28,8 @@ import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
 import topicsOptions from "../questionTypeData";
 import { onAuthStateChanged } from "firebase/auth";
 import useLogin from "@/app/hooks/useLogin";
+import { useRouter } from "next/navigation";
+import useAdmin from "@/app/hooks/useAdmin";
 
 export interface QuestionType {
   _id?: string;
@@ -56,6 +58,13 @@ const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
 });
 
 const QuestionPage = () => {
+  const router = useRouter();
+  const isAdmin = useAdmin();
+
+  if (!isAdmin) {
+    router.push("/");
+  }
+
   const user = useLogin();
   const [api, contextHolder] = message.useMessage();
   const [currQn, setCurrQn] = useState<QuestionType | null>(null);
@@ -302,7 +311,7 @@ const QuestionPage = () => {
             </div>
           </dialog>
           <dialog id="delete_modal" className="modal">
-            <div className="modal-box max-w-screen-xl p-6">
+            <div className="max-w-screen modal-box p-6">
               <form method="dialog" className="pb">
                 <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
                   ✕

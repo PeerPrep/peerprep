@@ -16,7 +16,7 @@ const PreviewModalButton = ({
     modalId: string,
     e: React.MouseEvent<HTMLButtonElement>,
   ) => {
-    e.preventDefault;
+    e.preventDefault();
     if (document) {
       (document.getElementById(modalId) as HTMLFormElement).showModal();
     }

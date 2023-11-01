@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../libs/firebase-config";
 import { useRouter } from "next/navigation";
+import { fetchIsAdmin } from "../api";
 
 export interface Profile {
   uid: string;
@@ -12,17 +13,14 @@ export interface Profile {
   role: string;
 }
 
-const useLogin = () => {
-  const [user, setUser] = useState<any>(null); // State to store the user object
-
+const useAdmin = () => {
+  const [isAdmin, setIsAdmin] = useState<boolean>(true);
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
         // If a user is authenticated, update the user state
-        setUser(authUser);
-      } else {
-        // If there is no authenticated user, set the user state to null
-        setUser(null);
+        const isAdmin = await fetchIsAdmin();
+        setIsAdmin(isAdmin);
       }
     });
 
@@ -30,7 +28,7 @@ const useLogin = () => {
     return () => unsubscribe();
   }, []);
 
-  return user; // Return the user object or null
+  return isAdmin;
 };
 
-export default useLogin;
+export default useAdmin;

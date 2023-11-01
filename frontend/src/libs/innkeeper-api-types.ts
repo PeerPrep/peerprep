@@ -14,11 +14,13 @@ export type WaitingUsersCount = {
 export type UserId = {
   userId: string;
   displayName: string;
+  imageUrl: string;
 };
 
 export type UserState = {
   userId: string;
   displayName: string;
+  imageUrl: string;
   status: "INACTIVE" | "ACTIVE" | "EXITED";
   lastSeen: number; // Unix time (seconds since epoch)
 };
