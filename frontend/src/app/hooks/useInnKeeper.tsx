@@ -1,9 +1,11 @@
 import {
   JotaiInnkeeperListenAdapter,
   chatHistoryAtom,
+  codeLangAtom,
   isConnectedAtom,
   isMatchedAtom,
   questionIdAtom,
+  resultAtom,
   roomStateAtom,
   socketAtom,
   userStatesAtom,
@@ -22,6 +24,8 @@ function _useInnkeeperSocket(authToken: string | null) {
   const setUserStates = useSetAtom(userStatesAtom);
   const setQuestionId = useSetAtom(questionIdAtom);
   const setChatHistory = useSetAtom(chatHistoryAtom);
+  const setLanguage = useSetAtom(codeLangAtom);
+  const setResult = useSetAtom(resultAtom);
 
   const jotaiAdapter: JotaiInnkeeperListenAdapter = {
     connect() {
@@ -69,6 +73,9 @@ function _useInnkeeperSocket(authToken: string | null) {
       if (partialUpdate.chatHistory) setChatHistory(partialUpdate.chatHistory);
       if (partialUpdate.userStates) setUserStates(partialUpdate.userStates);
       if (partialUpdate.questionId) setQuestionId(partialUpdate.questionId);
+      if (partialUpdate.language) setLanguage(partialUpdate.language);
+      if (partialUpdate.executionResult)
+        setResult(partialUpdate.executionResult);
     },
 
     closeRoom(finalUpdate) {
