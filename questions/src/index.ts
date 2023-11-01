@@ -1,15 +1,15 @@
-import express from "express";
 import bodyParser from "body-parser";
 import compression from "compression";
 import cors, { CorsOptions } from "cors";
+import dotenv from "dotenv";
+import express from "express";
+import { applicationDefault, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 import http from "http";
 import mongoose from "mongoose";
-import router from "./router";
-import { initializeApp } from "firebase-admin/app";
-import { applicationDefault } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import getFirebaseMiddleware from "./middleware";
-import dotenv from "dotenv";
+import getFirebaseMiddleware from "./middleware/auth";
+import decryptRequestBody from "./middleware/serverless";
+import { normalRouter } from "./router";
 
 dotenv.config();
 
@@ -33,7 +33,8 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(compression());
 app.use(bodyParser.json());
-app.use("/api/v1/", getFirebaseMiddleware(firebaseAuth), router());
+app.use("/api/v1/", getFirebaseMiddleware(firebaseAuth), normalRouter());
+app.use("/api/serverless", decryptRequestBody(), normalRouter());
 
 const server = http.createServer(app);
 

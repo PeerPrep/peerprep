@@ -75,6 +75,8 @@ services:
       MONGODB_URL: ${MONGODB_URL}
       BUCKET_NAME: ${BUCKET_NAME}
       USERS_SERVICE_URL: ${USERS_SERVICE_URL}
+      INITIALIZATION_VECTOR: ${INITIALIZATION_VECTOR}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
 
   users:
     image: ghcr.io/peerprep/peerprep-users-service:latest
