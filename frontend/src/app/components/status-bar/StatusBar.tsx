@@ -27,7 +27,7 @@ const triggerExecutionRequestAtom = atom(null, async (get, set) => {
   set(resultAtom, result);
   set(innkeeperWriteAtom, {
     eventName: "sendUpdate",
-    eventArgs: [{ executionResult: code }],
+    eventArgs: [{ executionResult: result }],
   });
 });
 
