@@ -49,6 +49,8 @@ export type PartialRoomState = {
   questionId?: string;
   userStates?: [UserState, UserState];
   chatHistory?: ChatMessage[];
+  executionResult?: string;
+  language?: string;
   questionDifficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 };
 

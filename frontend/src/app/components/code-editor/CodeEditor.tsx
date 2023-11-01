@@ -2,11 +2,12 @@
 import {
   codeLangAtom,
   codeMirrorValueAtom,
+  innkeeperWriteAtom,
   isMatchedAtom,
 } from "@/libs/room-jotai";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { Button } from "antd";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
@@ -45,6 +46,17 @@ const UiElementOnClose = () => {
   );
 };
 
+const codeLangAtomWrapper = atom(
+  (get) => get(codeLangAtom),
+  (_get, set, lang: string) => {
+    set(codeLangAtom, lang);
+    set(innkeeperWriteAtom, {
+      eventName: "sendUpdate",
+      eventArgs: [{ language: lang }],
+    });
+  },
+);
+
 const CodeMirrorEditor = ({
   userId,
   authToken,
@@ -58,7 +70,7 @@ const CodeMirrorEditor = ({
   const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
   const isMatched = useAtomValue(isMatchedAtom);
 
-  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
+  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtomWrapper);
   const [languageExtension, setLanguageExtension] = useState<any>(null);
   const [dragging, setDragging] = useState<boolean>(false);
   const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
