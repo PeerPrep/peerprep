@@ -149,7 +149,7 @@ const MatchingPage = () => {
           className="mt-4"
           bordered
           columns={activityTableColumns}
-          dataSource={allQuestions}
+          dataSource={allQuestions as any}
           pagination={{ position: ["bottomCenter"] }}
         />
       </div>
