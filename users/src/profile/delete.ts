@@ -10,8 +10,10 @@ export async function deleteProfileHandler(req: Request, res: Response) {
   const uid = req.userToken.uid;
 
   try {
-    await em.nativeDelete(Profile, { uid: uid });
-    await em.nativeDelete(Activity, { uid: uid });
+    await em.transactional(async (manager) => {
+        await manager.nativeDelete(Profile, { uid: uid });
+        await manager.nativeDelete(Activity, { uid: uid });
+    });
 
     const response: ApiResponse = {
       statusMessage: {
