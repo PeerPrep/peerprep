@@ -23,6 +23,10 @@ const triggerExecutionRequestAtom = atom(null, async (get, set) => {
   const codeLang = get(codeLangAtom);
   const result = await executeCode(code, codeLang);
   set(resultAtom, result);
+  set(innkeeperWriteAtom, {
+    eventName: "sendUpdate",
+    eventArgs: [{ executionResult: code }],
+  });
 });
 
 const triggerExitRoomRequestAtom = atom(null, (get, set) => {
