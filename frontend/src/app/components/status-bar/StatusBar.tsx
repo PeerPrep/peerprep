@@ -1,15 +1,17 @@
-import { executeCode } from "@/app/api";
+import { completeQuestion, executeCode } from "@/app/api";
 import { UserState } from "@/libs/innkeeper-api-types";
 import {
   codeLangAtom,
   codeMirrorValueAtom,
   innkeeperWriteAtom,
   isQuestionModalOpenAtom,
+  questionIdAtom,
   resultAtom,
   userStatesAtom,
 } from "@/libs/room-jotai";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import Button from "../button/Button";
+import { message } from "antd";
 import UserStateBadge from "./UserStatusBadge";
 
 interface StatusBarProps {
@@ -30,12 +32,15 @@ const triggerExitRoomRequestAtom = atom(null, (get, set) => {
 const StatusBar = ({ exitMethod }: StatusBarProps) => {
   const code = useAtomValue(codeMirrorValueAtom);
   const userStates = useAtomValue(userStatesAtom);
+  const questionId = useAtomValue(questionIdAtom);
   const callExecution = useSetAtom(triggerExecutionRequestAtom);
   const callExitRoom = useSetAtom(triggerExitRoomRequestAtom);
   const setQuestionModalOpen = useSetAtom(isQuestionModalOpenAtom);
+  const [api, contextHolder] = message.useMessage();
 
   return (
     <footer className="fixed bottom-0 left-0 flex w-[100svw] items-center justify-between border-black bg-primary px-4 py-2 shadow-sm lg:static lg:w-full lg:px-12">
+      {contextHolder}
       <div className="flex gap-4">
         {userStates &&
           userStates.map((userState: UserState) => (
@@ -43,6 +48,25 @@ const StatusBar = ({ exitMethod }: StatusBarProps) => {
           ))}
       </div>
       <div className="flex items-center gap-4">
+        <Button
+          className="btn-outline btn-sm"
+          onClick={() =>
+            questionId &&
+            completeQuestion(questionId).then((res) =>
+              res.statusMessage.type.toLowerCase() === "success"
+                ? api.success({
+                    type: "success",
+                    content: "Successfully completed question!",
+                  })
+                : api.error({
+                    type: "error",
+                    content: "Failure completing question",
+                  }),
+            )
+          }
+          children={<span>Mark As Complete</span>}
+          disabled={!questionId}
+        />
         <Button
           className="btn-success btn-sm"
           onClick={() => setQuestionModalOpen(true)}

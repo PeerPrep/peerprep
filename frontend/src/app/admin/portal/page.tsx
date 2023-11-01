@@ -1,23 +1,43 @@
 "use client";
 
+import { fetchAllUsers, fetchIsAdmin, promoteToAdmin } from "@/app/api";
 import Button from "@/app/components/button/Button";
 import useAdmin from "@/app/hooks/useAdmin";
+import { message } from "antd";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 
 const AdminPortalPage = () => {
   const isAdmin = useAdmin();
   const router = useRouter();
+  const [api, contextHolder] = message.useMessage();
+
+  type User = {
+    uid: string;
+    name: string;
+    imageUrl: string | null;
+    preferredLang: string | null;
+    role: string;
+  };
 
   interface SelectOptionType {
     label: string;
     value: string;
   }
-  const adminOptions: MultiValue<SelectOptionType> = [
-    { label: "Hello", value: "123" },
-    { label: "Hello2", value: "456" },
-  ];
+  const [adminOptions, setAdminOptions] = useState<
+    MultiValue<SelectOptionType>
+  >([]);
+
+  useEffect(() => {
+    fetchAllUsers().then((allUsers) => {
+      setAdminOptions(
+        allUsers.payload
+          .filter((user: User) => user.role === "user")
+          .map((user: User) => ({ label: user.name, value: user.uid })),
+      );
+    });
+  }, [api, contextHolder]);
 
   const handleSelectChange = (
     selectedOptions: MultiValue<SelectOptionType>,
@@ -35,6 +55,7 @@ const AdminPortalPage = () => {
 
   return (
     <main className="mt-12 flex flex-col items-center justify-center">
+      {contextHolder}
       <h1 className="mb-2 block text-5xl font-bold text-white underline">
         Admin Portal
       </h1>
@@ -58,7 +79,28 @@ const AdminPortalPage = () => {
             classNamePrefix="select"
           />
         </section>
-        <Button className="btn-accent" onClick={() => "todo"}>
+        <Button
+          className="btn-accent"
+          onClick={() => {
+            promoteToAdmin(selectedQnType.map((option) => option.value))
+              .then((res) => {
+                if (res.statusMessage.type.toLowerCase() === "success") {
+                  api.success({
+                    type: "success",
+                    content: "Successfully updated profile!",
+                  });
+                } else {
+                  api.error({
+                    type: "error",
+                    content: "Failed to update profile :(",
+                  });
+                }
+              })
+              .then(() => {
+                setSelectedQnType([]);
+              });
+          }}
+        >
           Grant Access
         </Button>
       </div>

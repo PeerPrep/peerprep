@@ -53,14 +53,60 @@ export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   );
 };
 
+export const fetchAllQuestionsDoneByUser = async () => {
+  const { payload } = (await FetchAuth.fetch(`${API_URL}/users/activity/`).then(
+    (res) => {
+      res.json();
+    },
+  )) as any;
+  const questionIds = payload.join("-");
+  // console.log({ res });
+  return await FetchAuth.fetch(
+    `${API_URL}/questions/group/${questionIds}`,
+  ).then((res) => {
+    res.json();
+  });
+};
+
 export const fetchAllQuestionsUrl = async () => {
   return await FetchAuth.fetch(`${API_URL}/questions/`).then((res) =>
     res.json(),
   );
 };
 
+export const completeQuestion = async (questionId: string) => {
+  return await FetchAuth.fetch(`${API_URL}/users/activity/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      questionId,
+    }),
+  }).then((res) => res.json());
+};
+
+export const promoteToAdmin = async (userId: string[]) => {
+  return await FetchAuth.fetch(`${API_URL}/users/admin/update`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      role: "admin",
+      uids: userId,
+    }),
+  }).then((res) => res.json());
+};
+
+export const fetchAllUsers = async () => {
+  return await FetchAuth.fetch(`${API_URL}/users/admin/profiles`).then((res) =>
+    res.json(),
+  );
+};
+
 export const fetchIsAdmin = async () => {
-  return await FetchAuth.fetch(`${API_URL}/users/admin`)
+  return await FetchAuth.fetch(`${API_URL}/users/admin/profiles`)
     .then((res) => res.json())
     .then((res) => {
       return res.statusMessage.type.toLowerCase() === "success";
@@ -95,7 +141,10 @@ export const deleteQuestionUrl = async (questionId: string) => {
 
 interface ProfileResponse {
   payload: Profile;
-  statusMessage: string;
+  statusMessage: {
+    type: "success" | "error";
+    message: string;
+  };
 }
 
 export async function fetchProfileUrl(): Promise<ProfileResponse> {

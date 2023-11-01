@@ -7,7 +7,6 @@ import topicsOptions from "@/app/admin/questionTypeData";
 import Button from "../button/Button";
 import { QuestionType } from "@/app/admin/question/page";
 import PreviewModalButton from "./PreviewModalButton";
-import QuestionModal from "./QuestionModal";
 
 export interface SelectOptionType {
   label: string;

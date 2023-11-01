@@ -4,6 +4,7 @@ import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 import { fetchProfileUrl, updateProfileUrl } from "../api";
 import useLogin from "../hooks/useLogin";
 import useAdmin from "../hooks/useAdmin";
+import { message } from "antd";
 
 const SettingPage = () => {
   const user = useLogin();
@@ -20,6 +21,8 @@ const SettingPage = () => {
   //   setName(user?.reloadUserInfo?.displayName ?? null);
   // }, [user]);
 
+  const [api, contextHolder] = message.useMessage();
+
   const [name, setName] = useState<string>("");
   const [preferredLang, setPreferredLang] = useState<string | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
@@ -35,15 +38,24 @@ const SettingPage = () => {
 
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    //TODO: submit logic
     updateProfileUrl(name, preferredLang, selectedImage).then((res) => {
-      // setProfile(res.payload);
-      console.log(res);
+      if (res.statusMessage.type.toLowerCase() === "success") {
+        api.success({
+          type: "success",
+          content: "Successfully updated profile!",
+        });
+      } else {
+        api.error({
+          type: "error",
+          content: "Failed to update profile :(",
+        });
+      }
     });
   };
 
   return (
     <main className="flex flex-col items-center gap-4 p-12">
+      {contextHolder}
       <h1 className="text-5xl font-bold text-white underline">User Profile</h1>
       <form
         className="flex flex-col justify-center gap-8 bg-secondary p-12"

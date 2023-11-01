@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 import { message } from "antd";
 import { useMutation } from "@tanstack/react-query";
-import { createQuestionUrl } from "@/app/api";
+import { createQuestionUrl, updateQuestionUrl } from "@/app/api";
 import topicsOptions from "@/app/admin/questionTypeData";
 import { QuestionType } from "@/app/admin/question/page";
 
@@ -57,8 +57,8 @@ const EditQuestionModal = ({
     }
   };
 
-  const createQuestionMutation = useMutation(
-    async (newQuestion: QuestionType) => createQuestionUrl(newQuestion),
+  const editQuestionMutation = useMutation(
+    async (newQuestion: QuestionType) => updateQuestionUrl(newQuestion),
     {
       onSuccess: () => {
         closeModal("edit_modal");
@@ -88,14 +88,14 @@ const EditQuestionModal = ({
       (formElements.namedItem("title") as HTMLInputElement)?.value || "";
 
     const submissionData = {
+      _id: question?._id ?? "",
       title: titleValue,
       difficulty: difficulty,
       tags: selectedTypes,
       description: e.currentTarget.description.value,
     };
 
-    console.log("Form Submission Data:", submissionData);
-    createQuestionMutation.mutate(submissionData);
+    editQuestionMutation.mutate(submissionData);
   };
 
   return (

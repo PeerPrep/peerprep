@@ -4,6 +4,9 @@ import QueueButton from "../button/QueueButton";
 import { QuestionType } from "../../admin/question/page";
 import { atom, useAtom } from "jotai";
 import { innkeeperWriteAtom } from "@/libs/room-jotai";
+import { fetchAllQuestionsDoneByUser } from "@/app/api";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton, Table } from "antd";
 
 const sendMatchRequestAtom = atom(
   null,
@@ -91,8 +94,18 @@ const MatchingPage = () => {
     },
   ];
 
+  const {
+    data: allQuestions,
+    isLoading: allQuestionsLoading,
+    refetch: refetchAllQuestions,
+  } = useQuery(["activityQuestions"], () => {
+    return fetchAllQuestionsDoneByUser();
+  });
+
+  console.log({ allQuestions });
+
   return (
-    <main className="flex h-full items-center justify-center">
+    <main className="flex h-full flex-col items-center justify-center">
       <section className="flex items-center gap-4">
         <label>
           <span>Difficulty Setting:</span>
@@ -128,6 +141,18 @@ const MatchingPage = () => {
         </div>
         <QueueButton enterQueue={() => sendMatchRequest(difficulty)} />
       </section>
+      <div className="m-7">
+        <h1 className="mb-2 block text-5xl font-bold text-white underline">
+          Completed Questions
+        </h1>
+        <Table
+          className="mt-4"
+          bordered
+          columns={activityTableColumns}
+          dataSource={allQuestions}
+          pagination={{ position: ["bottomCenter"] }}
+        />
+      </div>
     </main>
   );
 };
