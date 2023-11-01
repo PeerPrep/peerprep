@@ -75,8 +75,11 @@ cppevent::awaitable_task<void> executor::exec_endpoint::process(const cppevent::
     auto& lang = lang_opt.value();
     long content_len = cont.get_content_len();
     auto it = source_file_names.find(lang);
-    if (it == source_file_names.end() || content_len == 0) {
+    if (it == source_file_names.end()) {
         co_await o_stdout.write("status: 400\ncontent-length: 16\n\nunknown language");
+        co_return;
+    } else if (content_len == 0) {
+        co_await o_stdout.write("status: 400\ncontent-length: 23\n\nNo source code provided");
         co_return;
     }
 
