@@ -12,6 +12,7 @@ export const codeLangAtom = atom("python");
 export const socketAtom = atom<InnkeeperSocket | null>(null);
 export const isConnectedAtom = atom(false);
 export const isQuestionModalOpenAtom = atom(false);
+export const isQueuingAtom = atom(false);
 
 /**
  * Note that the server only supports unmatched or matched, closed is a frontend
