@@ -63,19 +63,23 @@ const SettingPage = () => {
 
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateProfileUrl(name, preferredLang, selectedImage).then((res) => {
-      if (res.statusMessage.type.toLowerCase() === "success") {
-        api.success({
-          type: "success",
-          content: "Successfully updated profile!",
-        });
-      } else {
-        api.error({
-          type: "error",
-          content: "Failed to update profile :(",
-        });
-      }
-    });
+    updateProfileUrl(name, preferredLang, selectedImage)
+      .then((res) => {
+        if (res.statusMessage.type.toLowerCase() === "success") {
+          api.success({
+            type: "success",
+            content: "Successfully updated profile!",
+          });
+        } else {
+          api.error({
+            type: "error",
+            content: "Failed to update profile :(",
+          });
+        }
+      })
+      .then(() => {
+        window.location.reload();
+      });
   };
 
   const onEscKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
