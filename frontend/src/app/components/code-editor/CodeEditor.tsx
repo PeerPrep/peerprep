@@ -2,11 +2,12 @@
 import {
   codeLangAtom,
   codeMirrorValueAtom,
+  innkeeperWriteAtom,
   isMatchedAtom,
 } from "@/libs/room-jotai";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { Button } from "antd";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
@@ -14,6 +15,7 @@ import { yCollab } from "y-codemirror.next";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
 import Tabs from "../tab/Tabs";
+import { fetchProfileUrl } from "@/app/api";
 
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
@@ -32,18 +34,16 @@ if (typeof window !== "undefined") {
   desiredWidth = window.innerWidth >= 1024 ? "50vw" : "90vw";
 }
 
-// TODO: idk what FE plan is for this, so i just slapped a random text box thing here.
-const UiElementOnClose = () => {
-  return (
-    <div className="flex items-center gap-4 bg-slate-800 p-2">
-      <ExclamationCircleFilled />
-      Your room has been closed.
-      <Button className="btn-accent" onClick={() => window.location.reload()}>
-        Restart
-      </Button>
-    </div>
-  );
-};
+const codeLangAtomWrapper = atom(
+  (get) => get(codeLangAtom),
+  (_get, set, lang: string) => {
+    set(codeLangAtom, lang);
+    set(innkeeperWriteAtom, {
+      eventName: "sendUpdate",
+      eventArgs: [{ language: lang }],
+    });
+  },
+);
 
 const CodeMirrorEditor = ({
   userId,
@@ -58,7 +58,7 @@ const CodeMirrorEditor = ({
   const setCodeMirrorValue = useSetAtom(codeMirrorValueAtom);
   const isMatched = useAtomValue(isMatchedAtom);
 
-  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtom);
+  const [selectedLanguage, setSelectedLanguage] = useAtom(codeLangAtomWrapper);
   const [languageExtension, setLanguageExtension] = useState<any>(null);
   const [dragging, setDragging] = useState<boolean>(false);
   const [startY, setStartY] = useState<number>(0); // To track the Y position where drag started
@@ -67,6 +67,9 @@ const CodeMirrorEditor = ({
   const [extensions, setExtensions] = useState<any>([]);
 
   useEffect(() => {
+    fetchProfileUrl().then((res) => {
+      setSelectedLanguage(res.payload.preferredLang || "python");
+    });
     if (!innkeeperUrl) {
       console.error(
         "NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL not set in .env",
@@ -192,7 +195,6 @@ const CodeMirrorEditor = ({
           </select>
         </div>
       </div>
-      {isMatched !== "MATCHED" && <UiElementOnClose />}
       <CodeMirror
         className="max-h-[70svw] w-[90svw] lg:w-[50svw]"
         height={`${editorHeight}px`}

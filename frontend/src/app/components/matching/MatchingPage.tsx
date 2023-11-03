@@ -3,10 +3,10 @@ import { useState } from "react";
 import QueueButton from "../button/QueueButton";
 import { QuestionType } from "../../admin/question/page";
 import { atom, useAtom } from "jotai";
-import { innkeeperWriteAtom } from "@/libs/room-jotai";
+import { innkeeperWriteAtom, isQueuingAtom } from "@/libs/room-jotai";
 import { fetchAllQuestionsDoneByUser } from "@/app/api";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton, Table } from "antd";
+import { Skeleton, Table, notification } from "antd";
 
 const sendMatchRequestAtom = atom(
   null,
@@ -23,9 +23,17 @@ const MatchingPage = () => {
     questionDifficulty: "EASY" | "MEDIUM" | "HARD",
   ) => void = useAtom(sendMatchRequestAtom)[1];
 
+  const [isQueueing, setIsQueueing] = useAtom(isQueuingAtom);
+
   const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">(
     "EASY",
   );
+
+  const handleChangeDiff = (difficulty: "EASY" | "MEDIUM" | "HARD") => {
+    if (!isQueueing) {
+      setDifficulty(difficulty);
+    }
+  };
   const activityTableColumns: any = [
     {
       title: "Question",
@@ -105,55 +113,63 @@ const MatchingPage = () => {
   console.log({ allQuestions });
 
   return (
-    <main className="flex h-full flex-col items-center justify-center">
-      <section className="flex items-center gap-4">
-        <label>
-          <span>Difficulty Setting:</span>
-        </label>
-        <div className="join">
-          <button
-            type="button"
-            className={`btn btn-primary join-item text-white ${
-              difficulty == "EASY" && "btn-success"
-            }`}
-            onClick={() => setDifficulty("EASY")}
-          >
-            Easy
-          </button>
-          <button
-            type="button"
-            className={`btn btn-primary join-item text-white ${
-              difficulty == "MEDIUM" && "btn-warning"
-            }`}
-            onClick={() => setDifficulty("MEDIUM")}
-          >
-            Medium
-          </button>
-          <button
-            type="button"
-            className={`btn btn-primary join-item text-white ${
-              difficulty == "HARD" && "btn-error"
-            }`}
-            onClick={() => setDifficulty("HARD")}
-          >
-            Hard
-          </button>
+    <>
+      <main className="flex h-full flex-col items-center justify-center">
+        <section className="flex items-center gap-4">
+          <label>
+            <span>Difficulty Setting:</span>
+          </label>
+          <div className="join">
+            <button
+              type="button"
+              className={`btn btn-primary join-item text-white ${
+                difficulty == "EASY" && "btn-success"
+              }`}
+              onClick={() => handleChangeDiff("EASY")}
+            >
+              Easy
+            </button>
+            <button
+              type="button"
+              className={`btn btn-primary join-item text-white ${
+                difficulty == "MEDIUM" && "btn-warning"
+              }`}
+              onClick={() => handleChangeDiff("MEDIUM")}
+            >
+              Medium
+            </button>
+            <button
+              type="button"
+              className={`btn btn-primary join-item text-white ${
+                difficulty == "HARD" && "btn-error"
+              }`}
+              onClick={() => handleChangeDiff("HARD")}
+            >
+              Hard
+            </button>
+          </div>
+          <QueueButton
+            enterQueue={() => {
+              setIsQueueing(true);
+              sendMatchRequest(difficulty);
+            }}
+            selectedDifficulty={difficulty}
+          />
+        </section>
+        <div className="m-7">
+          <h1 className="mb-2 block text-5xl font-bold text-white underline">
+            Completed Questions
+          </h1>
+          <Table
+            className="mt-4"
+            bordered
+            columns={activityTableColumns}
+            dataSource={allQuestions as any}
+            pagination={{ position: ["bottomCenter"] }}
+          />
         </div>
-        <QueueButton enterQueue={() => sendMatchRequest(difficulty)} />
-      </section>
-      <div className="m-7">
-        <h1 className="mb-2 block text-5xl font-bold text-white underline">
-          Completed Questions
-        </h1>
-        <Table
-          className="mt-4"
-          bordered
-          columns={activityTableColumns}
-          dataSource={allQuestions as any}
-          pagination={{ position: ["bottomCenter"] }}
-        />
-      </div>
-    </main>
+      </main>
+    </>
   );
 };
 

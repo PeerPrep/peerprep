@@ -6,7 +6,7 @@ export class Activity {
   uid!: string;
 
   @PrimaryKey()
-  questionId!: number;
+  questionId!: string;
 
   @Property()
   submitted!: Date;

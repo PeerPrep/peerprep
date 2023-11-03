@@ -22,7 +22,7 @@ export class Profile {
   @Property({ nullable: true })
   imageUrl?: string;
 
-  @Enum({ items: () => Language, nullable: true})
+  @Enum({ items: () => Language, nullable: true })
   preferredLang?: Language;
 
   @Enum({ items: () => Role, default: Role.USER })

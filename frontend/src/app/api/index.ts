@@ -37,7 +37,7 @@ export const FetchAuth = {
     // Perform the fetch request with the modified options
     const res = await fetch(url, options);
     if (!res.ok) {
-      console.log(res);
+      // console.log(res);
       // throw Error();
     }
     return res;
