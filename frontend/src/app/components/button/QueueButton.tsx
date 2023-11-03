@@ -3,11 +3,13 @@ import { useState } from "react";
 import useAccurateInterval from "../../hooks/useAccurateInterval";
 import Button from "./Button";
 import { RxCross1 } from "react-icons/rx";
-import { innkeeperWriteAtom } from "@/libs/room-jotai";
+import { innkeeperWriteAtom, isQueuingAtom } from "@/libs/room-jotai";
 import { atom, useAtom, useSetAtom } from "jotai";
+import { notification } from "antd";
 
 interface QueueButtonProps {
   enterQueue: () => void;
+  selectedDifficulty: "EASY" | "MEDIUM" | "HARD";
 }
 
 const triggerLeaveQueueAtom = atom(null, (get, set) => {
@@ -17,15 +19,32 @@ const triggerLeaveQueueAtom = atom(null, (get, set) => {
   });
 });
 
-const QueueButton = ({ enterQueue }: QueueButtonProps) => {
+const QueueButton = ({ enterQueue, selectedDifficulty }: QueueButtonProps) => {
   const [time, setTime] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
   const [_, handleLeaveQueue] = useAtom(triggerLeaveQueueAtom);
+  const setIsQueueing = useSetAtom(isQueuingAtom);
+
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotification = () => {
+    api.error({
+      message: `Match not Found`,
+      description: (
+        <span>
+          There appears to be no match for <b>{selectedDifficulty}</b> at this
+          time. Please try again later or with another difficulty.
+        </span>
+      ),
+      placement: "top",
+    });
+  };
 
   const handleClick = () => {
     setTime(0);
     if (isStarted) {
       handleLeaveQueue();
+      setIsQueueing(false);
     } else {
       enterQueue();
     }
@@ -40,6 +59,8 @@ const QueueButton = ({ enterQueue }: QueueButtonProps) => {
       } else {
         handleLeaveQueue();
         setIsStarted(false);
+        setIsQueueing(false);
+        openNotification();
       }
     },
     isStarted ? 1000 : null,
@@ -56,6 +77,7 @@ const QueueButton = ({ enterQueue }: QueueButtonProps) => {
 
   return (
     <div>
+      {contextHolder}
       <Button
         className={`${isStarted ? "btn-accent" : "btn-success"} w-48`}
         onClick={handleClick}
