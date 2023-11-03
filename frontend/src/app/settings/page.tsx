@@ -10,17 +10,25 @@ import {
 import useLogin from "../hooks/useLogin";
 import { message } from "antd";
 import { useMutation } from "@tanstack/react-query";
+import { getAuth, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const SettingPage = () => {
   const user = useLogin();
+  const router = useRouter();
 
   const deleteProfileMutation = useMutation(async () => deleteProfileUrl(), {
     onSuccess: () => {
       closeModal("delete_modal");
       api.open({
         type: "success",
-        content: "Successfully deleted profile!",
+        content: "Successfully deleted profile! Logging you out...",
       });
+      const auth = getAuth();
+      setTimeout(() => {
+        signOut(auth);
+        router.push("/");
+      }, 2000);
     },
     onError: (e) => {
       api.open({

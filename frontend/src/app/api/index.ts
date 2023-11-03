@@ -38,7 +38,7 @@ export const FetchAuth = {
     const res = await fetch(url, options);
     if (!res.ok) {
       console.log(res);
-      throw Error();
+      // throw Error();
     }
     return res;
   },
