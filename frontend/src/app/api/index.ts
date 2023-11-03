@@ -54,18 +54,19 @@ export const fetchQuestionDescriptionUrl = async (qnId: string) => {
 };
 
 export const fetchAllQuestionsDoneByUser = async () => {
-  const { payload } = (await FetchAuth.fetch(`${API_URL}/users/activity/`).then(
+  const { payload } = await FetchAuth.fetch(`${API_URL}/users/activity/`).then(
     (res) => {
-      res.json();
+      return res.json();
     },
-  )) as any;
-  const questionIds = payload.join("-");
+  );
+
+  const questionIds = payload.map((ele: any) => ele.questionId).join("-");
+  console.log({ questionIds });
   // console.log({ res });
-  return await FetchAuth.fetch(
+  const questions = await FetchAuth.fetch(
     `${API_URL}/questions/group/${questionIds}`,
-  ).then((res) => {
-    res.json();
-  });
+  ).then((res) => res.json());
+  return questions.payload.map((k: any, i: any) => ({ ...k, ...payload[i] }));
 };
 
 export const fetchAllQuestionsUrl = async () => {

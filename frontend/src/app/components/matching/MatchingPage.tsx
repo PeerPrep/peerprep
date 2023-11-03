@@ -7,6 +7,8 @@ import { innkeeperWriteAtom, isQueuingAtom } from "@/libs/room-jotai";
 import { fetchAllQuestionsDoneByUser } from "@/app/api";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton, Table, notification } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
+import ReactMarkdown from "react-markdown";
 
 const sendMatchRequestAtom = atom(
   null,
@@ -19,6 +21,8 @@ const sendMatchRequestAtom = atom(
 );
 
 const MatchingPage = () => {
+  const [currQn, setCurrQn] = useState<QuestionType | null>(null);
+
   const sendMatchRequest: (
     questionDifficulty: "EASY" | "MEDIUM" | "HARD",
   ) => void = useAtom(sendMatchRequestAtom)[1];
@@ -96,11 +100,36 @@ const MatchingPage = () => {
     },
     {
       title: "Submitted Date",
-      dataIndex: "date",
+      dataIndex: "submitted",
       sortDirections: ["descend"],
-      render: (date: string) => <>{date}</>,
+      render: (date: string) => {
+        return new Date(date).toLocaleDateString();
+      },
+    },
+    {
+      title: "Actions",
+      dataIndex: "actions",
+      align: "center",
+      width: 10,
+      render: (text: string, record: QuestionType, index: number) => (
+        <div className="flex justify-center gap-2">
+          <EyeOutlined
+            className="p-2 text-xl hover:cursor-pointer hover:rounded-full hover:bg-primary-focus"
+            onClick={() => {
+              onClickModal("my_modal_2");
+              setCurrQn(record);
+            }}
+          />
+        </div>
+      ),
     },
   ];
+
+  const onClickModal = (modalId: string) => {
+    if (document) {
+      (document.getElementById(modalId) as HTMLFormElement).showModal();
+    }
+  };
 
   const {
     data: allQuestions,
@@ -115,6 +144,18 @@ const MatchingPage = () => {
   return (
     <>
       <main className="flex h-full flex-col items-center justify-center">
+        <dialog id="my_modal_2" className="modal">
+          <div className="modal-box max-w-4xl p-6">
+            <form method="dialog" className="pb">
+              <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
+                ✕
+              </button>
+            </form>
+            <ReactMarkdown className="prose min-w-[40svh] max-w-none rounded-b-md bg-secondary p-6">
+              {currQn?.description || ""}
+            </ReactMarkdown>
+          </div>
+        </dialog>
         <section className="flex items-center gap-4">
           <label>
             <span>Difficulty Setting:</span>
