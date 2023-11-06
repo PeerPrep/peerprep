@@ -30,6 +30,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import useLogin from "@/app/hooks/useLogin";
 import { useRouter } from "next/navigation";
 import useAdmin from "@/app/hooks/useAdmin";
+import LoadingPage from "@/app/loading";
 
 export interface QuestionType {
   _id?: string;
@@ -58,12 +59,7 @@ const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
 });
 
 const QuestionPage = () => {
-  const router = useRouter();
-  const isAdmin = useAdmin();
-
-  if (!isAdmin) {
-    router.push("/");
-  }
+  const { isAdmin, isLoading } = useAdmin();
 
   const user = useLogin();
   const [api, contextHolder] = message.useMessage();
@@ -264,6 +260,22 @@ const QuestionPage = () => {
       </>
     );
   };
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="flex items-center">
+          <h1 className="text-6xl text-white">401</h1>
+          <div className="divider divider-horizontal h-24"></div>
+          <h2 className="text-xl text-white">Unauthorized</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -24,7 +24,7 @@ const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
-  const isAdmin = useAdmin();
+  const { isAdmin, isLoading } = useAdmin();
 
   useEffect(() => {
     fetchProfileUrl().then((res) => {
