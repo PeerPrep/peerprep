@@ -8,14 +8,15 @@ import {
 
 export const handleCustomError = (
   res: express.Response,
-  statusMessage: StatusMessage
+  statusMessage: StatusMessage,
+  statusCode?: number
 ) => {
   const response: ApiResponse = {
     payload: EMPTY_OBJECT,
     statusMessage,
   };
 
-  res.status(400).json(response);
+  res.status(statusCode ?? 400).json(response);
   return;
 };
 

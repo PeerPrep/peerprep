@@ -1,9 +1,8 @@
-import express from "express";
-import { NextFunction } from "express";
-import { Auth } from "firebase-admin/auth";
-import { handleCustomError, handleServerError } from "../utils";
-import { StatusMessageType } from "../types";
 import axios, { HttpStatusCode } from "axios";
+import express, { NextFunction } from "express";
+import { Auth } from "firebase-admin/auth";
+import { StatusMessageType } from "../types";
+import { handleCustomError, handleServerError } from "../utils";
 
 const getFirebaseMiddleware = (firebaseAuth: Auth) => {
   return async (
@@ -14,10 +13,14 @@ const getFirebaseMiddleware = (firebaseAuth: Auth) => {
     try {
       const firebaseToken = req.get("firebase-token");
       if (!firebaseToken) {
-        handleCustomError(res, {
-          type: StatusMessageType.ERROR,
-          message: "No Firebase token provided",
-        });
+        handleCustomError(
+          res,
+          {
+            type: StatusMessageType.ERROR,
+            message: "No Firebase token provided",
+          },
+          401
+        );
         return;
       }
 
@@ -40,19 +43,27 @@ const getFirebaseMiddleware = (firebaseAuth: Auth) => {
           !usersResponse.data.payload ||
           !usersResponse.data.payload.role
         ) {
-          handleCustomError(res, {
-            type: StatusMessageType.ERROR,
-            message:
-              "Error while fetching user profile. Please try again later!",
-          });
+          handleCustomError(
+            res,
+            {
+              type: StatusMessageType.ERROR,
+              message:
+                "Error while fetching user profile. Please try again later!",
+            },
+            401
+          );
           return;
         }
 
         if (usersResponse.data.payload.role != "admin") {
-          handleCustomError(res, {
-            type: StatusMessageType.ERROR,
-            message: "Only an authorized admin can perform this action!",
-          });
+          handleCustomError(
+            res,
+            {
+              type: StatusMessageType.ERROR,
+              message: "Only an authorized admin can perform this action!",
+            },
+            401
+          );
           return;
         }
       }
