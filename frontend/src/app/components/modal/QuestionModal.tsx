@@ -34,27 +34,32 @@ const QuestionModal = () => {
 
   const [questions, setQuestions] = useState<QuestionType[]>([]);
   const setCollabQuestion = useSetAtom(triggerQuestionIdUpdateRequestAtom);
-  useEffect(() => {
-    fetchAllQuestionsUrl().then((res) => {
-      setQuestions(res.payload);
-    });
-  }, []);
-
   const questionDifficulty = useAtomValue(
     questionDifficultyAtom,
   )?.toLowerCase();
 
-  const options: SelectedOptionType[] = questions
-    .filter((question) => {
-      const curQnDifficulty = question.difficulty.toLowerCase();
-      return curQnDifficulty === questionDifficulty;
-    })
-    .map((question, i) => {
-      return {
-        label: question.title as string,
-        value: i,
-      };
+  useEffect(() => {
+    fetchAllQuestionsUrl().then((res) => {
+      setQuestions(
+        res.payload.filter((question: any) => {
+          const curQnDifficulty = question.difficulty.toLowerCase();
+          return curQnDifficulty === questionDifficulty;
+        }),
+      );
     });
+  }, []);
+
+  // setQuestions(
+  //   questions.filter(
+  //   }),
+  // );
+
+  const options: SelectedOptionType[] = questions.map((question, i) => {
+    return {
+      label: question.title as string,
+      value: i,
+    };
+  });
 
   let color;
 

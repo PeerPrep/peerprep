@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../libs/firebase-config";
-import { useRouter } from "next/navigation";
 import { fetchIsAdmin } from "../api";
 
 export interface Profile {
@@ -14,7 +13,9 @@ export interface Profile {
 }
 
 const useAdmin = () => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(true);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Add isLoading state
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
@@ -22,13 +23,14 @@ const useAdmin = () => {
         const isAdmin = await fetchIsAdmin();
         setIsAdmin(isAdmin);
       }
+      setIsLoading(false); // Set isLoading to false
     });
 
     // Clean up the listener when the component unmounts
     return () => unsubscribe();
   }, []);
 
-  return isAdmin;
+  return { isAdmin, isLoading }; // Return both isAdmin and isLoading
 };
 
 export default useAdmin;

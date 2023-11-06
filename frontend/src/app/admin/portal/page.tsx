@@ -1,16 +1,15 @@
 "use client";
 
-import { fetchAllUsers, fetchIsAdmin, promoteToAdmin } from "@/app/api";
+import { fetchAllUsers, promoteToAdmin } from "@/app/api";
 import Button from "@/app/components/button/Button";
 import useAdmin from "@/app/hooks/useAdmin";
+import LoadingPage from "@/app/loading";
 import { message } from "antd";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 
 const AdminPortalPage = () => {
-  const isAdmin = useAdmin();
-  const router = useRouter();
+  const { isAdmin, isLoading } = useAdmin();
   const [api, contextHolder] = message.useMessage();
 
   type User = {
@@ -30,13 +29,15 @@ const AdminPortalPage = () => {
   >([]);
 
   useEffect(() => {
-    fetchAllUsers().then((allUsers) => {
-      setAdminOptions(
-        allUsers.payload
-          .filter((user: User) => user.role === "user")
-          .map((user: User) => ({ label: user.name, value: user.uid })),
-      );
-    });
+    if (isAdmin) {
+      fetchAllUsers().then((allUsers) => {
+        setAdminOptions(
+          allUsers.payload
+            .filter((user: User) => user.role === "user")
+            .map((user: User) => ({ label: user.name, value: user.uid })),
+        );
+      });
+    }
   }, [api, contextHolder]);
 
   const handleSelectChange = (
@@ -49,8 +50,20 @@ const AdminPortalPage = () => {
     MultiValue<SelectOptionType>
   >([]);
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   if (!isAdmin) {
-    router.push("/");
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="flex items-center">
+          <h1 className="text-6xl text-white">401</h1>
+          <div className="divider divider-horizontal h-24"></div>
+          <h2 className="text-xl text-white">Unauthorized</h2>
+        </div>
+      </div>
+    );
   }
 
   return (
