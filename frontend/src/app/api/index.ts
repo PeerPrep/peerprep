@@ -44,8 +44,7 @@ export const FetchAuth = {
   },
 };
 
-// TODO: change to env variable
-export const API_URL = "https://peerprep.sivarn.com/api/v1";
+export const API_URL = "/api/v1";
 
 export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   return await FetchAuth.fetch(`${API_URL}/questions/${qnId}`).then((res) =>
@@ -174,7 +173,7 @@ export async function updateProfileUrl(
     body,
   }).then((res) => res.json());
 }
-const executorURL = "https://peerprep.sivarn.com/api/v1/execute";
+const executorURL = "/api/v1/execute";
 export const executeCode = async (code: string, lang: string) => {
   const res = await fetch(`${executorURL}/${lang}`, {
     method: "POST",
