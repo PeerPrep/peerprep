@@ -42,7 +42,7 @@ export const requireUser = async (
   socket.data.roomId = inn.getRoomId(userId);
   socket.data.lastMessage = getUnixTimestamp();
 
-  SHOULD_LOG && console.log(`User ${userId} connected, with room ${socket.data.roomId}.`);
+  SHOULD_LOG && console.log(`[OTHER][MIDDLEWARE] User ${userId} connected, with room ${socket.data.roomId}.`);
   return next();
 };
 

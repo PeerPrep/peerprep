@@ -6,13 +6,13 @@ import { getUnixTimestamp } from '../utils';
 export const getRoomState = (inn: InnState, socket: InnkeeperIoSocket | InnkeeperOtherSockets): RoomState | undefined => {
   const { roomId } = socket.data;
   if (!roomId) {
-    console.error(`Unexpected undefined roomId for socket ${socket.id}. Data: ${socket.data}.`);
+    console.error(`[ROOM][ERR] Unexpected undefined roomId for socket ${socket.id}. Data: ${socket.data}.`);
     return undefined;
   }
 
   const roomState = inn.getRoomState(roomId);
   if (!roomState) {
-    console.error(`Unexpected undefined roomState for socket ${socket.id}. Data: ${socket.data}.`);
+    console.error(`[ROOM][ERR] Unexpected undefined roomState for socket ${socket.id}. Data: ${socket.data}.`);
     return undefined;
   }
 
@@ -24,7 +24,7 @@ const getSelfAndOtherUser = (room: RoomState, userId: string): [UserState, UserS
   const userState = userStates.find(s => s.userId === userId);
   const otherUserState = userStates.find(s => s.userId !== userId);
   if (!userState || !otherUserState) {
-    console.error(`Unexpected user states in ${room.roomId}: ${userStates} (asking for ${userId} & roommate).`);
+    console.error(`[ROOM][ERR] Unexpected user states in ${room.roomId}: ${userStates} (asking for ${userId} & roommate).`);
     return undefined;
   }
 
@@ -195,7 +195,6 @@ export const handleChatMessage = (io: InnkeeperIoServer, inn: InnState, socket: 
     roomState.chatHistory = [];
   }
   roomState.chatHistory.push(chatMessage);
-  console.log(roomState.chatHistory);
 
   // Emit the chat message to all users in the room
   io.to(roomState.roomId).emit('sendPartialRoomState', { chatHistory: roomState.chatHistory });
