@@ -6,7 +6,7 @@ RUN rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/*
 
 # Copy NGINX config
 COPY deployment/nginx/nginx.conf /etc/nginx
-COPY deployment/nginx/sites-enabled/peerprep.sivarn.com /etc/nginx/sites-enabled/peerprep.sivarn.com
+COPY deployment/nginx/sites-enabled/localhost /etc/nginx/sites-enabled/locahost
 
 # Expose ports
 EXPOSE 80
