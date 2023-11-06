@@ -24,7 +24,19 @@ const getFirebaseMiddleware = (firebaseAuth: Auth) => {
         return;
       }
 
-      await firebaseAuth.verifyIdToken(firebaseToken);
+      try {
+        await firebaseAuth.verifyIdToken(firebaseToken);
+      } catch (err: any) {
+        handleCustomError(
+          res,
+          {
+            type: StatusMessageType.ERROR,
+            message: "Invalid login token",
+          },
+          401
+        );
+        return;
+      }
 
       if (req.method != "GET") {
         const usersResponse = await axios.get(
@@ -62,7 +74,7 @@ const getFirebaseMiddleware = (firebaseAuth: Auth) => {
               type: StatusMessageType.ERROR,
               message: "Only an authorized admin can perform this action!",
             },
-            401
+            403
           );
           return;
         }
