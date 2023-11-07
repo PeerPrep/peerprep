@@ -6,7 +6,6 @@ import useRedirectLogin from "./hooks/useRedirectLogin";
 
 export default function Home() {
   useRedirectLogin();
-  const router = useRouter();
   return (
     <main className="h-full">
       <Image
@@ -23,11 +22,12 @@ export default function Home() {
           Collaborative mock interviews to boost your confidence and nail your
           dream job interviews.
         </h2>
-        <Button
-          onClick={() => router.push("/login")}
-          className="btn-accent m-2 w-36"
-          children={<span>Get Started!</span>}
-        />
+        <a href="/login">
+          <Button
+            className="btn-accent m-2 w-36"
+            children={<span>Get Started!</span>}
+          />
+        </a>
       </section>
     </main>
   );

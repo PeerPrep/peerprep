@@ -28,25 +28,27 @@ const AdminPortalPage = () => {
     MultiValue<SelectOptionType>
   >([]);
 
+  const fetchAndSetAllUsers = () => {
+    fetchAllUsers().then((allUsers) => {
+      setAdminOptions(
+        allUsers.payload
+          .filter((user: User) => user.role === "user")
+          .map((user: User) => ({ label: user.name, value: user.uid })),
+      );
+    });
+  };
+
   useEffect(() => {
-    if (isAdmin) {
-      fetchAllUsers().then((allUsers) => {
-        setAdminOptions(
-          allUsers.payload
-            .filter((user: User) => user.role === "user")
-            .map((user: User) => ({ label: user.name, value: user.uid })),
-        );
-      });
-    }
-  }, [api, contextHolder]);
+    fetchAndSetAllUsers();
+  }, []);
 
   const handleSelectChange = (
     selectedOptions: MultiValue<SelectOptionType>,
   ) => {
-    setSelectedQnType(selectedOptions);
+    setSelectedAdmins(selectedOptions);
   };
 
-  const [selectedQnType, setSelectedQnType] = useState<
+  const [selectedAdmins, setSelectedAdmins] = useState<
     MultiValue<SelectOptionType>
   >([]);
 
@@ -84,7 +86,7 @@ const AdminPortalPage = () => {
             instanceId="admin-portal"
             isMulti
             required
-            value={selectedQnType}
+            value={selectedAdmins}
             onChange={handleSelectChange}
             name="question type"
             options={adminOptions}
@@ -95,7 +97,7 @@ const AdminPortalPage = () => {
         <Button
           className="btn-accent"
           onClick={() => {
-            promoteToAdmin(selectedQnType.map((option) => option.value))
+            promoteToAdmin(selectedAdmins.map((option) => option.value))
               .then((res) => {
                 if (res.statusMessage.type.toLowerCase() === "success") {
                   api.success({
@@ -110,7 +112,8 @@ const AdminPortalPage = () => {
                 }
               })
               .then(() => {
-                setSelectedQnType([]);
+                fetchAndSetAllUsers();
+                setSelectedAdmins([]);
               });
           }}
         >
