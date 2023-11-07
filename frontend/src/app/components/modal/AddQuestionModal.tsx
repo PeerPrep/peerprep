@@ -70,7 +70,7 @@ const AddQuestionModal = ({
       onError: (e) => {
         api.open({
           type: "error",
-          content: "Failed to add question!",
+          content: "Failed to add question due to same name!",
         });
       },
     },
@@ -92,8 +92,7 @@ const AddQuestionModal = ({
       description: e.currentTarget.description.value,
     };
 
-    console.log("Form Submission Data:", submissionData);
-    createQuestionMutation.mutate(submissionData);
+    createQuestionMutation && createQuestionMutation.mutate(submissionData);
     e.currentTarget.reset();
     setDefaultValues();
     closeModal("my_modal_1");

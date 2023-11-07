@@ -60,7 +60,6 @@ export const fetchAllQuestionsDoneByUser = async () => {
   );
 
   const questionIds = payload.map((ele: any) => ele.questionId).join("-");
-  console.log({ questionIds });
   // console.log({ res });
   const questions = await FetchAuth.fetch(
     `${API_URL}/questions/group/${questionIds}`,
@@ -120,7 +119,14 @@ export const createQuestionUrl = async (newQuestion: QuestionType) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(newQuestion),
-  }).then((res) => res.json());
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.statusMessage?.type?.toLowerCase() === "error") {
+        throw Error();
+      }
+      return res;
+    });
 };
 
 export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
@@ -130,7 +136,14 @@ export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(updatedQuestion),
-  }).then((res) => res.json());
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.statusMessage?.type?.toLowerCase() === "error") {
+        throw Error();
+      }
+      return res;
+    });
 };
 
 export const deleteQuestionUrl = async (questionId: string) => {
