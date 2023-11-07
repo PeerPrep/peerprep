@@ -61,7 +61,6 @@ export const fetchAllQuestionsDoneByUser = async () => {
   );
 
   const questionIds = payload.map((ele: any) => ele.questionId).join("-");
-  console.log({ questionIds });
   // console.log({ res });
   const questions = await FetchAuth.fetch(
     `${API_URL}/questions/group/${questionIds}`,
@@ -124,7 +123,6 @@ export const createQuestionUrl = async (newQuestion: QuestionType) => {
   })
     .then((res) => res.json())
     .then((res) => {
-      console.log({ res });
       if (res.statusMessage?.type?.toLowerCase() === "error") {
         throw Error();
       }
@@ -142,7 +140,6 @@ export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
   })
     .then((res) => res.json())
     .then((res) => {
-      console.log({ res });
       if (res.statusMessage?.type?.toLowerCase() === "error") {
         throw Error();
       }

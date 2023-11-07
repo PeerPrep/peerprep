@@ -92,7 +92,6 @@ const AddQuestionModal = ({
       description: e.currentTarget.description.value,
     };
 
-    console.log("Form Submission Data:", submissionData);
     createQuestionMutation && createQuestionMutation.mutate(submissionData);
     e.currentTarget.reset();
     setDefaultValues();
