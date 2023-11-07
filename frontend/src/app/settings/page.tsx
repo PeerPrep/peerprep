@@ -3,14 +3,13 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 import {
   deleteProfileUrl,
-  deleteQuestionUrl,
   fetchProfileUrl,
   updateProfileUrl,
 } from "../api";
 import useLogin from "../hooks/useLogin";
 import { message } from "antd";
 import { useMutation } from "@tanstack/react-query";
-import { getAuth, signOut } from "firebase/auth";
+import { deleteUser, getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 const SettingPage = () => {
@@ -25,10 +24,11 @@ const SettingPage = () => {
         content: "Successfully deleted profile! Logging you out...",
       });
       const auth = getAuth();
-      setTimeout(() => {
-        signOut(auth);
-        router.push("/");
-      }, 2000);
+      if (auth.currentUser) {
+        deleteUser(auth.currentUser).then(() => {
+          router.push("/");
+        });
+      }
     },
     onError: (e) => {
       api.open({
@@ -44,7 +44,7 @@ const SettingPage = () => {
       setPreferredLang(res.payload.preferredLang);
       setName(res.payload.name || "");
     });
-  }, [deleteProfileMutation.status]);
+  }, []);
 
   const [api, contextHolder] = message.useMessage();
 
