@@ -1,0 +1,4 @@
+firebase-auth/*.json
+mongodb-data
+postgres-data
+.env
