@@ -121,7 +121,15 @@ export const createQuestionUrl = async (newQuestion: QuestionType) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(newQuestion),
-  }).then((res) => res.json());
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log({ res });
+      if (res.statusMessage?.type?.toLowerCase() === "error") {
+        throw Error();
+      }
+      return res;
+    });
 };
 
 export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
@@ -131,7 +139,15 @@ export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(updatedQuestion),
-  }).then((res) => res.json());
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log({ res });
+      if (res.statusMessage?.type?.toLowerCase() === "error") {
+        throw Error();
+      }
+      return res;
+    });
 };
 
 export const deleteQuestionUrl = async (questionId: string) => {
