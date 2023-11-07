@@ -6,9 +6,10 @@ We recommend using our production environment for testing. You can find the prod
 
 ## DISCLAIMER: Our executor service can only run on x86_64 architecture. If you are using a different architecture, you will not be able to run the executor locally. However, you can still test the rest of the application.
 
-1. Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
-2. Clone the repository.
-3. In the frontend folder, add .env file with the following content:
+- Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
+- Clone the repository.
+- Run `git submodule update --init` to clone the submodules.
+- In the frontend folder, add .env file with the following content:
 
 ```
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyAMiTV5yv2D-gvCy2TNEFREZIMUJ3SnYD8
@@ -23,7 +24,7 @@ NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL=localhost
 
 Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
 
-4. In the root folder, add .env file with the following content:
+- In the root folder, add .env file with the following content:
 
 ```
 POSTGRES_USER=peerprep
@@ -37,7 +38,7 @@ INITIALIZATION_VECTOR=vector
 ENCRYPTION_KEY=key
 ```
 
-5. In the firebase-auth folder, add service-account.json (file name has to be exact match) file with the following content:
+- In the firebase-auth folder, add service-account.json (file name has to be exact match) file with the following content:
 
 ```
 {
@@ -57,14 +58,14 @@ ENCRYPTION_KEY=key
 
 Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
 
-6. In the root folder, run `docker compose -f docker-compose.yml up -d`.
+- In the root folder, run `docker compose -f docker-compose.yml up -d`.
 
-7. Application should be running at [http://localhost](http://localhost).
+- Application should be running at [http://localhost](http://localhost).
 
 # Giving yourself admin privileges
 
-1. Login to the application in your browser using Google/Github.
-2. Run the following commands in your terminal:
+- Login to the application in your browser using Google/Github.
+- Run the following commands in your terminal:
 
 ```
 docker exec -it peerprep-postgres bash
