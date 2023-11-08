@@ -31,14 +31,6 @@ const triggerQuestionIdUpdateRequestAtom = atom(
 const QuestionModal = () => {
   const questionId = useAtomValue(questionIdAtom);
   const [isOpen, setIsOpen] = useAtom(isQuestionModalOpenAtom);
-  const [selectedQn, setSelectedQn] =
-    useState<SingleValue<SelectedOptionType>>();
-
-  const handleSelectChange = (
-    selectedOption: SingleValue<SelectedOptionType>,
-  ) => {
-    setSelectedQn(selectedOption);
-  };
 
   const [questions, setQuestions] = useState<QuestionType[]>([]);
   const setCollabQuestion = useSetAtom(triggerQuestionIdUpdateRequestAtom);
@@ -55,10 +47,12 @@ const QuestionModal = () => {
         }),
       );
     });
-    if (questionId === "") {
-      setIsOpen(true);
-    }
   }, []);
+
+  // setQuestions(
+  //   questions.filter(
+  //   }),
+  // );
 
   const options: SelectedOptionType[] = questions.map((question, i) => {
     return {
@@ -81,6 +75,15 @@ const QuestionModal = () => {
       break;
   }
 
+  const [selectedQn, setSelectedQn] =
+    useState<SingleValue<SelectedOptionType>>();
+
+  const handleSelectChange = (
+    selectedOption: SingleValue<SelectedOptionType>,
+  ) => {
+    setSelectedQn(selectedOption);
+  };
+
   const onClickStart = () => {
     setIsOpen(false);
     if (selectedQn) {
@@ -100,7 +103,7 @@ const QuestionModal = () => {
       <input
         type="checkbox"
         onChange={() => undefined}
-        checked={isOpen}
+        checked={isOpen || questionId === ""}
         className="modal-toggle"
       />
       <dialog id="question-modal" className="modal">
