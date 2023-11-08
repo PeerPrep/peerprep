@@ -63,7 +63,7 @@ const StatusBar = ({ exitMethod }: StatusBarProps) => {
   };
 
   return (
-    <footer className="fixed bottom-0 left-0 flex w-[100svw] items-center justify-between border-black bg-primary px-4 py-2 shadow-sm lg:w-full lg:px-12">
+    <footer className="fixed bottom-0 left-0 flex w-[100svw] items-center justify-between border-black bg-primary px-4 py-2 shadow-sm lg:static lg:w-full lg:px-12">
       {contextHolder}
       <div className="flex gap-4">
         {userStates &&
