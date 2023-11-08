@@ -27,11 +27,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   executor:
-    image: peerprep-executor-service
-    build:
-      context: .
-      dockerfile: deployment/Dockerfile-executor-local
-    platform: linux/amd64
+    image: ghcr.io/peerprep/peerprep-executor-service:latest
     container_name: peerprep-executor-service
     restart: always
     networks:
