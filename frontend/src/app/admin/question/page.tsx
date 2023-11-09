@@ -198,7 +198,6 @@ const QuestionPage = () => {
   });
 
   const allQuestionsFiltered = useMemo(() => {
-    console.log(allQuestions?.payload);
     if (Array.isArray(allQuestions?.payload)) {
       return allQuestions?.payload.filter((question) => {
         return (
@@ -211,8 +210,6 @@ const QuestionPage = () => {
       });
     }
   }, [allQuestions?.payload, searchValue, filterQnType]);
-
-  console.log({ allQuestionsFiltered });
 
   const deleteQuestionMutation = useMutation(
     async (questionId: string) => deleteQuestionUrl(questionId),

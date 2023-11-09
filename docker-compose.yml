@@ -1,0 +1,132 @@
+version: "3.8"
+
+services:
+  mongo:
+    container_name: peerprep-mongo
+    image: mongo
+    restart: always
+    volumes:
+      - ./mongodb-data:/data/db
+    networks:
+      - peerprep-network
+    expose:
+      - "27017"
+
+  postgres:
+    container_name: peerprep-postgres
+    image: postgres
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - peerprep-network
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  executor:
+    image: peerprep-executor-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-executor
+    container_name: peerprep-executor-service
+    restart: always
+    networks:
+      - peerprep-network
+    expose:
+      - "9000"
+
+  innkeeper:
+    image: peerprep-innkeeper-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-innkeeper
+    container_name: peerprep-innkeeper-service
+    restart: always
+    networks:
+      - peerprep-network
+    expose:
+      - "4100"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+
+  questions:
+    image: peerprep-questions-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-questions
+    container_name: peerprep-questions-service
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - peerprep-network
+    expose:
+      - "4000"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      MONGODB_URL: ${MONGODB_URL}
+      BUCKET_NAME: ${BUCKET_NAME}
+      USERS_SERVICE_URL: ${USERS_SERVICE_URL}
+      INITIALIZATION_VECTOR: ${INITIALIZATION_VECTOR}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+
+  users:
+    image: peerprep-users-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-users
+    container_name: peerprep-users-service
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - peerprep-network
+    expose:
+      - "6969"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      POSTGRES_URL: ${POSTGRES_URL}
+      BUCKET_NAME: ${BUCKET_NAME}
+
+  frontend:
+    image: peerprep-frontend
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-frontend
+    container_name: peerprep-frontend
+    restart: always
+    depends_on:
+      - users
+      - questions
+      - innkeeper
+      - executor
+    networks:
+      - peerprep-network
+    expose:
+      - "3000"
+
+  nginx:
+    image: peerprep-nginx
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-nginx-local
+    container_name: peerprep-nginx
+    restart: always
+    depends_on:
+      - frontend
+    networks:
+      - peerprep-network
+    ports:
+      - "80:80"
+
+networks:
+  peerprep-network:

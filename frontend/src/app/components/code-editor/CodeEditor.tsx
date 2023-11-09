@@ -17,6 +17,8 @@ import * as Y from "yjs";
 import Tabs from "../tab/Tabs";
 import { fetchProfileUrl } from "@/app/api";
 
+import { BsArrowsExpand } from "react-icons/bs";
+
 const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
   ssr: false,
   loading: () => (
@@ -208,9 +210,11 @@ const CodeMirrorEditor = ({
         }}
       />
       <div
-        className="divider mx-auto w-[90svw] cursor-ns-resize lg:w-full"
+        className="divider mx-auto w-[90svw] cursor-ns-resize hover:bg-accent lg:w-full"
         onMouseDown={handleMouseDown}
-      />
+      >
+        <BsArrowsExpand className="text-state-100 text-4xl" />
+      </div>
       <Tabs
         height={Math.min(window.innerHeight * 0.7 - editorHeight, maxHeight)}
       />

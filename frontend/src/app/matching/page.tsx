@@ -58,7 +58,6 @@ const roomPage = () => {
     );
   }
 
-  console.log(isMatched);
   if (isMatched === "UNMATCHED") {
     return <MatchingPage />;
   }
