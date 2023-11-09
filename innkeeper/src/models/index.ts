@@ -65,7 +65,7 @@ export class InnState {
     this.matchingParameterToUserMap.forEach((otherUserId, parameters) => {
       if (otherUserId.userId === userId.userId) {
         this.matchingParameterToUserMap.delete(parameters);
-        console.log(`Removed user ${userId.userId} from queue.`);
+        console.log(`[LOBBY][INTERNAL] Removed user ${userId.userId} from queue.`);
       }
     });
   }
@@ -73,7 +73,7 @@ export class InnState {
   addUserToQueue(userId: UserId, parameters: MatchingParameters): void {
     this.removeUserFromQueue(userId);
     this.matchingParameterToUserMap.set(this.makeConsistentMatchingParameterObject(parameters), userId);
-    console.log(`Added user ${userId.userId} to queue.`);
+    console.log(`[LOBBY][INTERNAL] Added user ${userId.userId} to queue.`);
   }
 
   getWaitingUsers(): WaitingUsersCount {
