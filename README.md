@@ -6,8 +6,6 @@ A set of email/password with admin privileges will be uploaded to Canvas through
 
 # Testing Locally
 
-## DISCLAIMER: Our executor service can only run on x86_64 architecture. If you are using a different architecture, you will not be able to run the executor locally. However, you can still test the rest of the application.
-
 - Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
 - Clone the repository.
 - Run `git submodule update --init` to clone the submodules.
