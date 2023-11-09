@@ -2,6 +2,8 @@
 
 We recommend using our production environment for testing. You can find the production environment at [https://peerprep.sivarn.com](https://peerprep.sivarn.com).
 
+A set of email/password with admin privileges will be uploaded to Canvas through Sharing Assignment Private Info assignment.
+
 # Testing Locally
 
 ## DISCLAIMER: Our executor service can only run on x86_64 architecture. If you are using a different architecture, you will not be able to run the executor locally. However, you can still test the rest of the application.
