@@ -53,6 +53,7 @@ services:
       - ./firebase-auth:/firebase-auth
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      LOGGING: "VERBOSE"
 
   questions:
     image: peerprep-questions-service
