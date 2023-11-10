@@ -1,10 +1,5 @@
 # Assignment 1
 
-## Table of Contents
-
-1. [Installation](#installation)
-2. [Getting Started](#getting-started)
-
 ## Installation
 
 Before you begin, please make sure you have the following prerequisites installed:
@@ -14,7 +9,7 @@ Before you begin, please make sure you have the following prerequisites installe
 2. **Yarn**: Install Yarn, a package manager for Node.js, if you haven't already. You can install it globally using npm by running:
    `npm install -g yarn`
 
-## Getting Started
+## Testing Locally
 
 To get started with this project, follow these steps:
 
