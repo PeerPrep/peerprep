@@ -7,8 +7,9 @@ A set of email/password with admin privileges will be uploaded to Canvas through
 # Testing Locally
 
 - Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
+- Install PostgresSQL and PSQL for your operating system. You can find the installation instructions [here](https://www.postgresql.org/download/).
+- Install MongoDB for your operating system. You can find the installation instructions [here](https://www.mongodb.com/try/download/community).
 - Clone the repository.
-- Run `git submodule update --init` to clone the submodules.
 - In the frontend folder, add .env file with the following content:
 
 ```
@@ -22,21 +23,30 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXSP3K70CN
 NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL=localhost
 ```
 
+- Run the following commands on the terminal
+
+```
+psql -U postgres
+postgres=# CREATE DATABASE peerprep;
+postgres=# CREATE USER peerprep WITH ENCRYPTED PASSWORD 'password';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE peerprep TO peerprep;
+```
+
+- In the users folder, add .env file with the following content:
+
+```
+BUCKET_NAME="peerprep3219.appspot.com"
+POSTGRES_URL="postgres://peerprep:password@localhost/peerprep"
+GOOGLE_APPLICATION_CREDENTIALS="../firebase-auth/service-account.json"
+```
+
+- In the questions folder, add .env file with the following content:
+
+```
+MONGODB_URL=mongodb://localhost:27017/questions
+```
+
 Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
-
-- In the root folder, add .env file with the following content:
-
-```
-POSTGRES_USER=peerprep
-POSTGRES_PASSWORD=somepassword
-GOOGLE_APPLICATION_CREDENTIALS=/firebase-auth/service-account.json
-MONGODB_URL=mongodb://peerprep-mongo:27017/questions
-BUCKET_NAME=peerprep-test.appspot.com
-USERS_SERVICE_URL=http://peerprep-users-service:6969
-POSTGRES_URL=postgres://peerprep:somepassword@peerprep-postgres/peerprep
-INITIALIZATION_VECTOR=vector
-ENCRYPTION_KEY=key
-```
 
 - In the firebase-auth folder, add service-account.json (file name has to be exact match) file with the following content:
 
@@ -56,21 +66,9 @@ ENCRYPTION_KEY=key
 }
 ```
 
-Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
-
-- In the root folder, run `docker compose -f docker-compose.yml up -d`.
-
-- Application should be running at [http://localhost](http://localhost).
-
-# Giving yourself admin privileges
-
-- Login to the application in your browser using Google/Github.
-- Run the following commands in your terminal:
+Run the following commands from the `users`, `questions` and `frontend` folder in separate terminals:
 
 ```
-docker exec -it peerprep-postgres bash
-psql -U peerprep
-UPDATE profiles SET role='admin';
+yarn install
+yarn dev
 ```
-
-This will give every user admin privileges. Note that this is only for testing purposes.
