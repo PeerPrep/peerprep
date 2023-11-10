@@ -2,12 +2,14 @@ import ReactMarkdown from "react-markdown";
 import Button from "../button/Button";
 
 interface PreviewModalProps {
+  id: string;
   content: string;
   className?: string;
   isDisabled: boolean;
 }
 
 const PreviewModalButton = ({
+  id,
   content,
   className,
   isDisabled,
@@ -35,14 +37,14 @@ const PreviewModalButton = ({
       <Button
         disabled={isDisabled}
         className={`btn btn-accent btn-sm w-24 rounded-full text-white ${className} disabled:bg-slate-600 disabled:text-slate-700`}
-        onClick={(e) => onClickModal("preview-modal", e)}
+        onClick={(e) => onClickModal(id, e)}
       >
         Preview
       </Button>
-      <dialog id="preview-modal" className="modal">
+      <dialog id={id} className="modal">
         <div className="modal-box max-w-4xl p-6">
           <button
-            onClick={(e) => closeModal("preview-modal", e)}
+            onClick={(e) => closeModal(id, e)}
             className="btn btn-circle btn-ghost btn-sm absolute right-2 top-1"
           >
             ✕

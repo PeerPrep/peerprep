@@ -75,3 +75,6 @@ div.select__menu-list {
   color: white !important;
   font-size: 700;
 }
+.ant-empty-description {
+  color: white !important;
+}

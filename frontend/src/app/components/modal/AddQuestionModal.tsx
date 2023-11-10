@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
 import { message } from "antd";
-import { useMutation } from "@tanstack/react-query";
-import { createQuestionUrl } from "@/app/api";
-import topicsOptions from "@/app/admin/questionTypeData";
+import topicsOptions from "@/app/types/questionTypeData";
 import Button from "../button/Button";
-import { QuestionType } from "@/app/admin/question/page";
+import { QuestionType } from "@/app/page";
 import PreviewModalButton from "./PreviewModalButton";
+import { v4 as uuidv4 } from "uuid"; // Import the uuid library
 
 export interface SelectOptionType {
   label: string;
@@ -14,9 +13,11 @@ export interface SelectOptionType {
 }
 
 const AddQuestionModal = ({
-  successCallback,
+  allQuestions,
+  setAllQuestions,
 }: {
-  successCallback: () => void;
+  allQuestions: QuestionType[];
+  setAllQuestions: React.Dispatch<React.SetStateAction<QuestionType[]>>;
 }) => {
   const [selectedQnType, setSelectedQnType] = useState<
     MultiValue<SelectOptionType>
@@ -33,6 +34,13 @@ const AddQuestionModal = ({
       (document.getElementById(modalId) as HTMLFormElement).showModal();
     }
   };
+
+  // Save data to local storage whenever allQuestions changes
+  useEffect(() => {
+    if (allQuestions.length > 0) {
+      localStorage.setItem("questions", JSON.stringify(allQuestions));
+    }
+  }, [allQuestions]);
 
   const setDefaultValues = () => {
     setDifficulty("Easy");
@@ -57,25 +65,6 @@ const AddQuestionModal = ({
     }
   };
 
-  const createQuestionMutation = useMutation(
-    async (newQuestion: QuestionType) => createQuestionUrl(newQuestion),
-    {
-      onSuccess: () => {
-        api.open({
-          type: "success",
-          content: "Successfully added question!",
-        });
-        successCallback();
-      },
-      onError: (e) => {
-        api.open({
-          type: "error",
-          content: "Failed to add question due to same name!",
-        });
-      },
-    },
-  );
-
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -86,16 +75,38 @@ const AddQuestionModal = ({
       (formElements.namedItem("title") as HTMLInputElement)?.value || "";
 
     const submissionData = {
+      _id: uuidv4(), // Generate a unique identifier for the new question
       title: titleValue,
       difficulty: difficulty,
       tags: selectedTypes,
       description: e.currentTarget.description.value,
     };
 
-    createQuestionMutation && createQuestionMutation.mutate(submissionData);
-    e.currentTarget.reset();
-    setDefaultValues();
-    closeModal("my_modal_1");
+    // Check if a question with the same title already exists
+    const existingQuestion = allQuestions.find(
+      (question) => question.title === submissionData.title,
+    );
+
+    if (existingQuestion) {
+      api.open({
+        type: "error",
+        content: "A question with the same name already exists!",
+      });
+    } else {
+      // Add the new question to the list of all questions
+      setAllQuestions([...allQuestions, submissionData]);
+
+      // Notify success and call the successCallback
+      api.open({
+        type: "success",
+        content: "Successfully added question!",
+      });
+
+      // Reset the form and default values
+      e.currentTarget.reset();
+      setDefaultValues();
+      closeModal("my_modal_1");
+    }
   };
 
   return (
@@ -200,6 +211,7 @@ const AddQuestionModal = ({
                     Description
                   </label>
                   <PreviewModalButton
+                    id="add_preview_modal"
                     isDisabled={description.length == 0}
                     content={description}
                     className={`mx-auto inline`}
