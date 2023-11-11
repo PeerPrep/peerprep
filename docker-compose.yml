@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  mongo:
+    container_name: peerprep-mongo
+    image: mongo
+    restart: always
+    volumes:
+      - ./mongodb-data:/data/db
+    networks:
+      - peerprep-network
+    expose:
+      - "27017"
+
+  postgres:
+    container_name: peerprep-postgres
+    image: postgres
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - peerprep-network
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  questions:
+    image: peerprep-questions-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-questions
+    container_name: peerprep-questions-service
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - peerprep-network
+    expose:
+      - "4000"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      MONGODB_URL: ${MONGODB_URL}
+      BUCKET_NAME: ${BUCKET_NAME}
+      USERS_SERVICE_URL: ${USERS_SERVICE_URL}
+      INITIALIZATION_VECTOR: ${INITIALIZATION_VECTOR}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    ports:
+      - "4000:4000"
+
+  users:
+    image: peerprep-users-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-users
+    container_name: peerprep-users-service
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - peerprep-network
+    expose:
+      - "6969"
+    volumes:
+      - ./firebase-auth:/firebase-auth
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      POSTGRES_URL: ${POSTGRES_URL}
+      BUCKET_NAME: ${BUCKET_NAME}
+    ports:
+      - "6969:6969"
+
+networks:
+  peerprep-network:

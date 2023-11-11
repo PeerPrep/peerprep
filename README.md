@@ -34,20 +34,25 @@ This gives rise to the `POSTGRES_URL=postgres://USERNAME:PASSWORD@localhost/peer
 
 Note that usually these values are kept secret, but since all of these keys have been made for test environments, we are not concerned about security. We have committed the following test-env files in assignment submissions for your convenience.
 
+- `./.env`
 - `./frontend/.env`
-- `./users/.env`
-- `./questions/.env`
 - `./firebase-auth/service-account.json`
 
 If you face any issues / if you have non-standard installations or config for any service, please modify these files appropriately.
 
 ## Running
 
-In each of the `users`, `questions` and `frontend`, start the project with any node package manager like so:
+In the `frontend`, start the project with any node package manager like so:
 
 ```sh
 yarn install
 yarn dev
+```
+
+Run users and question service from root directory with the following commands:
+
+```sh
+docker compose -f docker-compose.yml up -d
 ```
 
 Once you have navigated to the frontend (likely at [`http://localhost:3000/`](http://localhost:3000/)), you may start by logging in and exploring the application.
@@ -59,10 +64,9 @@ Note that the admin portal is not accessible until you grant yourself admin priv
 :warning: Note that this step must be done only after all the services are up and you have successfully logged into the frontend using Google or Github.
 
 ```sql
--- Get your UID and promote yourself to an admin
-SELECT * from profiles ;
-UPDATE profiles SET role='admin' WHERE uid='YOUR_UID';
-
--- Or promote all users to admins:
+docker exec -it peerprep-postgres bash
+psql -U peerprep
 UPDATE profiles SET role='admin';
 ```
+
+This will give every user admin privileges. Note that this is only for testing purposes.

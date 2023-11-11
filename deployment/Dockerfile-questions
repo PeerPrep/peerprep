@@ -1,0 +1,33 @@
+# To build a Docker image from this file, run from the root directory:
+
+# docker build -f deployment/Dockerfile-questions -t peerprep-questions-service .
+
+# Intermediate image for building the Next app
+
+FROM node:18.17.1
+
+# Environment variables
+
+ENV APP_ROOT /questions
+
+# Copy source code into container
+
+RUN mkdir --parents $APP_ROOT
+WORKDIR $APP_ROOT
+COPY questions .
+
+# Install dependencies
+
+RUN yarn install --frozen-lockfile
+
+# Build app
+
+RUN yarn build
+
+# Expose port
+
+EXPOSE 4000
+
+# Final image for running the Express app
+
+CMD ["yarn", "start"]
