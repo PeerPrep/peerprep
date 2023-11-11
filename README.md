@@ -72,3 +72,5 @@ Run the following commands from the `users`, `questions` and `frontend` folder i
 yarn install
 yarn dev
 ```
+
+The app will be available on [http://localhost:3000](http://localhost:3000)
