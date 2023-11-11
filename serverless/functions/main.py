@@ -4,16 +4,16 @@ import tempfile
 
 import google.cloud.firestore
 import requests
-# The Firebase Admin SDK to access Cloud Firestore.
-from firebase_admin import firestore, initialize_app
+from firebase_admin import initialize_app
 # The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 from firebase_functions import firestore_fn, https_fn
+from firebase_functions.params import StringParam
 from git import Repo
 
 app = initialize_app()
 
-BASE_URL = os.environ.get("BASE_URL")
-PASSWORD_HEADER = os.environ.get("PASSWORD_HEADER")
+BASE_URL = StringParam("BASE_URL")
+PASSWORD_HEADER = StringParam("PASSWORD_HEADER")
 
 def make_api_request(request_data):
 
@@ -105,7 +105,7 @@ def parse(qn):
 
 @https_fn.on_request(max_instances=10)
 def addmessage(req: https_fn.Request) -> https_fn.Response:
-    if req.headers.get("PASSWORD_HEADER") != PASSWORD_HEADER:
+    if req.headers.get("PASSWORD_HEADER") != PASSWORD_HEADER and req.headers.get("password_header") != PASSWORD_HEADER:
         return https_fn.Response(status=403)
     
     problems = load_problems()
