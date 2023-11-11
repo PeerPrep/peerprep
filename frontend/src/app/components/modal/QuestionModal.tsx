@@ -3,7 +3,7 @@ import Select, { SingleValue } from "react-select";
 import PreviewModalButton from "./PreviewModalButton";
 import { useEffect, useState } from "react";
 import { fetchAllQuestionsUrl } from "@/app/api";
-import { QuestionType } from "@/app/admin/question/page";
+import { QuestionType } from "@/app/question/page";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   innkeeperWriteAtom,

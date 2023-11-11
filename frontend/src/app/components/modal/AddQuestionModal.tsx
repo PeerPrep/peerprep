@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createQuestionUrl } from "@/app/api";
 import topicsOptions from "@/app/admin/questionTypeData";
 import Button from "../button/Button";
-import { QuestionType } from "@/app/admin/question/page";
+import { QuestionType } from "@/app/question/page";
 import PreviewModalButton from "./PreviewModalButton";
 
 export interface SelectOptionType {

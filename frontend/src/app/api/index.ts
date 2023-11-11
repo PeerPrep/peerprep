@@ -1,6 +1,6 @@
 "use client";
 import { atom } from "jotai";
-import { QuestionType } from "../admin/question/page";
+import { QuestionType } from "../question/page";
 import { Profile } from "../hooks/useLogin";
 
 export const firebaseTokenAtom = atom<string | null>(null);
@@ -106,7 +106,7 @@ export const deleteProfileUrl = async () => {
 };
 
 interface CheckProfileResponse {
-  payload: { profileExists: boolean, profile: Profile | null };
+  payload: { profileExists: boolean; profile: Profile | null };
   statusMessage: {
     type: "success" | "error";
     message: string;
@@ -114,9 +114,9 @@ interface CheckProfileResponse {
 }
 
 export async function checkProfileUrl(): Promise<CheckProfileResponse> {
-  return FetchAuth.fetch(`${USERS_API_URL}/users/profile/check`, { method: "GET" }).then(
-    (res) => res.json(),
-  );
+  return FetchAuth.fetch(`${USERS_API_URL}/users/profile/check`, {
+    method: "GET",
+  }).then((res) => res.json());
 }
 
 interface ProfileResponse {
@@ -128,9 +128,9 @@ interface ProfileResponse {
 }
 
 export async function fetchProfileUrl(): Promise<ProfileResponse> {
-  return FetchAuth.fetch(`${USERS_API_URL}/users/profile`, { method: "GET" }).then(
-    (res) => res.json(),
-  );
+  return FetchAuth.fetch(`${USERS_API_URL}/users/profile`, {
+    method: "GET",
+  }).then((res) => res.json());
 }
 
 export async function updateProfileUrl(

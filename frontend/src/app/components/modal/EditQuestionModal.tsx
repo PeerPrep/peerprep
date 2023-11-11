@@ -4,7 +4,7 @@ import { message } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { createQuestionUrl, updateQuestionUrl } from "@/app/api";
 import topicsOptions from "@/app/admin/questionTypeData";
-import { QuestionType } from "@/app/admin/question/page";
+import { QuestionType } from "@/app/question/page";
 
 interface SelectOptionType {
   label: string;

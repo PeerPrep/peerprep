@@ -25,11 +25,8 @@ import AddQuestionModal, {
 import dynamic from "next/dynamic";
 import { Input, message } from "antd";
 import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
-import topicsOptions from "../questionTypeData";
+import topicsOptions from "../admin/questionTypeData";
 import { onAuthStateChanged } from "firebase/auth";
-import useLogin from "@/app/hooks/useLogin";
-import { useRouter } from "next/navigation";
-import LoadingPage from "@/app/loading";
 
 export interface QuestionType {
   _id?: string;
@@ -58,8 +55,6 @@ const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
 });
 
 const QuestionPage = () => {
-
-  const user = useLogin();
   const [api, contextHolder] = message.useMessage();
   const [currQn, setCurrQn] = useState<QuestionType | null>(null);
   const [initialEditQnValues, setInitialEditQnValues] = useState<
@@ -255,18 +250,6 @@ const QuestionPage = () => {
       </>
     );
   };
-
-  if (!user) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex items-center">
-          <h1 className="text-6xl text-white">401</h1>
-          <div className="divider divider-horizontal h-24"></div>
-          <h2 className="text-xl text-white">Unauthorized</h2>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

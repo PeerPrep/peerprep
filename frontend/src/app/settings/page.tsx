@@ -2,6 +2,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 import {
+  checkProfileUrl,
   deleteProfileUrl,
   fetchProfileUrl,
   updateProfileUrl,
@@ -38,11 +39,18 @@ const SettingPage = () => {
     },
   });
 
+  const [isProfileNew, setIsProfileNew] = useState<boolean>(true);
+
   useEffect(() => {
     fetchProfileUrl().then((res) => {
       setProfileImageUrl(res.payload.imageUrl);
       setPreferredLang(res.payload.preferredLang);
       setName(res.payload.name || "");
+    });
+    checkProfileUrl().then((res) => {
+      res.payload.profileExists
+        ? setIsProfileNew(false)
+        : setIsProfileNew(true);
     });
   }, []);
 
@@ -108,7 +116,10 @@ const SettingPage = () => {
               ✕
             </button>
           </form>
-          <h1 className="m-4">Are you sure you want to delete your profile?</h1>
+          <h1 className="m-4">
+            Are you sure you want to{" "}
+            {isProfileNew ? "cancel profile creation?" : "delete your profile?"}
+          </h1>
           <div className="flex justify-end gap-2">
             <button
               type="reset"
@@ -187,16 +198,33 @@ const SettingPage = () => {
           </div>
         </section>
         <div className="flex flex-row justify-between gap-10">
-          <button
-            type="button"
-            className="btn btn-error"
-            onClick={() => onClickModal("delete_modal")}
-          >
-            Delete Profile
-          </button>
-          <button type="submit" className="btn btn-accent flex-grow">
-            Save Changes
-          </button>
+          {isProfileNew ? (
+            <>
+              <button
+                type="button"
+                className="btn btn-error"
+                onClick={() => onClickModal("delete_modal")}
+              >
+                CANCEL
+              </button>
+              <button type="submit" className="btn btn-accent flex-grow">
+                CREATE PROFILE
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="btn btn-error"
+                onClick={() => onClickModal("delete_modal")}
+              >
+                Delete Profile
+              </button>
+              <button type="submit" className="btn btn-accent flex-grow">
+                Save Changes
+              </button>
+            </>
+          )}
         </div>
       </form>
     </main>

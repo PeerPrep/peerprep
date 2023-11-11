@@ -11,9 +11,7 @@ import { RiArrowDropDownLine } from "@react-icons/all-files/ri/RiArrowDropDownLi
 import { AiFillSetting } from "@react-icons/all-files/ai/AiFillSetting";
 import { FiLogOut } from "react-icons/fi";
 import NavbarPane from "./NavbarPane";
-import NavbarPaneDropdown from "./NavbarPaneDropdown";
-import { FetchAuth, fetchProfileUrl } from "@/app/api";
-import Image from "next/image";
+import { FetchAuth, checkProfileUrl, fetchProfileUrl } from "@/app/api";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
 import useRedirectLogin from "@/app/hooks/useRedirectLogin";
 
@@ -65,14 +63,14 @@ const Navbar = () => {
       <div className="flex items-center justify-between bg-neutral px-16 shadow-md">
         <nav className="flex items-center gap-1">
           <div className="mr-6 flex items-center text-3xl font-bold text-white">
-            <Link href="/matching">
+            <Link href="/">
               <IoPeopleCircleSharp className="cursor-pointer text-5xl text-base-100" />
             </Link>
             PeerPrep
           </div>
           {user && (
             <>
-              <NavbarPane link="/admin/question" label="Question" />
+              <NavbarPane link="/question" label="Question" />
             </>
           )}
         </nav>
@@ -81,19 +79,9 @@ const Navbar = () => {
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />
-                {profileImageUrl ? (
-                  <img
-                    src={profileImageUrl}
-                    className="aspect-square w-8 rounded-full border border-black"
-                    width={32}
-                    height={32}
-                    alt="uploaded-image"
-                  />
-                ) : (
-                  <BiUserCircle className="aspect-square w-8 text-2xl" />
-                )}
+                <BiUserCircle className="aspect-square w-8 text-2xl" />
                 <span className="mr-4 max-w-[7rem] truncate text-lg font-bold">
-                  {name}
+                  Profile
                 </span>
               </div>
             </label>
