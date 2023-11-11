@@ -2,31 +2,22 @@ import json
 import os
 import tempfile
 
-import Crypto
-import Crypto.Random
 import requests
-from Crypto.Cipher import AES
 from dotenv import load_dotenv
 from git import Repo
 
 load_dotenv()
 BASE_URL = os.environ.get("BASE_URL")
-INITIALIZATION_VECTOR = os.environ.get("INITIALIZATION_VECTOR")
-ENCRYPTION_KEY = os.environ.get("ENCRYPTION_KEY")
+PASSWORD_HEADER = os.environ.get("PASSWORD_HEADER")
+
+
 
 def make_api_request(request_data):
-    # Define the API endpoint and the request payload (in JSON format)
-    print (str.encode(ENCRYPTION_KEY))
-
-    # Encrypt the request_data as needed with the INITIALIZATION_VECTOR and ENCRYPTION_KEY
-    cipher = AES.new(str.encode(ENCRYPTION_KEY), AES.MODE_CBC, iv=str.encode(INITIALIZATION_VECTOR))
-    encrypted = cipher.encrypt(request_data)
-
 
     # Make an HTTP POST request to the API
-    url = f"{BASE_URL}/api/serverless"
+    url = f"{BASE_URL}/api/serverless/questions"
     try:
-        response = requests.post(url, data=encrypted)
+        response = requests.post(url, json=request_data, headers={"PASSWORD_HEADER": PASSWORD_HEADER})
         response.raise_for_status()  # Raise an exception for HTTP errors (4xx and 5xx)
 
         # Handle the API response here
@@ -96,11 +87,7 @@ def send_to_questions_service(qn):
     data['difficulty'] = qn["difficulty"]
     data['question'] = qn["question"]
 
-    json_data = json.dumps(data)
-    print(json_data)
-    response = make_api_request(json_data)
-    
-    print(f"How send ah...")
+    response = make_api_request(data)
 
 problems = load_problems()
 problems = [parse(qn) for qn in problems]
