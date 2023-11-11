@@ -18,8 +18,5 @@ export const questions = (router: express.Router) => {
 };
 
 export const serverlessQuestions = (router: express.Router) => {
-  router.post("/questions", (req, res) => {
-    console.log("Hello world");
-    res.send("Hello world");
-  });
+  router.post("/questions", createQuestion);
 };

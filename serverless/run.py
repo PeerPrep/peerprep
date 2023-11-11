@@ -17,6 +17,7 @@ def make_api_request(request_data):
     # Make an HTTP POST request to the API
     url = f"{BASE_URL}/api/serverless/questions"
     try:
+        print (request_data)
         response = requests.post(url, json=request_data, headers={"PASSWORD_HEADER": PASSWORD_HEADER})
         response.raise_for_status()  # Raise an exception for HTTP errors (4xx and 5xx)
 
@@ -57,6 +58,8 @@ def load_problems():
     print(f"Total number of questions found: {len(problems)}")
     return problems
 
+tags_to_search = ["Stack", "Array", "Tree", "Hash Table", "Binary Search"]
+
 def parse(qn):
     try:
         qn = qn.split("\n")
@@ -77,15 +80,27 @@ def parse(qn):
         else:
             title = " ".join(title.split(" ")[2:])
             
-        return { "title": title, "difficulty": difficulty, "question": qn}
+        qn = '\n'.join(qn)
+        
+        search_space = title + qn
+        tags = []
+        for tag in tags_to_search:
+            if tag.lower() in search_space.lower():
+                tags.append(tag)
+                
+        if tags == []:
+            return None
+            
+        return { "title": title, "difficulty": difficulty, "question": qn, "tags": tags}
     except:
         return None
 
 def send_to_questions_service(qn):
     data = {}
     data['title'] = qn["title"]
-    data['difficulty'] = qn["difficulty"]
-    data['question'] = qn["question"]
+    data['difficulty'] = qn["difficulty"][0].upper() + qn["difficulty"][1:].lower()
+    data['description'] = qn["question"]
+    data['tags'] = qn["tags"]
 
     response = make_api_request(data)
 
@@ -94,5 +109,5 @@ problems = [parse(qn) for qn in problems]
 problems = [qn for qn in problems if qn is not None]
 print(f"Total number of questions parsed: {len(problems)}")
 
-for qn in [problems[0]]:
+for qn in [problems[3]]:
     send_to_questions_service(qn)
