@@ -56,9 +56,9 @@ GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 USERS_SERVICE_URL=http://localhost:6969
 ```
 
-### `./*/service-account..json`
+### `./firebase-auth/service-account.json`
 
-In each of the folders `frontend`, `questions` and `users`, add the file `service-account.json` with the following contents.
+In the firebase-auth, add the file `service-account.json` with the following contents.
 
 ```json
 {
@@ -86,9 +86,9 @@ Note that while MongoDB is more flexible, Postgres needs an explicit creation co
 
 ```sql
 CREATE database peerprep;
-CREATE USER ppuser WITH PASSWORD 'pppwd';
-GRANT ALL PRIVILEGES ON DATABASE peerprep TO ppuser;
-ALTER USER ppuser WITH SUPERUSER;
+CREATE USER peerprep WITH ENCRYPTED PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE peerprep TO peerprep;
+ALTER USER peerprep WITH SUPERUSER;
 ```
 
 This gives rise to the `POSTGRES_URL=postgres://USERNAME:PASSWORD@localhost/peerprep` variable used in the user service `.env`. Replace `USERNAME` and `PASSWORD` with the appropriate values.

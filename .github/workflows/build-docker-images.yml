@@ -8,7 +8,6 @@ on:
 
 env:
   USERS_IMAGE_NAME: peerprep-users-service
-  EXECUTOR_IMAGE_NAME: peerprep-executor-service
   INNKEEPER_IMAGE_NAME: peerprep-innkeeper-service
   QUESTIONS_IMAGE_NAME: peerprep-questions-service
   FRONTEND_IMAGE_NAME: peerprep-frontend
@@ -19,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       users: ${{ steps.changes.outputs.users }}
-      executor: ${{ steps.changes.outputs.executor }}
       innkeeper: ${{ steps.changes.outputs.innkeeper }}
       questions: ${{ steps.changes.outputs.questions }}
       frontend: ${{ steps.changes.outputs.frontend }}
@@ -32,8 +30,6 @@ jobs:
           filters: |
             users:
               - 'users/**/*'
-            executor:
-              - 'executor/**/*'
             innkeeper:
               - 'innkeeper/**/*'
             questions:
@@ -66,32 +62,6 @@ jobs:
           file: deployment/Dockerfile-users
           push: true
           tags: ghcr.io/peerprep/${{ env.USERS_IMAGE_NAME }}:latest
-
-  build-executor-image:
-    needs: changes
-    if: ${{ needs.changes.outputs.executor == 'true' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Check out Source
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Log in to the Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: peerprep
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: deployment/Dockerfile-executor
-          push: true
-          tags: ghcr.io/peerprep/${{ env.EXECUTOR_IMAGE_NAME }}:latest
 
   build-innkeeper-image:
     needs: changes

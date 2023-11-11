@@ -64,19 +64,3 @@ jobs:
         working-directory: users
       - run: yarn build
         working-directory: users
-
-  build-innkeeper:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-      - uses: actions/cache@v2
-        with:
-          path: innkeeper/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('innkeeper/**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - run: yarn install
-        working-directory: innkeeper
-      - run: yarn build
-        working-directory: innkeeper

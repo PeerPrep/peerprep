@@ -7,7 +7,6 @@ import { DecodedIdToken, getAuth } from "firebase-admin/auth";
 import CORS from "cors";
 
 import ProfileRouter from "./profile";
-import ActivityRouter from "./activity";
 import AdminRouter from "./admin";
 
 import { handleServerError } from "./utils";
@@ -82,7 +81,6 @@ initDatabase().then((orm) => {
   app.use(injectDependencies);
 
   app.use("/api/v1/users/profile", ProfileRouter);
-  app.use("/api/v1/users/activity", ActivityRouter);
   app.use("/api/v1/users/admin", AdminRouter);
 
   app.listen(6969, () => {
