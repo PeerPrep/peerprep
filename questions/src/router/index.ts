@@ -1,5 +1,5 @@
 import express from "express";
-import { questions, serverlessQuestions } from "./questions";
+import { questions } from "./questions";
 
 const router = express.Router();
 
