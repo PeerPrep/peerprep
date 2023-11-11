@@ -8,7 +8,6 @@ import { getAuth } from "firebase-admin/auth";
 import http from "http";
 import mongoose from "mongoose";
 import getFirebaseMiddleware from "./middleware/auth";
-import decryptRequestBody from "./middleware/serverless";
 import { normalRouter } from "./router";
 
 dotenv.config();
@@ -34,7 +33,6 @@ app.use(cors(corsOptions));
 app.use(compression());
 app.use(bodyParser.json());
 app.use("/api/v1/", getFirebaseMiddleware(firebaseAuth), normalRouter());
-app.use("/api/serverless/", decryptRequestBody(), normalRouter());
 
 const server = http.createServer(app);
 

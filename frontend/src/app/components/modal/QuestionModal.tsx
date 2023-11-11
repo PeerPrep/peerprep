@@ -6,7 +6,6 @@ import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import Select, { SingleValue } from "react-select";
-import PreviewModalButton from "./PreviewModalButton";
 
 interface SelectedOptionType {
   label: string;
@@ -14,14 +13,17 @@ interface SelectedOptionType {
 }
 
 const QuestionModal = ({
+  isOpen,
+  setIsOpen,
   difficulty,
   returnToDifficultySelection,
 }: {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
   difficulty: "EASY" | "MEDIUM" | "HARD";
   returnToDifficultySelection: () => void;
 }) => {
   const [questionId, setQuestionId] = useAtom(questionIdAtom);
-  const [isOpen, setIsOpen] = useState<boolean>(difficulty != null);
 
   const [questions, setQuestions] = useState<QuestionType[]>([]);
   const questionDifficulty = difficulty.toLowerCase();
@@ -65,6 +67,9 @@ const QuestionModal = ({
     selectedOption: SingleValue<SelectedOptionType>,
   ) => {
     setSelectedQn(selectedOption);
+    setQuestionId(
+      questions.find((qn) => qn.title === selectedOption?.label)?._id ?? "",
+    );
   };
 
   const onClickStart = () => {
@@ -72,13 +77,6 @@ const QuestionModal = ({
     setQuestionId(
       questions.find((qn) => qn.title === selectedQn?.label)?._id ?? "",
     );
-  };
-
-  const getContent = () => {
-    if (selectedQn) {
-      return questions[selectedQn.value].description;
-    }
-    return "";
   };
 
   return (
@@ -124,23 +122,6 @@ const QuestionModal = ({
               onChange={handleSelectChange}
               className="w-96 text-black"
             />
-          </div>
-          <div className="flex items-center justify-end">
-            <PreviewModalButton
-              content={getContent()}
-              isDisabled={selectedQn === undefined}
-              className="inline"
-            />
-            <span className="modal-action mt-0 inline p-4">
-              <button
-                type="reset"
-                onClick={onClickStart}
-                disabled={selectedQn === undefined}
-                className="btn btn-success btn-sm rounded-full text-white disabled:bg-slate-600 disabled:text-slate-700"
-              >
-                Begin!
-              </button>
-            </span>
           </div>
         </div>
       </dialog>

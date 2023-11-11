@@ -53,40 +53,10 @@ export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   );
 };
 
-export const fetchAllQuestionsDoneByUser = async () => {
-  const { payload } = await FetchAuth.fetch(`${USERS_API_URL}/activity/`).then(
-    (res) => {
-      return res.json();
-    },
-  );
-
-  if (!payload || payload.length === 0) {
-    return [];
-  }
-
-  const questionIds = payload.map((ele: any) => ele.questionId).join("-");
-  const questions = await FetchAuth.fetch(
-    `${QUESTIONS_API_URL}/group/${questionIds}`,
-  ).then((res) => res.json());
-  return questions.payload.map((k: any, i: any) => ({ ...k, ...payload[i] }));
-};
-
 export const fetchAllQuestionsUrl = async () => {
   return await FetchAuth.fetch(`${QUESTIONS_API_URL}/`).then((res) =>
     res.json(),
   );
-};
-
-export const completeQuestion = async (questionId: string) => {
-  return await FetchAuth.fetch(`${USERS_API_URL}/activity/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      questionId,
-    }),
-  }).then((res) => res.json());
 };
 
 export const promoteToAdmin = async (userId: string[]) => {

@@ -1,23 +1,32 @@
 "use client";
 
-import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
 import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
 import StatusBar from "@/app/components/status-bar/StatusBar";
 import { getAuth } from "firebase/auth";
 import { atom, useAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FetchAuth } from "../api";
 import QuestionModal from "../components/modal/QuestionModal";
 type UserDetails = { displayName: string; authToken: string };
 const userDetailsAtom = atom<UserDetails | null>(null);
 
+import { questionIdAtom } from "@/libs/room-jotai";
 import MatchingPage from "../components/matching/MatchingPage";
 
 const difficultyAtom = atom<"EASY" | "MEDIUM" | "HARD" | null>(null);
+const difficultyAtomWrapper = atom(
+  (get) => get(difficultyAtom),
+  (get, set, difficulty: "EASY" | "MEDIUM" | "HARD" | null) => {
+    set(difficultyAtom, difficulty);
+    set(questionIdAtom, "");
+  },
+);
 
 const roomPage = () => {
   const [userDetails, setUserDetails] = useAtom(userDetailsAtom);
-  const [difficulty, setDifficulty] = useAtom(difficultyAtom);
+  const [difficulty, setDifficulty] = useAtom(difficultyAtomWrapper);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   useEffect(() => {
     FetchAuth.getFirebaseToken().then((authToken) => {
       const displayName = getAuth().currentUser?.displayName ?? "Anonymous";
@@ -40,15 +49,19 @@ const roomPage = () => {
   return (
     <>
       <QuestionModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
         difficulty={difficulty}
         returnToDifficultySelection={() => setDifficulty(null)}
       />
       <div className="flex h-full flex-col justify-between">
         <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
           <MarkdownQuestionPane />
-          <CodeMirrorEditor />
         </section>
-        <StatusBar exitMethod={() => setDifficulty(null)} />
+        <StatusBar
+          changeQuestion={() => setIsOpen(true)}
+          exitMethod={() => setDifficulty(null)}
+        />
       </div>
     </>
   );
