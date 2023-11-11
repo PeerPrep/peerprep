@@ -8,6 +8,7 @@ export const normalRouter = (): express.Router => {
   return router;
 };
 
+// Only supports POST requests to /api/serverless/questions
 export const serverlessRouter = (): express.Router => {
   serverlessQuestions(router);
   return router;
