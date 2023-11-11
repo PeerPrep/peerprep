@@ -43,6 +43,8 @@ If you face any issues / if you have non-standard installations or config for an
 
 ## Running
 
+Clone the repository to your local machine: git clone -b assignment-3 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git
+
 In each of the `users`, `questions` and `frontend`, start the project with any node package manager like so:
 
 ```sh
