@@ -105,6 +105,20 @@ export const deleteProfileUrl = async () => {
   }).then((res) => res.json());
 };
 
+interface CheckProfileResponse {
+  payload: { profileExists: boolean, profile: Profile | null };
+  statusMessage: {
+    type: "success" | "error";
+    message: string;
+  };
+}
+
+export async function checkProfileUrl(): Promise<CheckProfileResponse> {
+  return FetchAuth.fetch(`${USERS_API_URL}/users/profile/check`, { method: "GET" }).then(
+    (res) => res.json(),
+  );
+}
+
 interface ProfileResponse {
   payload: Profile;
   statusMessage: {
