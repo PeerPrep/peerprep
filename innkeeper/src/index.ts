@@ -65,15 +65,18 @@ const ysocketio = new YS.YSocketIO(io, {
   gcEnabled: false,
 });
 
-ysocketio.on('document-loaded', (doc: any) => SHOULD_LOG && console.log(`The document ${doc.name} was loaded`));
-ysocketio.on('document-update', (doc: any, update: Uint8Array) => SHOULD_LOG && console.log(`The document ${doc.name} is updated`));
+ysocketio.on('document-loaded', (doc: any) => SHOULD_LOG && console.log(`[ROOM][YDOC] The document ${doc.name} was loaded`));
+ysocketio.on(
+  'document-update',
+  (doc: any, update: Uint8Array) => SHOULD_LOG && console.log(`[ROOM][YDOC] The document ${doc.name} is updated`),
+);
 ysocketio.on('awareness-update', (doc: any, update: Uint8Array) => {
   // SHOULD_LOG && console.log(`The awareness of the document ${doc.name} is updated`),
 });
-ysocketio.on('document-destroy', async (doc: any) => SHOULD_LOG && console.log(`The document ${doc.name} is being destroyed`));
+ysocketio.on('document-destroy', async (doc: any) => SHOULD_LOG && console.log(`[ROOM][YDOC] The document ${doc.name} is being destroyed`));
 ysocketio.on(
   'all-document-connections-closed',
-  async (doc: any) => SHOULD_LOG && console.log(`All clients of document ${doc.name} are disconnected`),
+  async (doc: any) => SHOULD_LOG && console.log(`[ROOM][YDOC] All clients of document ${doc.name} are disconnected`),
 );
 
 // Execute initialize method

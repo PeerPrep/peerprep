@@ -27,7 +27,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   executor:
-    image: ghcr.io/peerprep/peerprep-executor-service:latest
+    image: peerprep-executor-service
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile-executor
     container_name: peerprep-executor-service
     restart: always
     networks:
@@ -50,6 +53,7 @@ services:
       - ./firebase-auth:/firebase-auth
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+      LOGGING: "VERBOSE"
 
   questions:
     image: peerprep-questions-service
