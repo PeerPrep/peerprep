@@ -1,17 +1,31 @@
-# Testing
+# Assignment 3
 
-We recommend using our production environment for testing. You can find the production environment at [https://peerprep.sivarn.com](https://peerprep.sivarn.com).
+Key skills:
 
-A set of email/password with admin privileges will be uploaded to Canvas through Sharing Assignment Private Info assignment.
+- Authentication state management with JWT/session tokens
+- Using OAuth or such 3rd party authorization protocol/services.
 
-# Testing Locally
+In this assignment we have utilised Firebase's authentication-as-a-service and integrated with GitHub and Google OAuth protocols. Our users will have a seamless, permissioned access with session management.
 
-- Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
-- Clone the repository.
-- Run `git submodule update --init` to clone the submodules.
-- In the frontend folder, add .env file with the following content:
+## Third-party installations
 
-```
+- [Node.js](https://nodejs.org)
+- [Postgres](https://www.postgresql.org/download/)
+- [MongoDB](https://www.mongodb.com/docs/manual/administration/install-community/)
+
+These steps have been tested out with Postgres 14.9 and MongoDB Community 7.0, but other version should work too.
+
+We strongly recommend upgrading your Node or using `nvm` to have the latest LTS version (Node 18) for evaluating this assignment. We have encountered errors with other versions.
+
+We also recommend [Postman](https://www.postman.com/) for easy access to the backend, but you may use any means you wish to test the backend. Be sure to extract the firebase token from your `auth` headers in the frontend before attempting this.
+
+## Environment Variables
+
+Note that usually these values are kept secret, but since all of these keys have been made to create a test environment, we are not concerned about security. Create the appropriate files as directed:
+
+### `./frontend/.env`
+
+```sh
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyAMiTV5yv2D-gvCy2TNEFREZIMUJ3SnYD8
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=peerprep-test.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=peerprep-test
@@ -19,28 +33,34 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=peerprep-test.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=655590321803
 NEXT_PUBLIC_FIREBASE_APP_ID=1:655590321803:web:293756d86132bdafddae8e
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXSP3K70CN
-NEXT_PUBLIC_PEERPREP_INNKEEPER_SOCKET_URL=localhost
+NEXT_PUBLIC_QUESTIONS_API_URL=http://localhost:4000/api/v1/questions
+NEXT_PUBLIC_USERS_API_URL=http://localhost:6969/api/v1/users
 ```
 
-Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
+Note that usually these values are kept secret, but since all the keys above have been made specifically for a test environment, we are not concerned about security.
 
-- In the root folder, add .env file with the following content:
+### `./users/.env`
 
-```
-POSTGRES_USER=peerprep
-POSTGRES_PASSWORD=somepassword
-GOOGLE_APPLICATION_CREDENTIALS=/firebase-auth/service-account.json
-MONGODB_URL=mongodb://peerprep-mongo:27017/questions
-BUCKET_NAME=peerprep-test.appspot.com
-USERS_SERVICE_URL=http://peerprep-users-service:6969
-POSTGRES_URL=postgres://peerprep:somepassword@peerprep-postgres/peerprep
-INITIALIZATION_VECTOR=vector
-ENCRYPTION_KEY=key
+```sh
+BUCKET_NAME=peerprep3219.appspot.com
+POSTGRES_URL=postgres://ppuser:pppwd@localhost/peerprep
+GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 ```
 
-- In the firebase-auth folder, add service-account.json (file name has to be exact match) file with the following content:
+### `./questions/.env`
 
+```sh
+MONGODB_URL=mongodb://localhost:27017/questions
+BUCKET_NAME=peerprep3219.appspot.com
+GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
+USERS_SERVICE_URL=http://localhost:6969
 ```
+
+### `./*/service-account..json`
+
+In each of the folders `frontend`, `questions` and `users`, add the file `service-account.json` with the following contents.
+
+```json
 {
   "type": "service_account",
   "project_id": "peerprep-test",
@@ -56,21 +76,45 @@ ENCRYPTION_KEY=key
 }
 ```
 
-Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
+## Database instructions
 
-- In the root folder, run `docker compose -f docker-compose.yml up -d`.
+In this assignment we use both Postgres and MongoDB. Be sure to start both database services so that they are running. The `.env` examples above have been written with the default port.
 
-- Application should be running at [http://localhost](http://localhost).
+### Postgres database and user creation
 
-# Giving yourself admin privileges
+Note that while MongoDB is more flexible, Postgres needs an explicit creation command for the database and the users involved before being able to access them. Once installed, use `psql` or a similar interface to access and do the following:
 
-- Login to the application in your browser using Google/Github.
-- Run the following commands in your terminal:
-
+```sql
+CREATE database peerprep;
+CREATE USER ppuser WITH PASSWORD 'pppwd';
+GRANT ALL PRIVILEGES ON DATABASE peerprep TO ppuser;
+ALTER USER ppuser WITH SUPERUSER;
 ```
-docker exec -it peerprep-postgres bash
-psql -U peerprep
+
+This gives rise to the `POSTGRES_URL=postgres://USERNAME:PASSWORD@localhost/peerprep` variable used in the user service `.env`. Replace `USERNAME` and `PASSWORD` with the appropriate values.
+
+### Giving yourself admin privileges
+
+:warning: Note that this step must be done only after all the services are up and you have successfully logged into the frontend using Google or Github.
+
+```sql
+-- Get your UID and promote yourself to an admin
+SELECT * from profiles ;
+UPDATE profiles SET role='admin' WHERE uid='YOUR_UID';
+
+-- Or promote all users to admins:
 UPDATE profiles SET role='admin';
 ```
 
-This will give every user admin privileges. Note that this is only for testing purposes.
+## Running
+
+In each of the `users`, `questions` and `frontend`, start the project with any node package manager like so:
+
+```sh
+yarn install
+yarn dev
+```
+
+Once you have navigated to the frontend (likely at [`http://localhost:3000/`](http://localhost:3000/)), you may start by logging in and exploring the application.
+
+Note that the admin portal is not accessible until you grant yourself admin privileges. You may do these while the app runs, simply open a Postgres psql shell and carry out the steps described in an earlier section.
