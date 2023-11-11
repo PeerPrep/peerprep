@@ -44,15 +44,17 @@ const SettingPage = () => {
   const [isProfileNew, setIsProfileNew] = useState<boolean>(true);
 
   useEffect(() => {
-    fetchProfileUrl().then((res) => {
-      setProfileImageUrl(res.payload.imageUrl);
-      setPreferredLang(res.payload.preferredLang);
-      setName(res.payload.name || "");
-    });
     checkProfileUrl().then((res) => {
-      res.payload.profileExists
-        ? setIsProfileNew(false)
-        : setIsProfileNew(true);
+      if (res.payload.profileExists) {
+        setIsProfileNew(false);
+        fetchProfileUrl().then((res) => {
+          setProfileImageUrl(res.payload.imageUrl);
+          setPreferredLang(res.payload.preferredLang);
+          setName(res.payload.name || "");
+        });
+      } else {
+        setIsProfileNew(true);
+      }
     });
   }, []);
 
@@ -73,23 +75,25 @@ const SettingPage = () => {
 
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateProfileUrl(name, preferredLang, selectedImage)
-      .then((res) => {
-        if (res.statusMessage.type.toLowerCase() === "success") {
-          api.success({
-            type: "success",
-            content: "Successfully updated profile!",
-          });
-        } else {
-          api.error({
-            type: "error",
-            content: "Failed to update profile :(",
-          });
-        }
-      })
-      .then(() => {
-        window.location.reload();
-      });
+    fetchProfileUrl().then((res) => {
+      updateProfileUrl(name, preferredLang, selectedImage)
+        .then((res) => {
+          if (res.statusMessage.type.toLowerCase() === "success") {
+            api.success({
+              type: "success",
+              content: "Successfully updated profile!",
+            });
+          } else {
+            api.error({
+              type: "error",
+              content: "Failed to update profile :(",
+            });
+          }
+        })
+        .then(() => {
+          window.location.reload();
+        });
+    });
   };
 
   const onEscKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {

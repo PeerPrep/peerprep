@@ -22,13 +22,6 @@ const Navbar = () => {
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
 
-  useEffect(() => {
-    fetchProfileUrl().then((res) => {
-      setProfileImageUrl(res.payload.imageUrl);
-      setName(res.payload.name || "");
-    });
-  }, []);
-
   const onClickLogout = async () => {
     const auth = await getAuth();
     router.push("/");
@@ -41,7 +34,14 @@ const Navbar = () => {
         FetchAuth.addFirebaseToken(idToken);
       })
       .then(() => {
-        fetchProfileUrl();
+        checkProfileUrl().then((res) => {
+          if (res.payload.profileExists) {
+            fetchProfileUrl().then((res) => {
+              setProfileImageUrl(res.payload.imageUrl);
+              setName(res.payload.name || "");
+            });
+          }
+        });
       });
 
     if (user) {
@@ -75,7 +75,7 @@ const Navbar = () => {
           )}
         </nav>
         {user ? (
-          <div className="dropdown dropdown-hover">
+          <div className="dropdown-hover dropdown">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />
