@@ -1,7 +1,7 @@
 # Testing Locally
 
 - Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
-- Clone the repository.
+- Clone the repository by running `git clone -b assignment-5 git@github.com:PeerPrep/peerprep.git`.
 - In the frontend folder, add .env file with the following content:
 
 ```
