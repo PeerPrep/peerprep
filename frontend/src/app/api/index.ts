@@ -186,12 +186,3 @@ export async function updateProfileUrl(
     body,
   }).then((res) => res.json());
 }
-const executorURL = "/api/v1/execute";
-export const executeCode = async (code: string, lang: string) => {
-  const res = await fetch(`${executorURL}/${lang}`, {
-    method: "POST",
-    body: code,
-  });
-  const data = res.text();
-  return data;
-};
