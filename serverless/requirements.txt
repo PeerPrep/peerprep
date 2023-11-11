@@ -1,2 +1,2 @@
 GitPython==3.1.40
-pycryptodome==3.18.0
+python-dotenv==1.0.0

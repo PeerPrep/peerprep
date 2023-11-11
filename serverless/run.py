@@ -10,8 +10,6 @@ load_dotenv()
 BASE_URL = os.environ.get("BASE_URL")
 PASSWORD_HEADER = os.environ.get("PASSWORD_HEADER")
 
-
-
 def make_api_request(request_data):
 
     # Make an HTTP POST request to the API
@@ -20,17 +18,14 @@ def make_api_request(request_data):
         print (request_data)
         response = requests.post(url, json=request_data, headers={"PASSWORD_HEADER": PASSWORD_HEADER})
         response.raise_for_status()  # Raise an exception for HTTP errors (4xx and 5xx)
+        
+        print(f"API response status: {response.status_code}")
+        print(f"API response: {response.json()}")
+        return
 
-        # Handle the API response here
-        response_data = response.json()
-        return response_data
     except requests.exceptions.RequestException as e:
         print(f"Error making the API request: {e}")
-        return None
     
-
-
-
 def load_problems():
     with tempfile.TemporaryDirectory() as base_path:
         Repo.clone_from("https://github.com/kyle8998/Practice-Coding-Questions.git", base_path)
@@ -63,16 +58,23 @@ tags_to_search = ["Stack", "Array", "Tree", "Hash Table", "Binary Search"]
 def parse(qn):
     try:
         qn = qn.split("\n")
+
         title = qn[0][2:]
         qn.pop(0)
+
         while qn[0].strip() == "":
             qn.pop(0)
+
         difficulty = qn[0].split(" ")[2].strip().upper()
+        difficulty = difficulty[0].upper() + difficulty[1:].lower()
+
         qn.pop(0)
         while qn[0].strip() == "":
             qn.pop(0)
 
-        if difficulty not in ["EASY", "MEDIUM", "HARD"]:
+        qn = '\n'.join(qn)
+
+        if difficulty not in ["Easy", "Medium", "Hard"]:
             return None
 
         if title.split(" ")[0] != "Problem" and title.split(" ")[1][-1] != ":":
@@ -80,7 +82,6 @@ def parse(qn):
         else:
             title = " ".join(title.split(" ")[2:])
             
-        qn = '\n'.join(qn)
         
         search_space = title + qn
         tags = []
@@ -91,18 +92,9 @@ def parse(qn):
         if tags == []:
             return None
             
-        return { "title": title, "difficulty": difficulty, "question": qn, "tags": tags}
+        return { "title": title, "difficulty": difficulty, "description": qn, "tags": tags}
     except:
         return None
-
-def send_to_questions_service(qn):
-    data = {}
-    data['title'] = qn["title"]
-    data['difficulty'] = qn["difficulty"][0].upper() + qn["difficulty"][1:].lower()
-    data['description'] = qn["question"]
-    data['tags'] = qn["tags"]
-
-    response = make_api_request(data)
 
 problems = load_problems()
 problems = [parse(qn) for qn in problems]
@@ -110,4 +102,4 @@ problems = [qn for qn in problems if qn is not None]
 print(f"Total number of questions parsed: {len(problems)}")
 
 for qn in [problems[3]]:
-    send_to_questions_service(qn)
+    make_api_request(qn)
