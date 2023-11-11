@@ -1,39 +1,26 @@
 "use client";
+import { QuestionType } from "@/app/admin/question/page";
+import { fetchAllQuestionsUrl } from "@/app/api";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { AiFillCloseCircle } from "react-icons/ai";
 import Select, { SingleValue } from "react-select";
 import PreviewModalButton from "./PreviewModalButton";
-import { useEffect, useState } from "react";
-import { fetchAllQuestionsUrl } from "@/app/api";
-import { QuestionType } from "@/app/admin/question/page";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import {
-  innkeeperWriteAtom,
-  isQuestionModalOpenAtom,
-  questionDifficultyAtom,
-  questionIdAtom,
-} from "@/libs/room-jotai";
-import { AiFillCloseCircle } from "react-icons/ai";
 
 interface SelectedOptionType {
   label: string;
   value: number;
 }
 
-const triggerQuestionIdUpdateRequestAtom = atom(
-  null,
-  (get, set, questionId: string) => {
-    set(innkeeperWriteAtom, {
-      eventName: "sendUpdate",
-      eventArgs: [{ questionId }],
-    });
-  },
-);
+const questionIdAtom = atom<string>("");
+const isQuestionModalOpenAtom = atom<boolean>(false);
+const questionDifficultyAtom = atom<"EASY" | "MEDIUM" | "HARD" | null>(null);
 
 const QuestionModal = () => {
-  const questionId = useAtomValue(questionIdAtom);
+  const [questionId, setQuestionId] = useAtom(questionIdAtom);
   const [isOpen, setIsOpen] = useAtom(isQuestionModalOpenAtom);
 
   const [questions, setQuestions] = useState<QuestionType[]>([]);
-  const setCollabQuestion = useSetAtom(triggerQuestionIdUpdateRequestAtom);
   const questionDifficulty = useAtomValue(
     questionDifficultyAtom,
   )?.toLowerCase();
@@ -48,11 +35,6 @@ const QuestionModal = () => {
       );
     });
   }, []);
-
-  // setQuestions(
-  //   questions.filter(
-  //   }),
-  // );
 
   const options: SelectedOptionType[] = questions.map((question, i) => {
     return {
@@ -86,9 +68,7 @@ const QuestionModal = () => {
 
   const onClickStart = () => {
     setIsOpen(false);
-    if (selectedQn) {
-      setCollabQuestion(questions[selectedQn.value]._id as string);
-    }
+    setQuestionId(questions.find((qn) => qn.title === selectedQn?.label)?._id);
   };
 
   const getContent = () => {

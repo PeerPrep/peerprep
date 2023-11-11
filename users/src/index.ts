@@ -86,6 +86,6 @@ initDatabase().then((orm) => {
   app.use("/api/v1/users/admin", AdminRouter);
 
   app.listen(6969, () => {
-    console.log("Starting user service");
+    console.log("Starting user service on port 6969");
   });
 });

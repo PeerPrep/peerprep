@@ -1,11 +1,6 @@
 import { FetchAuth } from "@/app/api";
-import {
-  chatHistoryAtom,
-  innkeeperWriteAtom,
-  resultAtom,
-} from "@/libs/room-jotai";
 import { getAuth } from "firebase/auth";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import Button from "../button/Button";
 
@@ -14,23 +9,10 @@ interface ResultsTabProps {
   height: number;
 }
 
-const triggerChatMessageRequestAtom = atom(
-  null,
-  (get, set, message: string) => {
-    set(innkeeperWriteAtom, {
-      eventName: "sendChatMessage",
-      eventArgs: [message],
-    });
-  },
-);
-
 const userDetailsAtom = atom<string | null>(null);
 
 const Tabs = ({ isLoading = false, height }: ResultsTabProps) => {
-  const result = useAtomValue(resultAtom);
   const [currentTab, setCurrentTab] = useState(1);
-  const sendMessage = useSetAtom(triggerChatMessageRequestAtom);
-  const chatHistory = useAtomValue(chatHistoryAtom);
   const [message, setMessage] = useState("");
   const [uid, setUid] = useAtom(userDetailsAtom);
   useEffect(() => {
@@ -41,7 +23,6 @@ const Tabs = ({ isLoading = false, height }: ResultsTabProps) => {
   }, []);
 
   const onSendMessage = () => {
-    sendMessage(message);
     setMessage("");
   };
 
@@ -80,12 +61,9 @@ const Tabs = ({ isLoading = false, height }: ResultsTabProps) => {
         {currentTab == 1 && height > 40 && (
           <section
             style={{ height: `${height}px` }}
-            className={`flex w-[90svw] ${
-              !result && "items-center"
-            } justify-center overflow-y-auto bg-secondary lg:w-[50svw]`}
+            className={`flex w-[90svw] items-center justify-center overflow-y-auto bg-secondary lg:w-[50svw]`}
           >
-            {!result && <div>You must run the code first</div>}
-            {result && <pre className="w-full  p-4 text-sm">{result}</pre>}
+            <div>This feature is coming soon.</div>
           </section>
         )}
         {currentTab == 2 && height > 40 && (
@@ -94,22 +72,7 @@ const Tabs = ({ isLoading = false, height }: ResultsTabProps) => {
             className={`flex w-[90svw] flex-col bg-secondary p-4 lg:w-[50svw]`}
           >
             <div className="flex grow flex-col gap-2 overflow-y-auto">
-              {chatHistory?.map((message, index) => (
-                <div
-                  key={index}
-                  className={`${
-                    message.user === uid ? "self-end" : "self-start"
-                  } max-w-md`}
-                >
-                  <div
-                    className={`${
-                      message.user === uid ? "bg-accent" : "bg-primary"
-                    } mx-2 rounded-lg p-2 text-white`}
-                  >
-                    {message.message}
-                  </div>
-                </div>
-              ))}
+              <div>This feature is coming soon.</div>
             </div>
             <div className="flex items-center gap-2">
               <input
