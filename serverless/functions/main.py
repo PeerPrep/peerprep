@@ -103,7 +103,7 @@ def parse(qn):
         return None
 
 
-@https_fn.on_request()
+@https_fn.on_request(max_instances=10)
 def addmessage(req: https_fn.Request) -> https_fn.Response:
     if req.headers.get("PASSWORD_HEADER") != PASSWORD_HEADER:
         return https_fn.Response(status=403)
