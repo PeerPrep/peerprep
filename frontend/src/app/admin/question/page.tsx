@@ -1,16 +1,22 @@
 "use client";
 
-import Button from "@/app/components/button/Button";
-import { useMemo, useState } from "react";
 import { auth } from "@/libs/firebase-config";
-import Select, { MultiValue } from "react-select";
+import { useMemo, useState } from "react";
 import Skeleton from "react-loading-skeleton";
+import Select, { MultiValue } from "react-select";
 
 import {
   deleteQuestionUrl,
   fetchAllQuestionsUrl,
   fetchQuestionDescriptionUrl,
 } from "@/app/api";
+import AddQuestionModal, {
+  SelectOptionType,
+} from "@/app/components/modal/AddQuestionModal";
+import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
+import useAdmin from "@/app/hooks/useAdmin";
+import useLogin from "@/app/hooks/useLogin";
+import LoadingPage from "@/app/loading";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -18,19 +24,11 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import ReactMarkdown from "react-markdown";
-import AddQuestionModal, {
-  SelectOptionType,
-} from "@/app/components/modal/AddQuestionModal";
-import dynamic from "next/dynamic";
 import { Input, message } from "antd";
-import EditQuestionModal from "@/app/components/modal/EditQuestionModal";
-import topicsOptions from "../questionTypeData";
 import { onAuthStateChanged } from "firebase/auth";
-import useLogin from "@/app/hooks/useLogin";
-import { useRouter } from "next/navigation";
-import useAdmin from "@/app/hooks/useAdmin";
-import LoadingPage from "@/app/loading";
+import dynamic from "next/dynamic";
+import ReactMarkdown from "react-markdown";
+import topicsOptions from "../questionTypeData";
 
 export interface QuestionType {
   _id?: string;
@@ -172,13 +170,13 @@ const QuestionPage = () => {
     },
   ];
 
-  const { data: questionObj, isLoading: questionDescriptionLoading } = useQuery<
-    { payload: QuestionType } | undefined
-  >(["question", currQn], () => {
-    if (currQn) {
-      return fetchQuestionDescriptionUrl(currQn?._id ?? "");
-    }
-  });
+  const { data: questionObj, isLoading: questionDescriptionLoading } =
+    useQuery<{ payload: QuestionType } | null>(["question", currQn], () => {
+      if (currQn) {
+        return fetchQuestionDescriptionUrl(currQn?._id ?? "");
+      }
+      return null;
+    });
 
   const {
     data: allQuestions,
