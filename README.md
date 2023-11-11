@@ -9,11 +9,9 @@ In this assignment we have utilised Firebase's authentication-as-a-service and i
 
 ## Third-party installations
 
-- [Node.js](https://nodejs.org) v18.18 and an appropriate package manager (we recommend [yarn](yarnpkg.com))
+- [Node.js](https://nodejs.org) v18.17.1 and an appropriate package manager (we recommend [yarn](yarnpkg.com))
 - [Postgres](https://www.postgresql.org/download/) v14.9
 - [MongoDB](https://www.mongodb.com/docs/manual/administration/install-community/) v7.0
-
-We also recommend [Postman](https://www.postman.com/) for easy access to the backend, but you may use any means you wish to test the backend. Be sure to extract the firebase token from your `auth` headers in the frontend before attempting this.
 
 ## Database instructions
 
