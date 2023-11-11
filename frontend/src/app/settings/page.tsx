@@ -22,7 +22,9 @@ const SettingPage = () => {
       closeModal("delete_modal");
       api.open({
         type: "success",
-        content: "Successfully deleted profile! Logging you out...",
+        content: !isProfileNew
+          ? "Successfully deleted profile! Logging you out..."
+          : "Cancelled profile creation!",
       });
       const auth = getAuth();
       if (auth.currentUser) {
