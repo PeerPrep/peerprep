@@ -74,7 +74,7 @@ const Navbar = () => {
           </div>
           {user && (
             <>
-              <NavbarPane link="/matching" label="Matching" />
+              <NavbarPane link="/matching" label="View Questions" />
               {isAdmin && (
                 <NavbarPaneDropdown
                   mainLabel="Admin"
