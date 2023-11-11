@@ -14,7 +14,7 @@ Before you begin, please make sure you have the following prerequisites installe
 To get started with this project, follow these steps:
 
 1. Clone the repository to your local machine:
-   `git clone -b assignment-1 git@github.com:PeerPrep/peerprep.git`
+   `git clone -b assignment-1 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git`
 
 2. Change your working directory to the frontend folder:
    `cd frontend`
