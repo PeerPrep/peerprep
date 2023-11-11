@@ -172,30 +172,4 @@ export const handleDisconnect = (io: InnkeeperIoServer, inn: InnState, socket: I
   io.in(roomId).emit('sendPartialRoomState', { userStates: [userState, otherUserState] }); // Notify that one user is inactive.
 };
 
-export const handleChatMessage = (io: InnkeeperIoServer, inn: InnState, socket: InnkeeperIoSocket, message: string) => {
-  const roomState = getRoomState(inn, socket);
 
-  // Ensure the room state exists
-  if (!roomState) {
-    sendNotification(socket, { type: 'ERROR', message: 'Room state not found.' });
-    return;
-  }
-
-  // Get the user ID from the socket data
-  const userId = socket.data.userId;
-
-  // Create a new chat message object
-  const chatMessage = {
-    user: userId,
-    message: message,
-  };
-
-  // Store the chat message in the room's chat history
-  if (!roomState.chatHistory) {
-    roomState.chatHistory = [];
-  }
-  roomState.chatHistory.push(chatMessage);
-
-  // Emit the chat message to all users in the room
-  io.to(roomState.roomId).emit('sendPartialRoomState', { chatHistory: roomState.chatHistory });
-};

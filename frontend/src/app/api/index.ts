@@ -52,37 +52,10 @@ export const fetchQuestionDescriptionUrl = async (qnId: string) => {
   );
 };
 
-export const fetchAllQuestionsDoneByUser = async () => {
-  const { payload } = await FetchAuth.fetch(`${API_URL}/users/activity/`).then(
-    (res) => {
-      return res.json();
-    },
-  );
-
-  const questionIds = payload.map((ele: any) => ele.questionId).join("-");
-  // console.log({ res });
-  const questions = await FetchAuth.fetch(
-    `${API_URL}/questions/group/${questionIds}`,
-  ).then((res) => res.json());
-  return questions.payload.map((k: any, i: any) => ({ ...k, ...payload[i] }));
-};
-
 export const fetchAllQuestionsUrl = async () => {
   return await FetchAuth.fetch(`${API_URL}/questions/`).then((res) =>
     res.json(),
   );
-};
-
-export const completeQuestion = async (questionId: string) => {
-  return await FetchAuth.fetch(`${API_URL}/users/activity/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      questionId,
-    }),
-  }).then((res) => res.json());
 };
 
 export const promoteToAdmin = async (userId: string[]) => {
@@ -186,12 +159,3 @@ export async function updateProfileUrl(
     body,
   }).then((res) => res.json());
 }
-const executorURL = "/api/v1/execute";
-export const executeCode = async (code: string, lang: string) => {
-  const res = await fetch(`${executorURL}/${lang}`, {
-    method: "POST",
-    body: code,
-  });
-  const data = res.text();
-  return data;
-};

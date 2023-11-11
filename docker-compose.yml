@@ -26,18 +26,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-  executor:
-    image: peerprep-executor-service
-    build:
-      context: .
-      dockerfile: deployment/Dockerfile-executor
-    container_name: peerprep-executor-service
-    restart: always
-    networks:
-      - peerprep-network
-    expose:
-      - "9000"
-
   innkeeper:
     image: peerprep-innkeeper-service
     build:
@@ -109,7 +97,6 @@ services:
       - users
       - questions
       - innkeeper
-      - executor
     networks:
       - peerprep-network
     expose:

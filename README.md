@@ -1,14 +1,7 @@
-# Testing
-
-We recommend using our production environment for testing. You can find the production environment at [https://peerprep.sivarn.com](https://peerprep.sivarn.com).
-
-A set of email/password with admin privileges will be uploaded to Canvas through Sharing Assignment Private Info assignment.
-
 # Testing Locally
 
 - Install Docker for your operating system. You can find the installation instructions [here](https://docs.docker.com/get-docker/).
 - Clone the repository.
-- Run `git submodule update --init` to clone the submodules.
 - In the frontend folder, add .env file with the following content:
 
 ```

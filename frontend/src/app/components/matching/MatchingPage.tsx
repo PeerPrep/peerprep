@@ -4,10 +4,6 @@ import QueueButton from "../button/QueueButton";
 import { QuestionType } from "../../admin/question/page";
 import { atom, useAtom } from "jotai";
 import { innkeeperWriteAtom, isQueuingAtom } from "@/libs/room-jotai";
-import { fetchAllQuestionsDoneByUser } from "@/app/api";
-import { useQuery } from "@tanstack/react-query";
-import { Skeleton, Table, notification } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
 
 const sendMatchRequestAtom = atom(
@@ -38,106 +34,6 @@ const MatchingPage = () => {
       setDifficulty(difficulty);
     }
   };
-  const activityTableColumns: any = [
-    {
-      title: "Question",
-      dataIndex: "title",
-      width: 200,
-    },
-    {
-      title: "Difficulty",
-      dataIndex: "difficulty",
-      width: 20,
-      sorter: (a: QuestionType, b: QuestionType) => a.difficulty < b.difficulty,
-      align: "center",
-      render: (difficulty: string) => {
-        if (!difficulty) {
-          return null;
-        }
-        let color = difficulty.length > 5 ? "geekblue" : "green";
-        switch (difficulty.toLowerCase()) {
-          case "easy":
-            color = "bg-success text-white";
-            break;
-          case "medium":
-            color = "bg-warning text-white";
-            break;
-          case "hard":
-            color = "bg-error text-white";
-            break;
-        }
-
-        return (
-          <div
-            className={`inline-block rounded-full border border-white px-4 py-1 ${color} text-sm font-semibold`}
-          >
-            {difficulty.toUpperCase()}
-          </div>
-        );
-      },
-    },
-    {
-      title: "Type",
-      dataIndex: "tags",
-      sortDirections: ["descend"],
-      sorter: (a: QuestionType, b: QuestionType) => a.tags < b.tags,
-      align: "center",
-      width: 125,
-      render: (tags: string[]) => (
-        <>
-          {tags?.map((tag) => {
-            return (
-              <div
-                key={tag}
-                className={`m-1 inline-block rounded-full border border-white bg-accent px-2 py-1 text-xs font-semibold`}
-              >
-                {tag.toUpperCase()}
-              </div>
-            );
-          })}
-        </>
-      ),
-    },
-    {
-      title: "Submitted Date",
-      dataIndex: "submitted",
-      sortDirections: ["descend"],
-      render: (date: string) => {
-        return new Date(date).toLocaleDateString();
-      },
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      align: "center",
-      width: 10,
-      render: (text: string, record: QuestionType, index: number) => (
-        <div className="flex justify-center gap-2">
-          <EyeOutlined
-            className="p-2 text-xl hover:cursor-pointer hover:rounded-full hover:bg-primary-focus"
-            onClick={() => {
-              onClickModal("my_modal_2");
-              setCurrQn(record);
-            }}
-          />
-        </div>
-      ),
-    },
-  ];
-
-  const onClickModal = (modalId: string) => {
-    if (document) {
-      (document.getElementById(modalId) as HTMLFormElement).showModal();
-    }
-  };
-
-  const {
-    data: allQuestions,
-    isLoading: allQuestionsLoading,
-    refetch: refetchAllQuestions,
-  } = useQuery(["activityQuestions"], () => {
-    return fetchAllQuestionsDoneByUser();
-  });
 
   return (
     <>
@@ -195,18 +91,6 @@ const MatchingPage = () => {
             selectedDifficulty={difficulty}
           />
         </section>
-        <div className="m-7">
-          <h1 className="mb-2 block text-5xl font-bold text-white underline">
-            Completed Questions
-          </h1>
-          <Table
-            className="mt-4"
-            bordered
-            columns={activityTableColumns}
-            dataSource={allQuestions as any}
-            pagination={{ position: ["bottomCenter"] }}
-          />
-        </div>
       </main>
     </>
   );

@@ -30,16 +30,10 @@ export type TextEditorState = {
   code: string;
 };
 
-export type ChatMessage = {
-  user: string;
-  message: string;
-};
-
 export type RoomState = {
   roomId: string;
   questionId: string;
   userStates: [UserState, UserState];
-  chatHistory: ChatMessage[];
   questionDifficulty: "EASY" | "MEDIUM" | "HARD";
 };
 
@@ -50,8 +44,6 @@ export type RoomState = {
 export type PartialRoomState = {
   questionId?: string;
   userStates?: [UserState, UserState];
-  chatHistory?: ChatMessage[];
-  executionResult?: string;
   language?: string;
   questionDifficulty?: "EASY" | "MEDIUM" | "HARD";
 };
@@ -95,7 +87,6 @@ export interface ClientToServerEvents {
 
   /** Indicates one user wishes to leave. This will trigger server to send closeRoom() to notify the other participant. */
   leaveRoom: () => void;
-  sendChatMessage: (update: string) => void;
   leaveQueue: () => void;
 }
 

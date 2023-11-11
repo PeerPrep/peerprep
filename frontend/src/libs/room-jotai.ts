@@ -1,13 +1,11 @@
 import { atom } from "jotai";
 import {
-  ChatMessage,
   ClientToServerEvents,
   RoomState,
   UserState,
 } from "./innkeeper-api-types";
 import { InnkeeperSocket, InnkeeperSocketEvents } from "./innkeeper-types";
 export const codeMirrorValueAtom = atom("");
-export const resultAtom = atom("");
 export const codeLangAtom = atom("python");
 export const socketAtom = atom<InnkeeperSocket | null>(null);
 export const isConnectedAtom = atom(false);
@@ -47,17 +45,6 @@ export const questionIdAtom = atom(
     }
 
     set(roomStateAtom, { ...roomState, questionId: update });
-  },
-);
-export const chatHistoryAtom = atom(
-  (get) => get(roomStateAtom)?.chatHistory,
-  (get, set, update: ChatMessage[]) => {
-    const roomState = get(roomStateAtom);
-    if (!roomState) {
-      console.error("Chat Message is updated, room state not initialized.");
-      return;
-    }
-    set(roomStateAtom, { ...roomState, chatHistory: update });
   },
 );
 

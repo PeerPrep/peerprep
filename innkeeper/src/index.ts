@@ -4,7 +4,6 @@ import { getAuth } from 'firebase-admin/auth';
 import { Server } from 'socket.io';
 import { handleConnect as handleLobbyConnect, handleDisconnect as handleLobbyDisconnect, handleMatchingRequest } from './controllers/lobby';
 import {
-  handleChatMessage,
   handleLeaveRoom,
   handleRequestCompleteState,
   handleDisconnect as handleRoomDisconnect,
@@ -49,7 +48,6 @@ io.on('connection', (socket: InnkeeperIoSocket) => {
   socket.on('sendUpdate', update => requireMatchedUser(io, inn, socket) && handleSendUpdate(io, inn, socket, update));
   socket.on('requestCompleteRoomState', () => requireMatchedUser(io, inn, socket) && handleRequestCompleteState(io, inn, socket));
   socket.on('leaveRoom', () => requireMatchedUser(io, inn, socket) && handleLeaveRoom(io, inn, socket));
-  socket.on('sendChatMessage', (message: string) => requireMatchedUser(io, inn, socket) && handleChatMessage(io, inn, socket, message));
 
   socket.on('leaveQueue', () => handleLobbyDisconnect(io, inn, socket));
   socket.on('disconnect', () =>

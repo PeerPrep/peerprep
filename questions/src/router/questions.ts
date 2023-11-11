@@ -16,7 +16,3 @@ export const questions = (router: express.Router) => {
   router.put("/questions/:id", updateQuestion);
   router.delete("/questions/:id", deleteQuestion);
 };
-
-export const serverlessQuestions = (router: express.Router) => {
-  router.post("/questions", createQuestion);
-};

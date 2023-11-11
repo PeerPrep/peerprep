@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { Profile } from "../entities/Profile";
 import { ApiResponse, StatusMessageType } from "../types";
 import { handleServerError } from "../utils";
-import { getAuth } from "firebase-admin/auth";
-import { Activity } from "../entities/Activity";
 
 export async function deleteProfileHandler(req: Request, res: Response) {
   const em = req.orm.em.fork();
@@ -11,8 +9,7 @@ export async function deleteProfileHandler(req: Request, res: Response) {
 
   try {
     await em.transactional(async (manager) => {
-        await manager.nativeDelete(Profile, { uid: uid });
-        await manager.nativeDelete(Activity, { uid: uid });
+      await manager.nativeDelete(Profile, { uid: uid });
     });
 
     const response: ApiResponse = {

@@ -5,8 +5,6 @@ import {
   innkeeperWriteAtom,
   isMatchedAtom,
 } from "@/libs/room-jotai";
-import { ExclamationCircleFilled } from "@ant-design/icons";
-import { Button } from "antd";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
@@ -14,7 +12,6 @@ import Skeleton from "react-loading-skeleton";
 import { yCollab } from "y-codemirror.next";
 import { SocketIOProvider } from "y-socket.io";
 import * as Y from "yjs";
-import Tabs from "../tab/Tabs";
 import { fetchProfileUrl } from "@/app/api";
 
 import { BsArrowsExpand } from "react-icons/bs";
@@ -215,9 +212,6 @@ const CodeMirrorEditor = ({
       >
         <BsArrowsExpand className="text-state-100 text-4xl" />
       </div>
-      <Tabs
-        height={Math.min(window.innerHeight * 0.7 - editorHeight, maxHeight)}
-      />
     </section>
   );
 };
