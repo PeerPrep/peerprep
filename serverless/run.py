@@ -3,10 +3,17 @@ import os
 import tempfile
 
 import requests
-from dotenv import load_dotenv
 from git import Repo
 
-load_dotenv()
+# The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
+from firebase_functions import firestore_fn, https_fn
+
+# The Firebase Admin SDK to access Cloud Firestore.
+from firebase_admin import initialize_app, firestore
+import google.cloud.firestore
+
+app = initialize_app()
+
 BASE_URL = os.environ.get("BASE_URL")
 PASSWORD_HEADER = os.environ.get("PASSWORD_HEADER")
 
