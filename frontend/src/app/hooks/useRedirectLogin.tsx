@@ -14,7 +14,7 @@ const useRedirectLogin = () => {
         router.push("/login");
       }
       if (user && pathName === "/login") {
-        router.push("/matching");
+        router.push("/admin/question");
       }
     });
 

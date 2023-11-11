@@ -29,7 +29,6 @@ import topicsOptions from "../questionTypeData";
 import { onAuthStateChanged } from "firebase/auth";
 import useLogin from "@/app/hooks/useLogin";
 import { useRouter } from "next/navigation";
-import useAdmin from "@/app/hooks/useAdmin";
 import LoadingPage from "@/app/loading";
 
 export interface QuestionType {
@@ -59,7 +58,6 @@ const Table = dynamic(() => import("antd/lib").then((m) => m.Table), {
 });
 
 const QuestionPage = () => {
-  const { isAdmin, isLoading } = useAdmin();
 
   const user = useLogin();
   const [api, contextHolder] = message.useMessage();
@@ -258,11 +256,7 @@ const QuestionPage = () => {
     );
   };
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
-
-  if (!isAdmin) {
+  if (!user) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex items-center">

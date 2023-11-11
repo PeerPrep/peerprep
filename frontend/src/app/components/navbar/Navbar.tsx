@@ -15,7 +15,6 @@ import NavbarPaneDropdown from "./NavbarPaneDropdown";
 import { FetchAuth, fetchProfileUrl } from "@/app/api";
 import Image from "next/image";
 import { BiUserCircle } from "@react-icons/all-files/bi/BiUserCircle";
-import useAdmin from "@/app/hooks/useAdmin";
 import useRedirectLogin from "@/app/hooks/useRedirectLogin";
 
 const Navbar = () => {
@@ -24,7 +23,6 @@ const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
-  const { isAdmin, isLoading } = useAdmin();
 
   useEffect(() => {
     fetchProfileUrl().then((res) => {
@@ -74,16 +72,7 @@ const Navbar = () => {
           </div>
           {user && (
             <>
-              <NavbarPane link="/matching" label="Matching" />
-              {isAdmin && (
-                <NavbarPaneDropdown
-                  mainLabel="Admin"
-                  navElements={[
-                    { link: "/admin/portal", label: "Portal" },
-                    { link: "/admin/question", label: "Question" },
-                  ]}
-                />
-              )}
+              <NavbarPane link="/admin/question" label="Question" />
             </>
           )}
         </nav>

@@ -44,76 +44,23 @@ export const FetchAuth = {
   },
 };
 
-export const API_URL = "/api/v1";
+export const QUESTIONS_API_URL = "http://localhost:4000/api/v1";
+export const USERS_API_URL = "http://localhost:6969/api/v1";
 
 export const fetchQuestionDescriptionUrl = async (qnId: string) => {
-  return await FetchAuth.fetch(`${API_URL}/questions/${qnId}`).then((res) =>
+  return await fetch(`${QUESTIONS_API_URL}/questions/${qnId}`).then((res) =>
     res.json(),
   );
-};
-
-export const fetchAllQuestionsDoneByUser = async () => {
-  const { payload } = await FetchAuth.fetch(`${API_URL}/users/activity/`).then(
-    (res) => {
-      return res.json();
-    },
-  );
-
-  const questionIds = payload.map((ele: any) => ele.questionId).join("-");
-  // console.log({ res });
-  const questions = await FetchAuth.fetch(
-    `${API_URL}/questions/group/${questionIds}`,
-  ).then((res) => res.json());
-  return questions.payload.map((k: any, i: any) => ({ ...k, ...payload[i] }));
 };
 
 export const fetchAllQuestionsUrl = async () => {
-  return await FetchAuth.fetch(`${API_URL}/questions/`).then((res) =>
+  return await fetch(`${QUESTIONS_API_URL}/questions/`).then((res) =>
     res.json(),
   );
-};
-
-export const completeQuestion = async (questionId: string) => {
-  return await FetchAuth.fetch(`${API_URL}/users/activity/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      questionId,
-    }),
-  }).then((res) => res.json());
-};
-
-export const promoteToAdmin = async (userId: string[]) => {
-  return await FetchAuth.fetch(`${API_URL}/users/admin/update`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      role: "admin",
-      uids: userId,
-    }),
-  }).then((res) => res.json());
-};
-
-export const fetchAllUsers = async () => {
-  return await FetchAuth.fetch(`${API_URL}/users/admin/profiles`).then((res) =>
-    res.json(),
-  );
-};
-
-export const fetchIsAdmin = async () => {
-  return await FetchAuth.fetch(`${API_URL}/users/admin/profiles`)
-    .then((res) => res.json())
-    .then((res) => {
-      return res.statusMessage.type.toLowerCase() === "success";
-    });
 };
 
 export const createQuestionUrl = async (newQuestion: QuestionType) => {
-  return FetchAuth.fetch(`${API_URL}/questions/`, {
+  return fetch(`${QUESTIONS_API_URL}/questions/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -130,7 +77,7 @@ export const createQuestionUrl = async (newQuestion: QuestionType) => {
 };
 
 export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
-  return FetchAuth.fetch(`${API_URL}/questions/${updatedQuestion._id}`, {
+  return fetch(`${QUESTIONS_API_URL}/questions/${updatedQuestion._id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -147,13 +94,13 @@ export const updateQuestionUrl = async (updatedQuestion: QuestionType) => {
 };
 
 export const deleteQuestionUrl = async (questionId: string) => {
-  return FetchAuth.fetch(`${API_URL}/questions/${questionId}`, {
+  return fetch(`${QUESTIONS_API_URL}/questions/${questionId}`, {
     method: "DELETE",
   }).then((res) => res.json());
 };
 
 export const deleteProfileUrl = async () => {
-  return FetchAuth.fetch(`${API_URL}/users/profile`, {
+  return FetchAuth.fetch(`${USERS_API_URL}/users/profile`, {
     method: "DELETE",
   }).then((res) => res.json());
 };
@@ -167,7 +114,7 @@ interface ProfileResponse {
 }
 
 export async function fetchProfileUrl(): Promise<ProfileResponse> {
-  return FetchAuth.fetch(`${API_URL}/users/profile`, { method: "GET" }).then(
+  return FetchAuth.fetch(`${USERS_API_URL}/users/profile`, { method: "GET" }).then(
     (res) => res.json(),
   );
 }
@@ -181,17 +128,8 @@ export async function updateProfileUrl(
   if (name) body.set("name", name);
   if (preferredLang) body.set("preferredLang", preferredLang);
   if (profileImage) body.set("image", profileImage);
-  return FetchAuth.fetch(`${API_URL}/users/profile`, {
+  return FetchAuth.fetch(`${USERS_API_URL}/users/profile`, {
     method: "POST",
     body,
   }).then((res) => res.json());
 }
-const executorURL = "/api/v1/execute";
-export const executeCode = async (code: string, lang: string) => {
-  const res = await fetch(`${executorURL}/${lang}`, {
-    method: "POST",
-    body: code,
-  });
-  const data = res.text();
-  return data;
-};
