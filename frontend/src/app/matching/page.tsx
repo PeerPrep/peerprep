@@ -1,23 +1,23 @@
 "use client";
 
-import Button from "@/app/components/button/Button";
-import { Space } from "antd";
+import CodeMirrorEditor from "@/app/components/code-editor/CodeEditor";
+import MarkdownQuestionPane from "@/app/components/markdown-question-pane/MarkDownQuestionPane";
+import StatusBar from "@/app/components/status-bar/StatusBar";
 import { getAuth } from "firebase/auth";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 import { FetchAuth } from "../api";
 import QuestionModal from "../components/modal/QuestionModal";
 type UserDetails = { displayName: string; authToken: string };
 const userDetailsAtom = atom<UserDetails | null>(null);
 
-import { useState } from "react";
-import QueueButton from "../components/button/QueueButton";
-import Loading from "../loading";
-import { useQuery } from "@tanstack/react-query";
-import { QuestionType } from "../admin/question/page";
+import MatchingPage from "../components/matching/MatchingPage";
+
+const difficultyAtom = atom<"EASY" | "MEDIUM" | "HARD" | null>(null);
 
 const roomPage = () => {
   const [userDetails, setUserDetails] = useAtom(userDetailsAtom);
+  const [difficulty, setDifficulty] = useAtom(difficultyAtom);
   useEffect(() => {
     FetchAuth.getFirebaseToken().then((authToken) => {
       const displayName = getAuth().currentUser?.displayName ?? "Anonymous";
@@ -33,15 +33,24 @@ const roomPage = () => {
     );
   }
 
+  if (!difficulty) {
+    return <MatchingPage onConfirm={setDifficulty} />;
+  }
+
   return (
-    <section className="flex flex-row items-center justify-center gap-4 p-6 lg:flex-row">
-      <h1 className="text-4xl font-bold">
-        Welcome, {userDetails.displayName}!
-      </h1>
-      <Space>
-        <QuestionModal />
-      </Space>
-    </section>
+    <>
+      <QuestionModal
+        difficulty={difficulty}
+        returnToDifficultySelection={() => setDifficulty(null)}
+      />
+      <div className="flex h-full flex-col justify-between">
+        <section className="flex flex-col justify-center gap-4 pb-14 pt-4 lg:flex-row lg:pb-0">
+          <MarkdownQuestionPane />
+          <CodeMirrorEditor />
+        </section>
+        <StatusBar exitMethod={() => setDifficulty(null)} />
+      </div>
+    </>
   );
 };
 

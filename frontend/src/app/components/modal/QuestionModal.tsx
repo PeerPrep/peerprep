@@ -1,7 +1,8 @@
 "use client";
 import { QuestionType } from "@/app/admin/question/page";
 import { fetchAllQuestionsUrl } from "@/app/api";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { questionIdAtom } from "@/libs/room-jotai";
+import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import Select, { SingleValue } from "react-select";
@@ -12,18 +13,18 @@ interface SelectedOptionType {
   value: number;
 }
 
-const questionIdAtom = atom<string>("");
-const isQuestionModalOpenAtom = atom<boolean>(false);
-const questionDifficultyAtom = atom<"EASY" | "MEDIUM" | "HARD" | null>(null);
-
-const QuestionModal = () => {
+const QuestionModal = ({
+  difficulty,
+  returnToDifficultySelection,
+}: {
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  returnToDifficultySelection: () => void;
+}) => {
   const [questionId, setQuestionId] = useAtom(questionIdAtom);
-  const [isOpen, setIsOpen] = useAtom(isQuestionModalOpenAtom);
+  const [isOpen, setIsOpen] = useState<boolean>(difficulty != null);
 
   const [questions, setQuestions] = useState<QuestionType[]>([]);
-  const questionDifficulty = useAtomValue(
-    questionDifficultyAtom,
-  )?.toLowerCase();
+  const questionDifficulty = difficulty.toLowerCase();
 
   useEffect(() => {
     fetchAllQuestionsUrl().then((res) => {
@@ -68,7 +69,9 @@ const QuestionModal = () => {
 
   const onClickStart = () => {
     setIsOpen(false);
-    setQuestionId(questions.find((qn) => qn.title === selectedQn?.label)?._id);
+    setQuestionId(
+      questions.find((qn) => qn.title === selectedQn?.label)?._id ?? "",
+    );
   };
 
   const getContent = () => {
@@ -93,7 +96,13 @@ const QuestionModal = () => {
               Select a Question
               <AiFillCloseCircle
                 className="text-3xl text-error hover:cursor-pointer hover:text-red-500"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  if (questionId === "") {
+                    returnToDifficultySelection();
+                  } else {
+                    setIsOpen(false);
+                  }
+                }}
               />
             </div>
           </h1>
