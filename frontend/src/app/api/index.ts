@@ -60,8 +60,11 @@ export const fetchAllQuestionsDoneByUser = async () => {
     },
   );
 
+  if (!payload || payload.length === 0) {
+    return [];
+  }
+
   const questionIds = payload.map((ele: any) => ele.questionId).join("-");
-  // console.log({ res });
   const questions = await FetchAuth.fetch(
     `${QUESTIONS_API_URL}/group/${questionIds}`,
   ).then((res) => res.json());
