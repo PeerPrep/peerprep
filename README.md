@@ -9,7 +9,8 @@ A set of email/password with admin privileges will be uploaded to Canvas through
 # Testing Locally
 
 Clone the repository to your local machine: `git clone git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git`
-Update the submodules: `git submodule update --init`
+
+Then in the project root folder, update the submodules: `git submodule update --init`
 
 ## Third-party installations
 
