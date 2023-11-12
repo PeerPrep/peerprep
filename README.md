@@ -1,11 +1,6 @@
-# Assignment 3
+# Assignment 4
 
-Key skills:
-
-- Authentication state management with JWT/session tokens
-- Using OAuth or such 3rd party authorization protocol/services.
-
-In this assignment we have utilised Firebase's authentication-as-a-service and integrated with GitHub and Google OAuth protocols. Our users will have a seamless, permissioned access with session management.
+Clone the repository to your local machine: git clone -b assignment-4 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git
 
 ## Third-party installations
 
@@ -62,6 +57,8 @@ Once you have navigated to the frontend (likely at [`http://localhost:3000/`](ht
 Note that the admin portal is not accessible until you grant yourself admin privileges. You may carry out the steps here to grant yourself admin access.
 
 :warning: Note that this step must be done only after all the services are up and you have successfully logged into the frontend using Google or Github.
+
+Run the following commands in the terminal one after another:
 
 ```sql
 docker exec -it peerprep-postgres bash
