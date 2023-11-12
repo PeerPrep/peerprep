@@ -1,5 +1,7 @@
 # Assignment 2
 
+Clone the repository to your local machine: git clone -b assignment-2 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git
+
 ## Third-party installations
 
 - [Node.js](https://nodejs.org) v18.17.1 and an appropriate package manager (we recommend [yarn](yarnpkg.com))
