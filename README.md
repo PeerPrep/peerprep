@@ -13,8 +13,6 @@ Note that usually these values are kept secret, but since all of these keys have
 
 If you face any issues / if you have non-standard installations or config for any service, please modify these files appropriately.
 
-Note that usually these values are kept secret, but since this is a test environment, we are not concerned about security.
-
 - In the root folder, run `docker compose -f docker-compose.yml up -d`.
 
 - Application should be running at [http://localhost](http://localhost).
@@ -34,3 +32,9 @@ UPDATE profiles SET role='admin';
 ```
 
 This will give every user admin privileges. Note that this is only for testing purposes.
+
+### Before you start testing matching
+
+The questions repository will be empty when you first start the application. You will need to populate it with questions before you can start matching.
+
+To do so, you can grant yourself admin priveleges as described above, and then go to the admin portal at [http://localhost/admin/question](http://localhost/admin/question). You can then add questions to the database.
