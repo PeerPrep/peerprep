@@ -7,11 +7,15 @@ Key skills:
 
 In this assignment we have utilised Firebase's authentication-as-a-service and integrated with GitHub and Google OAuth protocols. Our users will have a seamless, permissioned access with session management.
 
+Clone the repository to your local machine: `git clone -b assignment-2 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git`
+
 ## Third-party installations
 
 - [Node.js](https://nodejs.org) v18.17.1 and an appropriate package manager (we recommend [yarn](yarnpkg.com))
 - [Postgres](https://www.postgresql.org/download/) v14.9
 - [MongoDB](https://www.mongodb.com/docs/manual/administration/install-community/) v7.0
+
+We also recommend [Postman](https://www.postman.com/) for easy access to the backend, but you may use any means you wish to test the backend. Be sure to extract the firebase token from your `auth` headers in the frontend before attempting this. This can be done by looking at the `firebase-token` header in the network tab of your browser's developer tools. You may then use this token in Postman to check if a normal user can access the admin routes in the backend.
 
 ## Database instructions
 
@@ -43,8 +47,6 @@ If you face any issues / if you have non-standard installations or config for an
 
 ## Running
 
-Clone the repository to your local machine: git clone -b assignment-3 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git
-
 In each of the `users`, `questions` and `frontend`, start the project with any node package manager like so:
 
 ```sh
@@ -62,7 +64,7 @@ Note that the admin portal is not accessible until you grant yourself admin priv
 
 ```sql
 -- Get your UID and promote yourself to an admin
-SELECT * from profiles ;
+SELECT * from profiles;
 UPDATE profiles SET role='admin' WHERE uid='YOUR_UID';
 
 -- Or promote all users to admins:
