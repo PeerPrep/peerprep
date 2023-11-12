@@ -7,7 +7,7 @@ Key skills:
 
 In this assignment we have utilised Firebase's authentication-as-a-service and integrated with GitHub and Google OAuth protocols. Our users will have a seamless, permissioned access with session management.
 
-Clone the repository to your local machine: `git clone -b assignment-2 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git`
+Clone the repository to your local machine: `git clone -b assignment-3 git@github.com:CS3219-AY2324S1/ay2324s1-course-assessment-g21.git`
 
 ## Third-party installations
 
