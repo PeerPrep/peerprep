@@ -14,7 +14,7 @@ const validatePasswordHeader = () => {
       return;
     }
 
-    const receivedPassword = req.headers["password_header"];
+    const receivedPassword = req.headers["password-header"];
 
     if (receivedPassword != password) {
       console.dir(req.headers);
