@@ -21,6 +21,7 @@ const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
+  const [isQuestionTabShown, setIsQuestionTabShown] = useState<boolean>(false);
 
   const onClickLogout = async () => {
     const auth = await getAuth();
@@ -36,6 +37,7 @@ const Navbar = () => {
       .then(() => {
         checkProfileUrl().then((res) => {
           if (res.payload.profileExists) {
+            setIsQuestionTabShown(true);
             fetchProfileUrl().then((res) => {
               setProfileImageUrl(res.payload.imageUrl);
               setName(res.payload.name || "");
@@ -68,14 +70,14 @@ const Navbar = () => {
             </Link>
             PeerPrep
           </div>
-          {user && (
+          {user && isQuestionTabShown && (
             <>
               <NavbarPane link="/question" label="Question" />
             </>
           )}
         </nav>
         {user ? (
-          <div className="dropdown-hover dropdown">
+          <div className="dropdown dropdown-hover">
             <label tabIndex={0}>
               <div className="btn-secondary flex items-center gap-1 rounded-md p-1">
                 <RiArrowDropDownLine className="text-4xl" />

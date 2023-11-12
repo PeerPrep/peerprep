@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../libs/firebase-config";
 import { useRouter, usePathname } from "next/navigation";
+import { checkProfileUrl } from "../api";
 
 const useRedirectLogin = () => {
   const router = useRouter();
@@ -15,6 +16,14 @@ const useRedirectLogin = () => {
       }
       if (user && pathName === "/login") {
         router.push("/settings");
+      }
+
+      if (user && pathName === "/questions") {
+        checkProfileUrl().then((res) => {
+          if (res.payload.profileExists) {
+            router.push("/settings");
+          }
+        });
       }
     });
 
