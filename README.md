@@ -5,25 +5,7 @@ Clone the repository to your local machine: `git clone -b assignment-4 git@githu
 ## Third-party installations
 
 - [Node.js](https://nodejs.org) v18.17.1 and an appropriate package manager (we recommend [yarn](yarnpkg.com))
-- [Postgres](https://www.postgresql.org/download/) v14.9
-- [MongoDB](https://www.mongodb.com/docs/manual/administration/install-community/) v7.0
-
-## Database instructions
-
-In this assignment we use both Postgres and MongoDB. Be sure to start both database services so that they are running. The `.env` examples above have been written with the default port.
-
-### Postgres database and user creation
-
-Note that while MongoDB is more flexible, Postgres needs an explicit creation command for the database and the users involved before being able to access them. Once installed, use `psql` or a similar interface to access and do the following:
-
-```sql
-CREATE database peerprep;
-CREATE USER peerprep WITH ENCRYPTED PASSWORD 'password';
-GRANT ALL PRIVILEGES ON DATABASE peerprep TO peerprep;
-ALTER USER peerprep WITH SUPERUSER;
-```
-
-This gives rise to the `POSTGRES_URL=postgres://USERNAME:PASSWORD@localhost/peerprep` variable used in the user service `.env`. Replace `USERNAME` and `PASSWORD` with the appropriate values.
+- [Docker](https://docs.docker.com/get-docker/)
 
 ## Environment Variables
 
