@@ -21,7 +21,15 @@ We also recommend [Postman](https://www.postman.com/) for easy access to the bac
 
 In this assignment we use both Postgres and MongoDB. Be sure to start both database services so that they are running. The `.env` examples above have been written with the default port.
 
+### MongoDB database
+
+The MongoDB collections is created automatically when the application is run.
+
+:warning: Please ensure that your local MongoDB does not have a collection named `questions` before running the application.
+
 ### Postgres database and user creation
+
+:warning: Please ensure that your local Postgres does not have a database named `peerprep` before running the application.
 
 Note that while MongoDB is more flexible, Postgres needs an explicit creation command for the database and the users involved before being able to access them. Once installed, use `psql` or a similar interface to access and do the following:
 
