@@ -21,7 +21,7 @@ def make_api_request(request_data):
     url = f"{BASE_URL}/api/serverless/questions"
     try:
         print (request_data)
-        response = requests.post(url, json=request_data, headers={"PASSWORD_HEADER": PASSWORD_HEADER})
+        response = requests.post(url, json=request_data, headers={"password-header": PASSWORD_HEADER})
         response.raise_for_status()  # Raise an exception for HTTP errors (4xx and 5xx)
         
         print(f"API response status: {response.status_code}")
