@@ -62,6 +62,11 @@ Note that the admin portal is not accessible until you grant yourself admin priv
 
 :warning: Note that this step must be done only after all the services are up and you have successfully logged into the frontend using Google or Github.
 
+```sh
+# Password is the one you set in the CREATE USER command above
+psql -U peerprep
+```
+
 ```sql
 -- Get your UID and promote yourself to an admin
 SELECT * from profiles;
