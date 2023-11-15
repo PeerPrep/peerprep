@@ -4,7 +4,7 @@
 
 We recommend using our production environment for testing. You can find the production environment at [https://peerprep.sivarn.com](https://peerprep.sivarn.com).
 
-A set of email/password with admin privileges will be uploaded to Canvas through Sharing Assignment Private Info assignment.
+A set of email/password with admin privileges will be uploaded to Canvas through Sharing Assignment Private Info assignment cred.md file.
 
 # Testing Locally
 
