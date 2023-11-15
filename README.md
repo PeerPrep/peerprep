@@ -26,7 +26,7 @@ Note that usually these values are kept secret, but since all of these keys have
 
 If you face any issues / if you have non-standard installations or config for any service, please modify these files appropriately.
 
-- In the root folder, run `docker compose -f docker-compose.yml up -d`.
+- In the root folder, run `docker compose -f docker-compose.yml up -d`. If you run into any errors with starting up the executor service, be sure to update the git submodules as described above.
 
 - Application should be running at [http://localhost](http://localhost).
 
