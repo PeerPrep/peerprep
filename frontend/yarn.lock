@@ -1265,10 +1265,10 @@
     "@types/connect" "*"
     "@types/node" "*"
 
-"@types/codemirror@^5.60.10":
-  version "5.60.10"
-  resolved "https://registry.yarnpkg.com/@types/codemirror/-/codemirror-5.60.10.tgz#ac836a3ac20483988a0507cdbbaeb6ee0affa1e6"
-  integrity sha512-ZTA3teiCWKT8HUUofqlGPlShu5ojdIajizsS0HpH6GL0/iEdjRt7fXbCLHHqKYP5k7dC/HnnWIjZAiELUwBdjQ==
+"@types/codemirror@^5.60.15":
+  version "5.60.15"
+  resolved "https://registry.yarnpkg.com/@types/codemirror/-/codemirror-5.60.15.tgz#0f82be6f4126d1e59cf4c4830e56dcd49d3c3e8a"
+  integrity sha512-dTOvwEQ+ouKJ/rE9LT1Ue2hmP6H1mZv5+CCnNWu2qtiOe2LQa9lCprEY20HxiDmV/Bxh+dXjywmy5aKvoGjULA==
   dependencies:
     "@types/tern" "*"
 
