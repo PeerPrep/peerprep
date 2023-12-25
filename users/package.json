@@ -5,7 +5,7 @@
     "start": "node build/index.js"
   },
   "dependencies": {
-    "@mikro-orm/core": "^5.8.4",
+    "@mikro-orm/core": "^5.9.6",
     "@mikro-orm/postgresql": "^5.8.4",
     "@types/node": "^20.7.1",
     "cors": "^2.8.5",
